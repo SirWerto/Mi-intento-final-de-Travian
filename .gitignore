@@ -20,5 +20,5 @@ erl_crash.dump
 *.ez
 
 # Ignore emacs backup files too
-~*
+*~
 
