@@ -6,14 +6,19 @@ defmodule Collector.Application do
   use Application
 
   def start(_type, _args) do
+    plubio = %{
+      :id => "plubio",
+      :start => {Collector.Plubio, :start_link, []},
+      :restart => :permanent,
+      :shutdown => 5_000,
+      :type => :worker
+    }
     children = [
-      # Starts a worker by calling: Collector.Worker.start_link(arg)
-      # {Collector.Worker, arg}
+      {Finch, name: TFinch},
+      plubio
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Collector.Supervisor]
+    opts = [strategy: :rest_for_one, name: Collector.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
