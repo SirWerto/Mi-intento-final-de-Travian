@@ -30,6 +30,7 @@ defmodule Collector.MixProject do
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
       {:finch, "~> 0.8"},
       {:floki, "~> 0.31.0"},
+      {:jason, "~> 1.2"},
       {:t_db, in_umbrella: true}
     ]
   end
