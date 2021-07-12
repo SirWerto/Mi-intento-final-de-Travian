@@ -11,8 +11,23 @@ defmodule Collector.ScrapUrls do
 
   @headers [{"User-Agent", "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0"}]
 
+
+
+
+  def get_current_urls() do
+    case get_travibot_pages() do
+      {:ok, pages} ->
+	urls = Enum.map(pages, &get_urls/1)
+	|> Enum.filter(fn {:ok, _urls} -> true
+	  {:error, _reason} -> false end)
+	|> Enum.reduce([], fn {:ok, urls}, acc -> urls ++ acc end)
+	{:ok, urls}
+      {:error, reason} -> {:error, {:cant_get_pages, reason}}
+    end
+  end
+
   @spec get_urls(page :: pos_integer()) :: {:ok, [url()]} | {:error, any()}
-  def get_urls(page) do
+  defp get_urls(page) do
     case Finch.build(:get, @travibotpage <> Integer.to_string(page), @headers) |> Finch.request(TFinch) do
       {:ok, response} ->
 	case response.status do
@@ -44,7 +59,7 @@ defmodule Collector.ScrapUrls do
   end
 
   @spec pick_url_date(row :: String.t()) :: {String.t(), String.t()} | {String.t(), :not_spawned} | {:error, :not_matched}
-  def pick_url_date(row) do
+  defp pick_url_date(row) do
     case String.split(row, "</td>", trim: true) do
       [_index, dirty_url, _dirty_date, _account] ->
 	[_, dirty_url2] = String.split(dirty_url, ~s(<a href=\"))
@@ -67,22 +82,23 @@ defmodule Collector.ScrapUrls do
   end
 
 
+  @spec to_init_date({url :: url(), days_ago :: pos_integer()}) :: {url(), Date.t()}
   defp to_init_date({url, days_ago}) do
     init = DateTime.utc_now()
-    |> DateTime.add(String.to_integer(days_ago)*24*3600)
+    |> DateTime.add(-1*String.to_integer(days_ago)*24*3600)
     {url, init}
   end
 
 
 
   @spec get_travibot_pages() :: {:ok, [pos_integer()]} | {:error, any()}
-  def get_travibot_pages() do
+  defp get_travibot_pages() do
     case Finch.build(:get, @travibot, @headers) |> Finch.request(TFinch) do
       {:ok, response} ->
 	case response.status do
 	  200 ->
 	    max_page = get_last_page(response.body)
-	    Enum.to_list 1..max_page
+	    {:ok, Enum.to_list 1..max_page}
 	  bad_status ->
 	    {:error, {:bad_status, bad_status}}
 	end
@@ -97,9 +113,5 @@ defmodule Collector.ScrapUrls do
     [_, max_page] = String.split(part1, ~s(">next</a></li> <li><a href="?page=))
     String.to_integer(max_page)
   end
-
-
-
-
 
 end
