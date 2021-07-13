@@ -1,4 +1,5 @@
 defmodule Collector.ScrapServerInfo do
+  require Logger
 
 
   @login "/login.php"
@@ -12,11 +13,22 @@ defmodule Collector.ScrapServerInfo do
       {:ok, response} ->
 	case response.status do
 	  200 ->
-	    handle_server_html(response.body)
+	    try do
+	      info = handle_server_html(response.body)
+	      Logger.debug("Succsefully parsed aditonal info " <> url)
+	      {:ok, info}
+	    rescue
+	      e in RuntimeError ->
+		Logger.critical("Fails while parsing aditional server info " <> url <> " with error " <> e.message)
+		{:error, {:parsing_error, e}}
+	    end
+
 	  bad_status ->
+	    Logger.warn("Bad status response " <> url <> " status-> " <> Integer.to_string(bad_status))
 	    {:error, {:bad_status, bad_status}}
 	end
       {:error, reason} ->
+	Logger.error("Error " <> url <> " reason-> " <> IO.inspect(reason))
 	{:error, reason}
     end
   end
