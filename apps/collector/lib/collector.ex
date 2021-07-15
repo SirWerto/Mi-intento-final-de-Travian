@@ -3,6 +3,10 @@ defmodule Collector do
   Documentation for `Collector`.
   """
 
+  @typedoc """
+  Url with http/https included
+  """
+  @type url :: String.t()
 
   @doc """
   Force start the whole collecting precess

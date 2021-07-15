@@ -7,7 +7,7 @@ defmodule Collector.ScrapServerInfo do
 
 
 
-  #@spec get_aditional_info(Collector.url()) :: {:ok, map()} | {:error, any()}
+  @spec get_aditional_info(Collector.url()) :: {:ok, map()} | {:error, any()}
   def get_aditional_info(url) do
     case Finch.build(:get, url <> @login, @headers) |> Finch.request(TFinch) do
       {:ok, response} ->

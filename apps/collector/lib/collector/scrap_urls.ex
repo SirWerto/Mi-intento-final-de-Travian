@@ -1,9 +1,5 @@
 defmodule Collector.ScrapUrls do
 
-  @typedoc """
-  Url with http/https included
-  """
-  @type url :: String.t()
 
 
   @travibot "https://servers.travibot.com"
@@ -14,6 +10,7 @@ defmodule Collector.ScrapUrls do
 
 
 
+  @spec get_current_urls() :: {:ok, [Collector.url()]} | {:error, any()}
   def get_current_urls() do
     case get_travibot_pages() do
       {:ok, pages} ->
@@ -26,7 +23,7 @@ defmodule Collector.ScrapUrls do
     end
   end
 
-  @spec get_urls(page :: pos_integer()) :: {:ok, [url()]} | {:error, any()}
+  @spec get_urls(page :: pos_integer()) :: {:ok, [Collector.url()]} | {:error, any()}
   defp get_urls(page) do
     case Finch.build(:get, @travibotpage <> Integer.to_string(page), @headers) |> Finch.request(TFinch) do
       {:ok, response} ->
@@ -42,7 +39,7 @@ defmodule Collector.ScrapUrls do
   end
 
 
-  @spec handle_html(body :: String.t()) :: {:ok, [url()]} | {:error, any()}
+  @spec handle_html(body :: String.t()) :: {:ok, [Collector.url()]} | {:error, any()}
   defp handle_html(html_body) do
     case Floki.parse_document(html_body) do # verify that is a good html, checking for table for example
       {:ok, html_tree} ->
@@ -82,7 +79,7 @@ defmodule Collector.ScrapUrls do
   end
 
 
-  @spec to_init_date({url :: url(), days_ago :: pos_integer()}) :: {url(), Date.t()}
+  @spec to_init_date({url :: Collector.url(), days_ago :: String.t()}) :: {Collector.url(), Datetime.t()}
   defp to_init_date({url, days_ago}) do
     init = DateTime.utc_now()
     |> DateTime.add(-1*String.to_integer(days_ago)*24*3600)
