@@ -10,7 +10,7 @@ defmodule Collector.ScrapUrls do
 
 
 
-  @spec get_current_urls() :: {:ok, [Collector.url()]} | {:error, any()}
+  @spec get_current_urls() :: {:ok, [{Collector.url(), DateTime.t()}]} | {:error, any()}
   def get_current_urls() do
     case get_travibot_pages() do
       {:ok, pages} ->
