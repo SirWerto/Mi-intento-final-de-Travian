@@ -3,6 +3,14 @@ defmodule CollectorTest do
   doctest Collector
 
 
+  test "ensure tasksup is launched" do
+    assert 1 == Supervisor.which_children(Collector.Supervisor)
+    |>Enum.filter(fn {"tasksup", _, :supervisor, [_]} -> true
+    _ -> false end)
+    |> length()
+  end
+
+
   test "get current Collector state" do
     case Collector.state? do
       {:ok, :waiting} -> true
