@@ -8,12 +8,13 @@ defmodule Collector.ScrapMap do
 
 
 
+  @spec get_map(url :: Collector.url()) :: {:ok, [map()]} | {:error, any()}
   def get_map(url) do
     case Finch.build(:get, url <> @map, @headers) |> Finch.request(TFinch) do
       {:ok, response} ->
 	case response.status do
 	  200 ->
-	    handle_map_sql(response.body)
+	    {:ok, handle_map_sql(response.body)}
 	  bad_status ->
 	    Logger.warn("Bad status response " <> url <> " status-> " <> Integer.to_string(bad_status))
 	    {:error, {:bad_status, bad_status}}
@@ -46,7 +47,7 @@ defmodule Collector.ScrapMap do
     csv_data
     rescue
       e in RuntimeError ->
-	Logger.critical("Fails while parsing sql_stament " <> sql_stament <> " with error " <> e.message)
+	Logger.error("Fails while parsing sql_stament " <> sql_stament <> " with error " <> e.message)
 	:error
     end
   end

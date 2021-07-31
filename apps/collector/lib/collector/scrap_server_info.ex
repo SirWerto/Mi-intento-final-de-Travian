@@ -19,7 +19,7 @@ defmodule Collector.ScrapServerInfo do
 	      {:ok, info}
 	    rescue
 	      e in RuntimeError ->
-		Logger.critical("Fails while parsing aditional server info " <> url <> " with error " <> e.message)
+		Logger.error("Fails while parsing aditional server info " <> url <> " with error " <> e.message)
 		{:error, {:parsing_error, e}}
 	    end
 
@@ -37,19 +37,24 @@ defmodule Collector.ScrapServerInfo do
   @spec handle_server_html(body :: String.t()) :: map()
   defp handle_server_html(html_body) do
     get_game_options(html_body)
-    |> Map.put("version", get_version(html_body))
-    |> Map.put("speed", get_speed(html_body))
-    |> Map.put("appId", get_app_id(html_body))
-    |> Map.put("worldId", get_world_id(html_body))
-    |> Map.put("country", get_country(html_body))
-    |> Map.merge(get_map_dims(html_body)["Map"]["Size"])
+    |> Map.put(:version, get_version(html_body))
+    |> Map.put(:speed, get_speed(html_body))
+    |> Map.put(:appId, get_app_id(html_body))
+    |> Map.put(:worldId, get_world_id(html_body))
+    |> Map.put(:country, get_country(html_body))
+    |> Map.merge(get_map_dims(html_body))
   end
 
   @spec get_version(html_body :: String.t()) :: String.t()
   defp get_version(html_body) do
-    [_, part1] = String.split(html_body, "Travian.Game.version = ")
-    [part2 | _] = String.split(part1, ";", parts: 2)
-    String.replace(part2, "'", "")
+    case String.contains?(html_body, "Travian.Game.version = ") do
+      true ->
+	[_, part1] = String.split(html_body, "Travian.Game.version = ")
+	[part2 | _] = String.split(part1, ";", parts: 2)
+	String.replace(part2, "'", "")
+      false ->
+	:nil
+    end
   end
 
   @spec get_country(html_body :: String.t()) :: String.t()
@@ -61,9 +66,14 @@ defmodule Collector.ScrapServerInfo do
 
   @spec get_app_id(html_body :: String.t()) :: String.t()
   defp get_app_id(html_body) do
-    [_, part1] = String.split(html_body, "Travian.applicationId = ")
-    [part2 | _] = String.split(part1, ";", parts: 2)
-    String.replace(part2, "'", "")
+    case String.contains?(html_body, "Travian.applicationId = ") do
+      true ->
+	[_, part1] = String.split(html_body, "Travian.applicationId = ")
+	[part2 | _] = String.split(part1, ";", parts: 2)
+	String.replace(part2, "'", "")
+      false ->
+	:nil
+    end
   end
 
   @spec get_world_id(html_body :: String.t()) :: String.t()
@@ -85,13 +95,13 @@ defmodule Collector.ScrapServerInfo do
   defp get_game_options(html_body) do
     [_, part1] = String.split(html_body, "var T4_feature_flags = ")
     [json | _] = String.split(part1, ";", trim: true)
-    Jason.decode!(json)
+    Jason.decode!(json, keys: :atoms)
   end
 
   @spec get_map_dims(html_body :: String.t()) :: map()
   defp get_map_dims(html_body) do
     [_, part1] = String.split(html_body, "window.TravianDefaults = Object.assign(\n")
     [json , _] = String.split(part1, ",\n", parts: 2)
-    Jason.decode!(json)
+    Jason.decode!(json, keys: :atoms )[:Map][:Size]
   end
 end

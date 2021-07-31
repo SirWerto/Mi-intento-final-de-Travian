@@ -7,8 +7,7 @@ defmodule TDB.Application do
 
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: TDB.Worker.start_link(arg)
-      # {TDB.Worker, arg}
+      TDB.Repo
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

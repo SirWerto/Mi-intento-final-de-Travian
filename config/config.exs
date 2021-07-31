@@ -9,6 +9,13 @@
 # move said applications out of the umbrella.
 import Config
 
+config :t_db, TDB.Repo,
+  database: "travian",
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost"
+
+config :t_db, ecto_repos: [TDB.Repo]
 # Sample configuration:
 #
 #     config :logger, :console,
