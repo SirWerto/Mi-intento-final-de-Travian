@@ -2,13 +2,14 @@ defmodule Collector.Plubio do
   @behaviour :gen_statem
   require Logger
 
-  defstruct tsup: :nil, url_status: %{}, task_status: %{}, subscriptors: %{}
+  defstruct tsup: :nil, url_status: %{}, task_status: %{}, subscriptors: %{}, ctime: :nil
 
   @type t :: %__MODULE__{
     tsup: pid() | :nil, 
     url_status: %{Collector.url() => Collector.url_status()},
     task_status: %{pid() => {reference(), Collector.url()}},
-    subscriptors: %{pid() => reference()}
+    subscriptors: %{pid() => reference()},
+    ctime: Time.t() | :nil
   }
 
   @tasksupopts [max_restarts: 30, max_seconds: 5, max_children: :infinity]
@@ -20,6 +21,8 @@ defmodule Collector.Plubio do
       :shutdown => 5_000,
       :type => :supervisor
     }
+
+  @milliseconds_in_day 24*60*60*1000
 
 
 
@@ -37,14 +40,31 @@ defmodule Collector.Plubio do
   def init([]) do
     Logger.debug("launching Plubio")
     send(self(), :start_suptask)
-    {:ok, :waiting, %__MODULE__{}}
+    ctime = Application.fetch_env!(:collector, :ctime)
+
+    state = %__MODULE__{}
+    |> Map.put(:ctime, ctime)
+
+    {:ok, :waiting, state}
   end
 
   ### STATES
 
   def waiting(:enter, _OldState, state) do
-    {:next_state, :waiting, state}
+    case Time.diff(state.ctime, Time.utc_now(), :millisecond) do
+      difference when difference >= 0 -> 
+	IO.inspect(difference)
+	{:next_state, :waiting, state, [{:state_timeout, difference, :waiting}]}
+      difference -> 
+	{:next_state, :waiting, state, [{:state_timeout, @milliseconds_in_day + difference, :waiting}]}
+    end
   end
+
+  def waiting(:state_timeout, :waiting, state) do
+    Logger.debug("waiting timeout")
+    {:next_state, :collecting, state}
+  end
+
 
   def waiting(:info , :start_suptask, state) do
     Logger.debug("launching suptask")
@@ -78,6 +98,14 @@ defmodule Collector.Plubio do
 
   def waiting({:call, from}, :force_collecting, state) do
     {:next_state, :collecting, state, {:reply, from, {:ok, :collecting}}}
+  end
+
+  def waiting({:call, from}, :servers_status, state) do
+    {:next_state, :waiting, state, {:reply, from, {:ok, state.url_status}}}
+  end
+
+  def waiting({:call, from}, :current_ctime, state) do
+    {:next_state, :waiting, state, {:reply, from, {:ok, state.ctime}}}
   end
 
 
@@ -116,6 +144,14 @@ defmodule Collector.Plubio do
 
   def collecting({:call, from}, :force_collecting, state) do
     {:next_state, :collecting, state, {:reply, from, {:ok, :collecting}}}
+  end
+
+  def collecting({:call, from}, :servers_status, state) do
+    {:next_state, :collecting, state, {:reply, from, {:ok, state.url_status}}}
+  end
+
+  def collecting({:call, from}, :current_ctime, state) do
+    {:next_state, :collecting, state, {:reply, from, {:ok, state.ctime}}}
   end
 
   def collecting(:cast , {:collected, f_pid, url}, state) do

@@ -59,14 +59,22 @@ defmodule CollectorTest do
     {:ok, :unsubscribed} = Collector.unsubscribe(:bad_pid)
   end
 
-  test "force collecting" do
-    {:ok, :collecting} = Collector.force_collecting()
+  # test "force collecting" do
+  #   {:ok, :collecting} = Collector.force_collecting()
+  # end
+
+  # test "force collecting change state" do
+  #   {:ok, :waiting} = Collector.state?()
+  #   {:ok, :collecting} = Collector.force_collecting()
+  #   {:ok, :collecting} = Collector.state?()
+  # end
+
+  test "get servers status" do
+    {:ok, _servers} = Collector.servers_status()
   end
 
-  test "force collecting change state" do
-    {:ok, :waiting} = Collector.state?()
-    {:ok, :collecting} = Collector.force_collecting()
-    {:ok, :collecting} = Collector.state?()
+  test "get current collection time" do
+    {:ok, _ctime} = Collector.get_ctime()
   end
 
 

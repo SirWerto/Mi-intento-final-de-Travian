@@ -92,4 +92,22 @@ defmodule Collector do
     end
   end
 
+  @spec servers_status() :: {:ok, [{url(), url_status()}]} | {:error, :timeout}
+  def servers_status() do
+    try do
+      :gen_statem.call(Collector.Plubio, :servers_status, @timeout)
+    rescue
+      RuntimeError -> {:error, :timeout}
+    end
+  end
+
+  @spec get_ctime() :: {:ok, Time.t()} | {:error, :timeout}
+  def get_ctime() do
+    try do
+      :gen_statem.call(Collector.Plubio, :current_ctime, @timeout)
+    rescue
+      RuntimeError -> {:error, :timeout}
+    end
+  end
+
 end
