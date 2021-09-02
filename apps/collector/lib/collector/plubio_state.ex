@@ -73,7 +73,8 @@ defmodule Collector.PlubioState do
   ### Launch tasks
   @spec spawn_monitor_urltask(state :: __MODULE__.t(), urltask :: {Collector.url, DateTime.t()}) :: {:ok, Collector.url(), pid(), reference()} | {:error, Collector.url(), any()} 
   defp spawn_monitor_urltask(state, urltask = {url, _init_date}) do
-    case Task.Supervisor.start_child(state.tsup, Collector.Worker, :collect, [self(), urltask]) do
+    {tsup, _ref} = state.tsup
+    case Task.Supervisor.start_child(tsup, Collector.Worker, :collect, [self(), urltask]) do
       {:ok, cpid} ->
 	Logger.debug("added to the suppervisor")
 	ref = Process.monitor(cpid)

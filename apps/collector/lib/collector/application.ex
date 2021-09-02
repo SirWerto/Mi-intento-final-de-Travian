@@ -18,7 +18,11 @@ defmodule Collector.Application do
       plubio
     ]
 
-    opts = [strategy: :rest_for_one, name: Collector.Supervisor]
+    opts = [strategy: :rest_for_one,
+	    name: Collector.Supervisor,
+	    max_restarts: 8,
+	    max_seconds: 30
+	   ]
     Supervisor.start_link(children, opts)
   end
 end

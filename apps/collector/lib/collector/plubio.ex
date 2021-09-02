@@ -5,7 +5,7 @@ defmodule Collector.Plubio do
   defstruct tsup: :nil, url_status: %{}, task_status: %{}, subscriptors: %{}, ctime: :nil
 
   @type t :: %__MODULE__{
-    tsup: pid() | :nil, 
+    tsup: {pid(), reference()} | :nil, 
     url_status: %{Collector.url() => Collector.url_status()},
     task_status: %{pid() => {reference(), Collector.url()}},
     subscriptors: %{pid() => reference()},
@@ -17,7 +17,7 @@ defmodule Collector.Plubio do
   @tasksupspecs %{
       :id => "tasksup",
       :start => {Task.Supervisor, :start_link, [@tasksupopts]},
-      :restart => :permanent,
+      :restart => :temporary,
       :shutdown => 5_000,
       :type => :supervisor
     }
@@ -42,8 +42,7 @@ defmodule Collector.Plubio do
     send(self(), :start_suptask)
     ctime = Application.fetch_env!(:collector, :ctime)
 
-    state = %__MODULE__{}
-    |> Map.put(:ctime, ctime)
+    state = %__MODULE__{ctime: ctime}
 
     {:ok, :waiting, state}
   end
@@ -70,9 +69,11 @@ defmodule Collector.Plubio do
     Logger.debug("launching suptask")
     case Supervisor.start_child(Collector.Supervisor, @tasksupspecs) do
       {:ok, tsup} ->
-	new_state = Map.put(state, :tsup, tsup)
+	tsup_ref = Process.monitor(tsup)
+	new_state = Map.put(state, :tsup, {tsup, tsup_ref})
 	{:next_state, :waiting, new_state}
       {:error, reason} ->
+	Logger.error("unable to launch suptask")
      	{:next_state, :waiting, state, {:stop, reason}}
     end
   end
@@ -108,6 +109,19 @@ defmodule Collector.Plubio do
     {:next_state, :waiting, state, {:reply, from, {:ok, state.ctime}}}
   end
 
+
+  def waiting(:info , {:DOWN, tsup_ref, :process, tsup, _reason}, state = %{:tsup => {tsup, tsup_ref}}) do
+    Logger.debug("launching suptask")
+    case Supervisor.start_child(Collector.Supervisor, @tasksupspecs) do
+      {:ok, tsup} ->
+	tsup_ref = Process.monitor(tsup)
+	new_state = Map.put(state, :tsup, {tsup, tsup_ref})
+	{:next_state, :waiting, new_state}
+      {:error, reason} ->
+	Logger.error("unable to launch suptask")
+     	{:next_state, :waiting, state, {:stop, reason}}
+    end
+  end
 
   def waiting(:info , {:DOWN, ref, :process, f_pid, _reason}, state) do
     new_state = Collector.PlubioState.handle_down_subscription(state, f_pid, ref)
@@ -163,6 +177,13 @@ defmodule Collector.Plubio do
 	{:next_state, :waiting, new_state}
       false -> {:next_state, :collecting, new_state}
     end
+  end
+
+
+
+  def collecting(:info , {:DOWN, tsup_ref, :process, tsup, _reason}, state = %{:tsup => {tsup, tsup_ref}}) do
+    Logger.warn("Suptask down while collecting")
+    {:next_state, :collecting, state, {:stop, :suptask_down_while_collecting}}
   end
 
   def collecting(:info , {:DOWN, ref, :process, f_pid, _reason}, state) do
