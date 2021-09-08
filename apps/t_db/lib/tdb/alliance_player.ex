@@ -1,10 +1,10 @@
 defmodule TDB.Alliance_Player do
   use Ecto.Schema
 
+  @primary_key false
   schema "alliances_players" do
-    belongs_to :player, TDB.Player, primary_key: true, references: :player_id
-    belongs_to :alliance, TDB.Alliance, primary_key: true, references: :alliance_id
-
-    timestamps()
+    field :start_date, :date, primary_key: true
+    belongs_to :player, TDB.Player, primary_key: true
+    belongs_to :alliance, TDB.Alliance, primary_key: true
   end
 end

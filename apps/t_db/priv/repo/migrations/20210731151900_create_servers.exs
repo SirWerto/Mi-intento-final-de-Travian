@@ -3,9 +3,9 @@ defmodule TDB.Repo.Migrations.CreateServers do
 
   def change do
     create table(:servers, primary_key: false) do
-      add :server_id, :string, primary_key: true
-      add :url, :string
-      add :init_date, :date
+      add :id, :string, primary_key: true
+      add :url, :string, null: false
+      add :init_date, :date, null: false
 
       add :country , :string, size: 10
       add :worldId , :string

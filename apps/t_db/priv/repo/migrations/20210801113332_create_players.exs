@@ -3,8 +3,8 @@ defmodule TDB.Repo.Migrations.CreatePlayers do
 
   def change do
     create table(:players, primary_key: false) do
-      #add :server_id, references(:servers, name: :server_id, column: :server_id, type: :string), primary_key: true
-      add :player_id, :string, primary_key: true
+      add :id, :string, primary_key: true
+      add :server_id, references(:servers, type: :string), null: false
       add :name, :string
 
       timestamps()

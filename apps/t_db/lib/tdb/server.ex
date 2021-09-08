@@ -2,7 +2,7 @@ defmodule TDB.Server do
   use Ecto.Schema
 
 
-  @primary_key {:server_id, :string, []}
+  @primary_key {:id, :string, []}
 
   schema "servers" do
     field :url, :string
@@ -41,6 +41,10 @@ defmodule TDB.Server do
     field :tribesEgyptiansAndHuns , :boolean
     field :useAdventureSpawnTime , :boolean
     field :vacationMode , :boolean
+
+    has_many :villages, TDB.Village
+    has_many :players, TDB.Player
+    has_many :alliances, TDB.Alliance
 
     timestamps()
   end
