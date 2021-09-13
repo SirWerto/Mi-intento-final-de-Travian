@@ -7,6 +7,7 @@ defmodule TDB.Village do
   @type t :: %__MODULE__{
     id: String.t(),
     server_id: String.t(),
+    game_id: integer(),
     name:  String.t(),
     x: integer(),
     y: integer(),
@@ -21,8 +22,17 @@ defmodule TDB.Village do
     field :y, :integer, null: false
     field :grid, :integer, null: false
     field :name, :string
+    field :game_id, :integer
     
 
     timestamps()
+  end
+
+
+  def changeset(village, params \\ %{}) do
+    village
+    |> Ecto.Changeset.cast(params, [:id, :game_id, :server_id, :x, :y, :grid])
+    |> Ecto.Changeset.validate_required([:id, :game_id, :server_id, :x, :y, :grid])
+    |> Ecto.Changeset.validate_number(:grid, greater_than_or_equal_to: 0) #test
   end
 end

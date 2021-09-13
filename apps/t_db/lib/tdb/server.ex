@@ -48,4 +48,12 @@ defmodule TDB.Server do
 
     timestamps()
   end
+
+
+  def changeset(server, params \\ %{}) do
+    server
+    |> Ecto.Changeset.cast(params, [:url, :init_date, :speed])
+    |> Ecto.Changeset.validate_required([:url, :init_date])
+    |> Ecto.Changeset.validate_number(:speed, greater_than_or_equal_to: 1)
+  end
 end
