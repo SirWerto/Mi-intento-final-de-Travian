@@ -21,7 +21,7 @@ defmodule TDB.Alliance do
     timestamps()
   end
 
-  def changeset(alliance, params \\ %{}) do
+  def validate_from_travian_changeset(alliance, params \\ %{}) do
     alliance
     |> Ecto.Changeset.cast(params, [:id, :game_id, :server_id])
     |> Ecto.Changeset.validate_required([:id, :game_id, :server_id])

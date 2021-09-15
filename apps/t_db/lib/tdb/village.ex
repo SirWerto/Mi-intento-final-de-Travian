@@ -29,7 +29,7 @@ defmodule TDB.Village do
   end
 
 
-  def changeset(village, params \\ %{}) do
+  def validate_from_travian_changeset(village, params \\ %{}) do
     village
     |> Ecto.Changeset.cast(params, [:id, :game_id, :server_id, :x, :y, :grid])
     |> Ecto.Changeset.validate_required([:id, :game_id, :server_id, :x, :y, :grid])

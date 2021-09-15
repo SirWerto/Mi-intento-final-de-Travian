@@ -22,7 +22,7 @@ defmodule TDB.Player do
     timestamps()
   end
 
-  def changeset(player, params \\ %{}) do
+  def validate_from_travian_changeset(player, params \\ %{}) do
     player
     |> Ecto.Changeset.cast(params, [:id, :game_id, :server_id])
     |> Ecto.Changeset.validate_required([:id, :game_id, :server_id])
