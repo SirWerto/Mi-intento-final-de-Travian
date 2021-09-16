@@ -4,8 +4,8 @@ MyTravian is a project which tries to fill the gap between identifying the inact
 
 For achieving this goal, it needs:
 
-    [] A collector to fetch all necesary data
-    [] A database interface for storing the data
+    [x] A collector to fetch all necesary data
+    [x] A database interface for storing the data
     [] A clasifier model for prediction
     [] A beautiful web interface which is going to run in the cloud (suggestions are appreciated)
 

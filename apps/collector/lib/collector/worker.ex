@@ -1,7 +1,7 @@
 defmodule Collector.Worker do
   require Logger
 
-  @delay_max 300_000
+  @delay_max 600_000
   @delay_min 5_000
 
   @spec collect(origin :: pid(), {url :: Collector.url(), init_date :: DateTime.t()}) :: :normal
@@ -15,26 +15,18 @@ defmodule Collector.Worker do
     Logger.debug("Scraped server info " <> url)
     {:ok, server_map} = Collector.ScrapMap.get_map(url)
     Logger.debug("Scraped map " <> url)
+    {server, players, alliances, villages, a_p, p_v} = Collector.PrepareData.process!({url, init_date}, aditional_info, server_map)
+    Collector.Queries.insert_or_update_server!(server)
+    Collector.Queries.insert_or_update_alliances!(alliances) |> TDB.Repo.transaction()
+    Collector.Queries.insert_or_update_players!(players) |> TDB.Repo.transaction()
+    Collector.Queries.insert_or_update_villages!(villages) |> TDB.Repo.transaction()
+    Collector.Queries.insert_or_update_a_p!(a_p) |> TDB.Repo.transaction()
+    Collector.Queries.insert_or_update_p_v!(p_v) |> TDB.Repo.transaction()
+    Logger.debug("Stored in db: " <> url)
     :gen_statem.cast(origin, {:collected, self(), url})
-    server = process!({url, init_date}, aditional_info, server_map)
-    #IO.inspect(server)
-    #:normal
-    server
+    :normal
   end
 
-  @spec process!({url :: Collector.url(), init_date :: DateTime.t()}, aditional_info :: map(), server_map :: [map()]) :: map()
-  defp process!({url, init_date}, aditional_info, server_map) do
-    server = process_server!(url, init_date, aditional_info)
-  end
-
-  @spec process_server!(url :: Collector.url(), init_date :: DateTime.t(), aditional_info :: map()) :: term()
-  defp process_server!(url, init_date, aditional_info) do
-    server_id = url <> Date.to_string(DateTime.to_date(init_date))
-    %TDB.Server{
-      server_id: server_id,
-      url: url,
-      init_date: DateTime.to_date(init_date)} |> Map.merge(aditional_info)
-  end
 
 
 

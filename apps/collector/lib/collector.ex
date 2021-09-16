@@ -52,6 +52,7 @@ defmodule Collector do
   `:collecting_ends | {:collecting_error, reason}`
   """
   @spec subscribe(pid()) :: {:ok, :subscribed} | {:error, any()}
+  def subscribe(spid)
   def subscribe(spid) when is_pid(spid) do
     try do
       :gen_statem.call(Collector.Plubio, {:subscribe, spid}, @timeout)
@@ -60,7 +61,6 @@ defmodule Collector do
     end
   end
 
-  @spec subscribe(any()) :: {:error, :not_valid_pid}
   def subscribe(_bad_pid) do
     {:error, :not_valid_pid}
   end
@@ -69,6 +69,7 @@ defmodule Collector do
   Unsubscribe from the collecting process list
   """
   @spec unsubscribe(pid()) :: {:ok, :unsubscribed} | {:error, :timeout}
+  def unsubscribe(spid)
   def unsubscribe(spid) when is_pid(spid) do
     try do
       :gen_statem.call(Collector.Plubio, {:unsubscribe, spid}, @timeout)
@@ -77,7 +78,6 @@ defmodule Collector do
     end
   end
 
-  @spec unsubscribe(any()) :: {:ok, :unsubscribed}
   def unsubscribe(_bad_pid) do
     {:ok, :unsubscribed}
   end

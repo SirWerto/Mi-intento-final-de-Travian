@@ -79,7 +79,7 @@ defmodule Collector.ScrapUrls do
   end
 
 
-  @spec to_init_date({url :: Collector.url(), days_ago :: String.t()}) :: {Collector.url(), Datetime.t()}
+  @spec to_init_date({url :: Collector.url(), days_ago :: String.t()}) :: {Collector.url(), DateTime.t()}
   defp to_init_date({url, days_ago}) do
     init = DateTime.utc_now()
     |> DateTime.add(-1*String.to_integer(days_ago)*24*3600)

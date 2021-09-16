@@ -1,19 +1,9 @@
 defmodule Collector.Queries do
   require Logger
 
-  @spec insert_server!(server_changeset :: Ecto.Changeset.t()) :: :ok
-  def insert_server!(server_changeset)
-  def insert_server!(server_changeset) when server_changeset.valid? == true do
-    case Ecto.Changeset.constraints(server_changeset) do
-      [] ->
-	TDB.Repo.insert!(server_changeset)
-	:ok
-      _ -> :ok
-    end
-  end
-  def insert_server!(server_changeset) do
-    Logger.notice("Server " <> server_changeset.data <> " invalid")
-    raise "server_changeset not valid"
+  @spec insert_or_update_server!(server_changeset :: Ecto.Changeset.t()) :: :ok
+  def insert_or_update_server!(server_changeset) do
+    TDB.Repo.insert!(server_changeset, on_conflict: :nothing)
   end
 
   @spec insert_or_update_players!(players_changesets :: [Ecto.Changeset.t()]) :: Ecto.Multi.t()
