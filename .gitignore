@@ -25,3 +25,5 @@ erl_crash.dump
 # Ignore emacs backup files too
 *~
 
+# Ignore asdf files
+.tool-versions
