@@ -17,23 +17,40 @@ defmodule MedusaTest do
     assert Medusa.subscribe(self()) == {:ok, :subscribed}
     assert Medusa.subscribers() == [self()]
   end
+  
+  test "subscribe multiple times don't affect Medusa" do
+    assert Medusa.subscribe(self()) == {:ok, :subscribed}
+    assert Medusa.subscribe(self()) == {:ok, :subscribed}
+    assert Medusa.subscribers() == [self()]
+  end
 
   test "subscribe to Medusa.Brain" do
     assert Medusa.Brain.subscribe(self()) == {:ok, :subscribed}
     assert Medusa.Brain.subscribers() == [self()]
   end
 
+  test "unsubscribe to Medusa" do
+    assert Medusa.subscribe(self()) == {:ok, :subscribed}
+    assert Medusa.unsubscribe(self()) == {:ok, :unsubscribed}
+    assert Medusa.subscribers() == []
+  end
+
+  test "unsubscribe to Medusa.Brain" do
+    assert Medusa.Brain.subscribe(self()) == {:ok, :subscribed}
+    assert Medusa.Brain.unsubscribe(self()) == {:ok, :unsubscribed}
+    assert Medusa.Brain.subscribers() == []
+  end
+
+  test "Unsubscribe without being subscribed" do
+    assert Medusa.Brain.unsubscribe(self()) == {:ok, :unsubscribed}
+  end
+
   test "send players to medusa" do
     players_id = ["player1", "player2"]
-    assert Medusa.eval_players(players_id) == :ok
-    evaluated_players = Medusa.evaluated_players()
-    assert has_keys?(evaluated_players, players_id)
+    assert Medusa.send_players(players_id) == :ok
   end
 
 
 ### SetUp
 ### Private Functions
-  defp has_keys?(some_map, keys) do
-    MapSet.subset?(MapSet.new(keys), MapSet.new(Map.keys(some_map)))
-  end
 end

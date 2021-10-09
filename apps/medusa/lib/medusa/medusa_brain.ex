@@ -6,19 +6,13 @@ defmodule Medusa.Brain do
   about model predictions. Probably, It will change from GenServer to GenStage to become a producer
   """
 
-  defstruct subscribers: %{}, collecting: false, collection_datetime: :nil, players: %{}
+  defstruct subscribers: %{}, queue: :queue.new(), demand: 0
 
-  @type inactive :: {:inactive, pos_integer()}
-  @type active :: {:active, float()}
-  @type future_inactive :: {:future_inactive, float()}
-  @type not_evaluated :: :not_yet | :not_enought_days
-  @type condition :: inactive() | active() | future_inactive() | not_evaluated()
 
   @type t :: %__MODULE__{
-    collecting: false | true,
-    collection_datetime: :nil | DateTime.t(),
     subscribers: %{pid() => reference()},
-    players: %{String.t() => condition()}
+    queue: :queue.queue(),
+    demand: non_neg_integer()
   }
 
 ### PUBLIC API
@@ -37,6 +31,15 @@ defmodule Medusa.Brain do
     end
   end
 
+  @spec unsubscribe(spid :: pid()) :: {:ok, :unsubscribed} | {:error, any()}
+  def unsubscribe(spid) do
+    try do
+      GenServer.call(__MODULE__, {:unsubscribe, spid})
+    rescue 
+      e in RuntimeError -> {:error, e}
+    end
+  end
+
   @spec subscribers() :: {:ok | :error, any()}
   def subscribers() do
     try do
@@ -47,18 +50,9 @@ defmodule Medusa.Brain do
   end
 
 
-  @spec new_players_id(players_id :: [String.t()]) :: :ok
-  def new_players_id(players_id) do
-    GenServer.cast(__MODULE__, {:new_players_id, players_id})
-  end
-
-  @spec evaluated_players() :: {:ok, %{String.t() => condition()}} | {:error, any()}
-  def evaluated_players() do
-    try do
-      GenServer.call(__MODULE__, :players)
-    rescue 
-      e in RuntimeError -> {:error, e}
-    end
+  @spec send_players(players_id :: [String.t()]) :: :ok
+  def send_players(players_id) do
+    GenServer.cast(__MODULE__, {:players, players_id})
   end
 
 ### CALLBACKS
@@ -73,11 +67,27 @@ defmodule Medusa.Brain do
   end
 
   @impl true
-  def handle_call({:subscribe, spid}, _from, state)do
-    ref = Process.monitor(spid)
-    new_subscribers = Map.put(state.subscribers, spid, ref)
-    new_state = Map.put(state, :subscribers, new_subscribers)
-    {:reply, {:ok, :subscribed}, new_state}
+  def handle_call({:subscribe, spid}, _from, state) do
+    case Map.has_key?(state.subscribers, spid) do
+      true -> {:reply, {:ok, :subscribed}, state}
+      false ->
+	ref = Process.monitor(spid)
+	new_subscribers = Map.put(state.subscribers, spid, ref)
+	new_state = Map.put(state, :subscribers, new_subscribers)
+	{:reply, {:ok, :subscribed}, new_state}
+    end
+  end
+
+  @impl true
+  def handle_call({:unsubscribe, spid}, _from, state) do
+    case Map.has_key?(state.subscribers, spid) do
+      false -> {:reply, {:ok, :unsubscribed}, state}
+      true -> 
+	Process.demonitor(Map.get(state.subscribers, spid), [:flush])
+	new_subscribers = Map.delete(state.subscribers, spid)
+	new_state = Map.put(state, :subscribers, new_subscribers)
+	{:reply, {:ok, :unsubscribed}, new_state}
+    end
   end
 
 
@@ -87,20 +97,15 @@ defmodule Medusa.Brain do
   end
 
   @impl true
-  def handle_call(:players, _from, state) do
-    {:reply, state.players, state}
-  end
-
-  @impl true
   def handle_call(_msg, _from, state) do
     {:noreply, state}
   end
 
 
   @impl true
-  def handle_cast({:new_players_id, players_id}, state) do
-    new_players = Enum.reduce(players_id, state.players, fn p_id, players -> Map.put_new(players, p_id, :not_yet) end)
-    new_state = Map.put(state, :players, new_players)
+  def handle_cast({:players, players_id}, state) do
+    new_queue = Enum.reduce(players_id, state.queue, fn p_id, queue -> :queue.in(p_id, queue) end)
+    new_state = Map.put(state, :queue, new_queue)
     {:noreply, new_state}
   end
 

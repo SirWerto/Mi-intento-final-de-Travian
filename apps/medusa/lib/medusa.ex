@@ -8,6 +8,11 @@ defmodule Medusa do
     Medusa.Brain.subscribe(spid)
   end
 
+  @spec unsubscribe(spid :: pid()) :: {:ok, :unsubscribed} | {:error, any()}
+  def unsubscribe(spid) do
+    Medusa.Brain.unsubscribe(spid)
+  end
+
 
   @spec subscribers() :: {:ok, [pid()]} | {:error, any()}
   def subscribers() do
@@ -15,14 +20,9 @@ defmodule Medusa do
   end
 
 
-  @spec eval_players(players_id :: [String.t()]) :: :ok
-  def eval_players(players_id) do
-    Medusa.Brain.new_players_id(players_id)
-  end
-
-  @spec evaluated_players() :: {:ok, %{String.t() => Medusa.Brain.condition()}} | {:error, any()}
-  def evaluated_players() do
-    Medusa.Brain.evaluated_players()
+  @spec send_players(players_id :: [String.t()]) :: :ok
+  def send_players(players_id) do
+    Medusa.Brain.send_players(players_id)
   end
 
 end
