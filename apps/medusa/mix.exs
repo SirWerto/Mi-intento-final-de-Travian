@@ -24,9 +24,12 @@ defmodule Medusa.MixProject do
 
   defp deps do
     [
+      {:ecto_sql, "~> 3.0"},
+      {:postgrex, ">= 0.0.0"},
       {:gen_stage, "~> 1.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:t_db, in_umbrella: true}
     ]
   end
 end
