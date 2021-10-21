@@ -3,6 +3,7 @@ defmodule MyTravian.MixProject do
 
   def project do
     [
+      name: "MyTravian project",
       apps_path: "apps",
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
@@ -19,7 +20,8 @@ defmodule MyTravian.MixProject do
   defp deps do
     [
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.24", only: :dev, runtime: false}
     ]
   end
 
