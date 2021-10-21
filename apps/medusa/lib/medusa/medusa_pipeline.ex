@@ -3,7 +3,6 @@ defmodule Medusa.Pipeline do
   @moduledoc false
 
 
-  #@type pipe_output :: %{player: player_id(), date: date(), next_date: pos_integer(), n_village: pos_integer(), n_active_village: pos_integer(), population_total: pos_integer(), population_increase: integer(), n_races: pos_integer()}
 
   @type pipe_output :: any()
 
@@ -39,7 +38,7 @@ defmodule Medusa.Pipeline do
 			date_diff,
 			n_village,
 			n_active_village,
-			population_total,
+			population,
 			population_increase,
 			population_decrease,
 			n_races}) do
@@ -49,7 +48,7 @@ defmodule Medusa.Pipeline do
       next_day: date_diff,
       n_village: n_village,
       n_active_village: n_active_village,
-      population_total: population_total,
+      population: population,
       population_increase: population_increase,
       population_decrease: population_decrease,
       n_races: n_races}

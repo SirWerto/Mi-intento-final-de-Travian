@@ -14,7 +14,6 @@ defmodule Medusa.Types do
 
 
   @type next_day :: date_diff()
-  @type population_total :: pos_integer()
   @type population_increase :: non_neg_integer()
   @type population_decrease :: integer()
   @type n_village :: pos_integer()
@@ -28,7 +27,7 @@ defmodule Medusa.Types do
 			 next_day: next_day(),
 			 n_village: n_village(),
 			 n_active_village: n_active_village(),
-			 population_total: population_total(),
+			 population: population(),
 			 population_increase: population_increase(),
 			 population_decrease: population_decrease(),
 			 n_races: n_races()}
@@ -49,8 +48,22 @@ defmodule Medusa.Types do
   @type step2_input :: {{player_id(), date()}, step2_input_data()}
   ## ## ## Output
   @type step2_output:: {player_id(), date(), date_diff(), n_village(), n_active_village(),
-			       population_total(), population_increase(), population_decrease(), n_races()}
+			       population(), population_increase(), population_decrease(), n_races()}
 
 
 
+  ## Feature Engineer
+  ## ## 5 days model
+  @type fe_5_input :: {base_output(), base_output(), base_output(), base_output(), base_output()}
+  @type fe_5_output :: %{player_id: player_id(),
+			last_day: float(),
+			weekend?: boolean(),
+			pop_increase_day_1: population_increase(),
+			pop_increase_day_2: population_increase(),
+			pop_increase_day_3: population_increase(),
+			pop_increase_day_4: population_increase(),
+			pop_increase_day_5: population_increase(),
+			max_races: pos_integer(),
+			end_population: population(),
+			total_decrease: integer()}
 end

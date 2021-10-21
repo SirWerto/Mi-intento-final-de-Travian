@@ -17,7 +17,7 @@ defmodule Medusa.PipelineSummarizeDay do
     population_total = for {_race, pop, _pop_diff, _date_diff} <- villages, do: pop
     population_total = Enum.sum(population_total)
     population_increase = Enum.sum(active_pops)
-    population_decrease = for {_race, pop, _pop_diff, _date_diff} <- villages, pop < 0, do: pop
+    population_decrease = for {_race, _pop, pop_diff, _date_diff} <- villages, pop_diff < 0, do: pop_diff
     population_decrease = Enum.sum(population_decrease)
     n_village = length(villages)
     n_active_village = length(active_pops)
