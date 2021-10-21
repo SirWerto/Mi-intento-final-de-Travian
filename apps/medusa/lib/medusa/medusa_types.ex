@@ -54,7 +54,7 @@ defmodule Medusa.Types do
 
   ## Feature Engineer
   ## ## 5 days model
-  @type fe_5_input :: {base_output(), base_output(), base_output(), base_output(), base_output()}
+  @type fe_5_input :: {base_output(), base_output(), base_output(), base_output()}
   @type fe_5_output :: %{player_id: player_id(),
 			last_day: float(),
 			weekend?: boolean(),
@@ -62,7 +62,6 @@ defmodule Medusa.Types do
 			pop_increase_day_2: population_increase(),
 			pop_increase_day_3: population_increase(),
 			pop_increase_day_4: population_increase(),
-			pop_increase_day_5: population_increase(),
 			max_races: pos_integer(),
 			end_population: population(),
 			total_decrease: integer()}

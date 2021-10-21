@@ -8,17 +8,6 @@ defmodule FETest do
     
       {
 	%{
-	  date: ~D[2021-10-08],
-	  n_active_village: 0,
-	  n_races: 1,
-	  n_village: 1,
-	  next_day: 1,
-	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
-	  population_decrease: 0,
-	  population_increase: 0,
-	  population: 221
-	},
-	%{
 	  date: ~D[2021-10-09],
 	  n_active_village: 0,
 	  n_races: 1,
@@ -72,7 +61,6 @@ defmodule FETest do
       pop_increase_day_2: 0,
       pop_increase_day_3: 0,
       pop_increase_day_4: 0,
-      pop_increase_day_5: 0,
       max_races: 1,
       end_population: 217,
       total_decrease: -12}

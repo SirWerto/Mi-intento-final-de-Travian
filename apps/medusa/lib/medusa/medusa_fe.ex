@@ -1,11 +1,10 @@
 defmodule Medusa.FE do
-  require Math
 
   @moduledoc """
   Medusa future engineer module for multiple models
   """
 
-  @year_cycle 2*Math.pi/366
+  @year_cycle 2*:math.pi/366
 
   @doc """
   This function does the future engineer step betwen the sample(described below) and 
@@ -14,7 +13,7 @@ defmodule Medusa.FE do
   The sample must be 5 consecutive in days and same player_id maps from the base pipeline.
   """
   @spec model_5_days(Medusa.Types.fe_5_input()) :: Medusa.Types.fe_5_output()
-  def model_5_days(sample = {_, _, _, _, last}) do
+  def model_5_days(sample = {_, _, _, last}) do
     %{
       player_id: last[:player],
       last_day: transform_day(last[:date]),
@@ -23,7 +22,6 @@ defmodule Medusa.FE do
       pop_increase_day_2: Map.fetch!(elem(sample, 1), :population_increase),
       pop_increase_day_3: Map.fetch!(elem(sample, 2), :population_increase),
       pop_increase_day_4: Map.fetch!(elem(sample, 3), :population_increase),
-      pop_increase_day_5: Map.fetch!(elem(sample, 4), :population_increase),
       max_races: max_races(sample),
       end_population: last[:population],
       total_decrease: total_decrease(sample)}
@@ -38,7 +36,7 @@ defmodule Medusa.FE do
   @spec transform_day(day :: Date.t()) :: float()
   defp transform_day(day) do
     y_day = Date.day_of_year(day)
-    Math.sin(y_day * @year_cycle)
+    :math.sin(y_day * @year_cycle)
   end
 
   @spec max_races(Medusa.Types.fe_5_input()) :: Medusa.Types.n_races()
