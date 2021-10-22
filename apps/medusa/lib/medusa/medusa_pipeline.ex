@@ -25,6 +25,31 @@ defmodule Medusa.Pipeline do
 
   end
 
+  @spec pred_model_5_days(Medusa.Types.pred_5_input()) :: Medusa.Types.pred_5_output()
+  def pred_model_5_days(samples) do
+    samples
+    |> Enum.group_by(fn x -> x[:player] end)
+    |> Enum.map(&pred_model_5_groupby/1)
+    |> Enum.filter(fn
+      nil -> false
+      _x -> true end)
+  end
+
+  @spec pred_model_5_groupby({Medusa.Types.player_id(), Medusa.Types.base_output()}) :: Medusa.Types.fe_5_output() | nil
+  defp pred_model_5_groupby({_player_id, values}) when length(values) == 4 do
+    case Enum.all?(values, fn x -> x[:next_day]==1 end) do
+      true ->
+	values
+	|> Enum.sort_by(fn x -> x[:date] end, {:asc, Date})
+	|> List.to_tuple()
+	|> Medusa.FE.model_5_days()
+      false -> nil
+    end
+  end
+  defp pred_model_5_groupby({_player_id, _values}) do
+    nil
+  end
+
   @spec flat_player_village(Medusa.Types.step1_output()) :: [Medusa.Types.flat_step2()]
   defp flat_player_village({{player_id, village_id}, village_log}) do
     village_log

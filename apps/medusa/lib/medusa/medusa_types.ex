@@ -51,6 +51,10 @@ defmodule Medusa.Types do
 			       population(), population_increase(), population_decrease(), n_races()}
 
 
+  ## Model Pipelines
+  ## ## 5 days model
+  @type pred_5_input :: [base_output()]
+  @type pred_5_output :: [fe_5_output()]
 
   ## Feature Engineer
   ## ## 5 days model
