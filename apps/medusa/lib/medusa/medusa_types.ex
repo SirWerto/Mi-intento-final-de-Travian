@@ -52,9 +52,15 @@ defmodule Medusa.Types do
 
 
   ## Model Pipelines
-  ## ## 5 days model
+  ## ## Prediction categories
+  @type tag() :: :active | :inactive | :future_inactive
+  ## ## 5 days model predictor
   @type pred_5_input :: [base_output()]
   @type pred_5_output :: [fe_5_output()]
+  ## ## 5 days model trainer
+  @type train_5_input :: [base_output()]
+  @type train_5_out_tuple() :: {fe_5_output(), tag()}
+  @type train_5_out() :: [train_5_out_tuple()]
 
   ## Feature Engineer
   ## ## 5 days model

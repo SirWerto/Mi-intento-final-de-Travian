@@ -219,4 +219,229 @@ defmodule PipelineTest do
 
     assert Medusa.Pipeline.pred_model_5_days(input) == output
   end
+
+  test "tag an active player" do
+
+    input = 
+      [
+	%{
+	  date: ~D[2021-10-08],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: 0,
+	  population_increase: 1,
+	  population: 220
+	},
+	%{
+	  date: ~D[2021-10-09],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: 0,
+	  population_increase: 1,
+	  population: 221
+	},
+	%{
+	  date: ~D[2021-10-10],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: 0,
+	  population_increase: 1,
+	  population: 222
+	},
+	%{
+	  date: ~D[2021-10-11],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: -4,
+	  population_increase: 1,
+	  population: 223
+	},
+	%{
+	  date: ~D[2021-10-12],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: -8,
+	  population_increase: 1,
+	  population: 220
+	},
+	%{
+	  date: ~D[2021-10-13],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: 0,
+	  population_increase: 1,
+	  population: 213
+	},
+	%{
+	  date: ~D[2021-10-14],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: 0,
+	  population_increase: 1,
+	  population: 214
+	},
+	%{
+	  date: ~D[2021-10-15],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: 0,
+	  population_increase: 1,
+	  population: 215
+	}
+      ]
+
+    output = [
+      {
+	%{
+	  player_id: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  last_day: -0.9867305793119814,
+	  weekend?: Date.day_of_week(~D[2021-10-11]) == 7,
+	  pop_increase_day_1: 1,
+	  pop_increase_day_2: 1,
+	  pop_increase_day_3: 1,
+	  pop_increase_day_4: 1,
+	  max_races: 1,
+	  end_population: 223,
+	  total_decrease: -4},
+	:active},
+      {
+	%{
+	  player_id: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  last_day: -0.9837979515735163,
+	  weekend?: Date.day_of_week(~D[2021-10-12]) == 7,
+	  pop_increase_day_1: 1,
+	  pop_increase_day_2: 1,
+	  pop_increase_day_3: 1,
+	  pop_increase_day_4: 1,
+	  max_races: 1,
+	  end_population: 220,
+	  total_decrease: -12},
+	:active}
+    ]
+
+    assert Medusa.Pipeline.train_model_5_days(input) == output
+  end
+
+  test "future inactive player" do
+    input = 
+      [
+	%{
+	  date: ~D[2021-10-08],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: 0,
+	  population_increase: 1,
+	  population: 220
+	},
+	%{
+	  date: ~D[2021-10-09],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: 0,
+	  population_increase: 1,
+	  population: 221
+	},
+	%{
+	  date: ~D[2021-10-10],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: 0,
+	  population_increase: 1,
+	  population: 222
+	},
+	%{
+	  date: ~D[2021-10-11],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: -4,
+	  population_increase: 1,
+	  population: 223
+	},
+	%{
+	  date: ~D[2021-10-12],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: -8,
+	  population_increase: 0,
+	  population: 220
+	},
+	%{
+	  date: ~D[2021-10-13],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: 0,
+	  population_increase: 0,
+	  population: 212
+	},
+	%{
+	  date: ~D[2021-10-14],
+	  n_active_village: 0,
+	  n_races: 1,
+	  n_village: 1,
+	  next_day: 1,
+	  player: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  population_decrease: 0,
+	  population_increase: 0,
+	  population: 212
+	}]
+output = [
+      {
+	%{
+	  player_id: "https://ts6.x1.america.travian.com--2021-09-23--P188",
+	  last_day: -0.9867305793119814,
+	  weekend?: Date.day_of_week(~D[2021-10-11]) == 7,
+	  pop_increase_day_1: 1,
+	  pop_increase_day_2: 1,
+	  pop_increase_day_3: 1,
+	  pop_increase_day_4: 1,
+	  max_races: 1,
+	  end_population: 223,
+	  total_decrease: -4},
+	:future_inactive}
+    ]
+
+    assert Medusa.Pipeline.train_model_5_days(input) == output
+  end
 end
