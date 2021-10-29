@@ -2,6 +2,8 @@ defmodule MedusaTest do
   use ExUnit.Case
   doctest Medusa
 
+  doctest Medusa.VillageHistoric
+
   test "start Medusa.Brain" do
     {:error, {:already_started, brain}} = Medusa.Brain.start_link()
     assert Process.whereis(Medusa.Brain) == brain

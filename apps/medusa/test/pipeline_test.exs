@@ -85,7 +85,7 @@ defmodule PipelineTest do
 					{~D[2000-01-05], 1, 84, 2, 3},
 					{~D[2000-01-08], 1, 86, -5, 1}]}
 
-    assert Medusa.PipelineVAttr.create_village_attrs(input) == output
+    assert Medusa.VillageHistoric.create_village_attrs(input) == output
   end
 
 
@@ -99,7 +99,7 @@ defmodule PipelineTest do
   output = 
     {"player1", ~D[2000-01-01], 1, 4, 3, 281, 7, 0, 2}
 
-  assert Medusa.PipelineSummarizeDay.summarize(input) == output
+  assert Medusa.PlayerHistoric.create_player_attrs(input) == output
   end
 
   test "Model 5 days prediction pipeline one player" do
@@ -163,7 +163,7 @@ defmodule PipelineTest do
       end_population: 217,
       total_decrease: -12}]
 
-    assert Medusa.Pipeline.pred_model_5_days(input) == output
+    assert Medusa.Model5D.pred_pipe(input) == output
   end
 
   test "Model 5 days prediction pipeline no consecutive days" do
@@ -217,7 +217,7 @@ defmodule PipelineTest do
 
     output = []
 
-    assert Medusa.Pipeline.pred_model_5_days(input) == output
+    assert Medusa.Model5D.pred_pipe(input) == output
   end
 
   test "tag an active player" do
@@ -343,7 +343,7 @@ defmodule PipelineTest do
 	:active}
     ]
 
-    assert Medusa.Pipeline.train_model_5_days(input) == output
+    assert Medusa.Model5D.train_pipe(input) == output
   end
 
   test "future inactive player" do
@@ -442,6 +442,6 @@ output = [
 	:future_inactive}
     ]
 
-    assert Medusa.Pipeline.train_model_5_days(input) == output
+    assert Medusa.Model5D.train_pipe(input) == output
   end
 end

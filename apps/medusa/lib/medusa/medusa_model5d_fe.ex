@@ -1,7 +1,7 @@
-defmodule Medusa.FE do
+defmodule Medusa.Model5D.FE do
 
   @moduledoc """
-  Medusa future engineer module for multiple models
+  Medusa future engineer for 5 Days model
   """
 
   @year_cycle 2*:math.pi/366
@@ -12,8 +12,8 @@ defmodule Medusa.FE do
   
   The sample must be 5 consecutive in days and same player_id maps from the base pipeline.
   """
-  @spec model_5_days(Medusa.Types.fe_5_input()) :: Medusa.Types.fe_5_output()
-  def model_5_days(sample = {_, _, _, last}) do
+  @spec extract(Medusa.Types.fe_5_input()) :: Medusa.Types.fe_5_output()
+  def extract(sample = {_, _, _, last}) do
     %{
       player_id: last[:player],
       last_day: transform_day(last[:date]),

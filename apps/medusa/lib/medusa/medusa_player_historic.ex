@@ -1,12 +1,12 @@
-defmodule Medusa.PipelineSummarizeDay do
+defmodule Medusa.PlayerHistoric do
 
   @moduledoc """
   This is the pipeline step 2, it is responsible of summarizing the information of one player's day
   """
 
 
-  @spec summarize(Medusa.Types.step2_input()) :: Medusa.Types.step2_output()
-  def summarize({{player_id, date}, villages}) do
+  @spec create_player_attrs(Medusa.Types.step2_input()) :: Medusa.Types.step2_output()
+  def create_player_attrs({{player_id, date}, villages}) do
     {_race, _pop, _pop_diff, date_diff} = hd(villages)
 
     active_pops = for {_race, _pop, pop_diff, _date_diff} <- villages, pop_diff > 0, do: pop_diff

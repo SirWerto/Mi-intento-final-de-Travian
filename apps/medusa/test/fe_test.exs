@@ -65,7 +65,7 @@ defmodule FETest do
       end_population: 217,
       total_decrease: -12}
     
-    assert Medusa.FE.model_5_days(input) == output
+    assert Medusa.Model5D.FE.extract(input) == output
   end
 
 end
