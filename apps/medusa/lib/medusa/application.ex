@@ -6,16 +6,16 @@ defmodule Medusa.Application do
   @impl true
   def start(_type, _args) do
 
-    brain = %{
-      :id => "brain",
-      :start => {Medusa.Brain, :start_link, []},
+    prod = %{
+      :id => "producer",
+      :start => {Medusa.Producer, :start_link, []},
       :restart => :permanent,
       :shutdown => 5_000,
       :type => :worker
     }
 
     children = [
-      brain
+      prod
     ]
 
     opts = [strategy: :one_for_all, name: Medusa.Supervisor]
