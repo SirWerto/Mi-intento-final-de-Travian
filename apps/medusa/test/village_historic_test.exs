@@ -1,4 +1,4 @@
-defmodule MedusaPropTestPipeBase do
+defmodule MedusaPropTestVillageHistoric do
   use ExUnit.Case
   use PropCheck, default_opts: [numtests: 1000]
 

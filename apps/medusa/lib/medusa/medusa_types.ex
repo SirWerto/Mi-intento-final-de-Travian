@@ -4,11 +4,30 @@ defmodule Medusa.Types do
   """
 
 
+  @typedoc "Player's unique server identifier in Travian. Collected from a map.sql snapshot."
   @type player_id :: String.t()
+
+  @typedoc "Village's unique server identifier in Travian. Collected from a map.sql snapshot."
   @type village_id :: String.t()
+
+  @typedoc "Date of the snapshot."
   @type date :: Date.t()
+
+  @typedoc "Number of days between contiguous snapshot."
   @type date_diff :: pos_integer() # number of days untile the next record
+
+  @typedoc "It's the race of the village. Can be: 
+  1. Romans
+  2. Teutons
+  3. Gauls
+  4. Nature
+  5. Natars
+  6. Huns
+  7. Egyptians
+"
   @type race :: integer()
+
+  @typedoc "The number of inhabitants wich populates the village."
   @type population :: integer()
   @type population_diff :: integer()
 
