@@ -1,9 +1,21 @@
-defmodule Medusa.PlayerHistoric do
+defmodule MedusaPipeline.PlayerHistoric do
 
   @moduledoc """
   This module summarize players's information of one day.
   """
+  @type input_tuple :: {TTypes.race(), TTypes.population(), TTypes.population_diff(), TTypes.date_diff()}
+  @type input_data :: [input_tuple()]
+  @type input :: {{TTypes.player_id(), TTypes.date()}, input_data()}
 
+  @type output:: {TTypes.player_id(),
+		  TTypes.date(),
+		  TTypes.date_diff(),
+		  TTypes.n_village(), 
+		  TTypes.n_active_village(),
+		  TTypes.population(),
+		  TTypes.population_increase(),
+		  TTypes.population_decrease(),
+		  TTypes.n_races()}
 
   @doc ~S"""
 
@@ -38,11 +50,11 @@ defmodule Medusa.PlayerHistoric do
       iex> village5 = {3, 95, 0, 1}
       iex> villages = [village1, village2, village3, village4, village5]
       iex> 
-      iex> Medusa.PlayerHistoric.create_player_attrs({{player_id, date}, villages})
+      iex> MedusaPipeline.PlayerHistoric.create_player_attrs({{player_id, date}, villages})
       iex> {player_id, date, 1, 5, 3, 460, 41, 0, 3}
 
   """
-  @spec create_player_attrs(Medusa.Types.step2_input()) :: Medusa.Types.step2_output()
+  @spec create_player_attrs(input()) :: output()
   def create_player_attrs({{player_id, date}, villages}) do
     {_race, _pop, _pop_diff, date_diff} = hd(villages)
 

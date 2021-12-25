@@ -1,9 +1,9 @@
-defmodule MedusaModelConsumer.MixProject do
+defmodule MedusaPort.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :medusa_model_consumer,
+      app: :medusa_port,
       version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -26,7 +26,6 @@ defmodule MedusaModelConsumer.MixProject do
   defp deps do
     [
       {:jason, "~> 1.2"},
-      {:gen_stage, "~> 1.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
       # {:dep_from_hexpm, "~> 0.3.0"},

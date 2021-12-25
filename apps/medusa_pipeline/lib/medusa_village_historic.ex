@@ -1,10 +1,19 @@
-defmodule Medusa.VillageHistoric do
+defmodule MedusaPipeline.VillageHistoric do
 
   @moduledoc """
   This module transform village's raw data to multiple tuples with growth information.
   """
 
+  @type date_diff :: pos_integer() # number of days untile the next record
+  @type population_diff :: integer()
 
+  @type input_tuple :: {TTypes.date(), TTypes.race(), TTypes.population()}
+  @type input_data :: [input_tuple()]
+  @type input :: {{TTypes.player_id(), TTypes.village_id()}, input_data()}
+
+  @type output_tuple :: {TTypes.date(), TTypes.race(), TTypes.population(), population_diff(), date_diff()}
+  @type output_data :: [output_tuple()]
+  @type output :: {{TTypes.player_id(), TTypes.village_id()}, output_data()}
 
   @doc ~S"""
   It recives an activity track of one village and returns a list of tuple with custom activity related information.
@@ -42,7 +51,7 @@ defmodule Medusa.VillageHistoric do
       iex> 
 
   """
-  @spec create_village_attrs(Medusa.Types.step1_input()) :: Medusa.Types.step1_output()
+  @spec create_village_attrs(input()) :: output()
   def create_village_attrs({{player_id, village_id}, village_log}) do
     output_data = village_log
     |> Enum.sort_by(fn {date, _race, _population} -> date end, {:asc, Date})
@@ -51,7 +60,7 @@ defmodule Medusa.VillageHistoric do
     {{player_id, village_id}, output_data}
   end
 
-  @spec get_attributes([Medusa.Types.step1_input_tuple(), ...]) :: Medusa.Types.step1_output_tuple()
+  @spec get_attributes([input_tuple(), ...]) :: output_tuple()
   defp get_attributes([{date1, race1, population1}, {date2, _race2, population2}]) do
     population_diff = population2 - population1
     date_diff = Date.diff(date2, date1)

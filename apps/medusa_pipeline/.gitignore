@@ -20,7 +20,7 @@ erl_crash.dump
 *.ez
 
 # Ignore package tarball (built via "mix hex.build").
-medusa_model_consumer-*.tar
+medusa_pipeline-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/

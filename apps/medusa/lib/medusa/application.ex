@@ -6,7 +6,9 @@ defmodule Medusa.Application do
   @impl true
   def start(_type, _args) do
 
-    prod = %{
+    model_dir = Application.fetch_env!(:medusa, :model_dir)
+
+    producer = %{
       :id => "producer",
       :start => {Medusa.Producer, :start_link, []},
       :restart => :permanent,
@@ -14,9 +16,18 @@ defmodule Medusa.Application do
       :type => :worker
     }
 
-    children = [
-      prod
-    ]
+    consumers = for i <- [1], do: %{
+      :id => "consumer_" <> Integer.to_string(i),
+      :start => {Medusa.Consumer, :start_link, [model_dir]},
+      :restart => :permanent,
+      :shutdown => 5_000,
+      :type => :worker
+    }
+
+    IO.inspect(consumers)
+
+    children = [producer | consumers]
+    
 
     opts = [strategy: :one_for_all, name: Medusa.Supervisor]
     Supervisor.start_link(children, opts)
