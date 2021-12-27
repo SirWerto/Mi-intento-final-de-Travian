@@ -64,8 +64,11 @@ defmodule Medusa.Consumer do
   def handle_info({port, {:data, "\"not loaded\""}}, %__MODULE__{port: port}), do: {:noreply, [], :stop}
 
   def handle_info({port, {:data, predictions = <<"[\"predicted\"", _rest::binary>>}}, state = %__MODULE__{port: port}) do
-    Jason.decode!(predictions)
-    |> IO.inspect()
+    ["predicted", predictions] = Jason.decode!(predictions)
+    players = for player <- predictions, do: player
+
+    PredictionBank.add_players(players)
+
     {:noreply, [], state}
   end
 
@@ -75,7 +78,7 @@ defmodule Medusa.Consumer do
 
   @spec get_last_5_days(players_id :: [binary()]) :: Ecto.Query.t()
   def get_last_5_days(players_id) do
-    max_date = DateTime.utc_now() |> DateTime.add(-1*@seconds_in_day*5) |> DateTime.to_date()
+    max_date = DateTime.utc_now() |> DateTime.add(-1*@seconds_in_day*4) |> DateTime.to_date()
     from p_v_d in TDB.Player_Village_Daily,
       where: p_v_d.day >= ^max_date and p_v_d.player_id in ^players_id,
       select: {p_v_d.player_id, p_v_d.village_id, p_v_d.day, p_v_d.race, p_v_d.population}
