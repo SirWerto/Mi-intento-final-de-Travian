@@ -24,7 +24,6 @@ defmodule Medusa.Application do
       :type => :worker
     }
 
-    IO.inspect(consumers)
 
     children = [producer | consumers]
     

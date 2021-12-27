@@ -4,7 +4,7 @@ defmodule Medusa do
   """
 
   @doc """
-  Send players_id throught the pipeline for being evaluated. The result will be stored in a table.
+  Send players_id throught the pipeline for being evaluated. The result will be stored in a PredictonBank tables.
   """
   @spec eval_players(players_id :: [Medusa.Types.player_id()]) :: :ok
   def eval_players(players_id) do

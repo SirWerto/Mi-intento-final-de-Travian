@@ -17,7 +17,7 @@ defmodule Medusa.MixProject do
 
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :prediction_bank],
       mod: {Medusa.Application, []}
     ]
   end
@@ -33,7 +33,8 @@ defmodule Medusa.MixProject do
       {:t_db, in_umbrella: true},
       {:medusa_pipeline, in_umbrella: true},
       {:medusa_models, in_umbrella: true},
-      {:medusa_port, in_umbrella: true}
+      {:medusa_port, in_umbrella: true},
+      {:prediction_bank, in_umbrella: true},
     ]
   end
 end
