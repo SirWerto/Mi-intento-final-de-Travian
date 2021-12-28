@@ -6,16 +6,17 @@ defmodule Collector.Application do
   use Application
 
   def start(_type, _args) do
-    plubio = %{
-      :id => "plubio",
-      :start => {Collector.Plubio, :start_link, []},
+    gen_collector = %{
+      :id => "gen_collector",
+      :start => {Collector.GenCollector, :start_link, []},
       :restart => :permanent,
       :shutdown => 5_000,
       :type => :worker
     }
     children = [
       {Finch, name: TFinch},
-      plubio
+      {Task.Supervisor, name: Collector.TaskSupervisor},
+      gen_collector
     ]
 
     opts = [strategy: :rest_for_one,
