@@ -4,7 +4,7 @@ defmodule MedusaPortTest do
 
   test "load good model" do
     models_dir = System.get_env("MEDUSA_MODEL_DIR")
-    {port, _ref} = MedusaPort.open_port(models_dir <> "/medusa_model")
+    {port, _ref} = MedusaPort.open_port(models_dir)
     true = MedusaPort.load_model(port)
     assert_receive({^port, {:data, "\"loaded\""}}, 2000, "not loaded")
   end
@@ -40,7 +40,7 @@ defmodule MedusaPortTest do
 
 
     models_dir = System.get_env("MEDUSA_MODEL_DIR")
-    {port, _ref} = MedusaPort.open_port(models_dir <> "/medusa_model")
+    {port, _ref} = MedusaPort.open_port(models_dir)
     true = MedusaPort.load_model(port)
     true = MedusaPort.send_players(players, port)
 
