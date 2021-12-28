@@ -40,8 +40,8 @@ defmodule MyTravian.MixProject do
 	sasl: :permanent,
 	elixir: :permanent,
 	t_db: :permanent,
-	prediction_bank: :permanent
-	medusa: :permanent
+	prediction_bank: :permanent,
+	medusa: :permanent,
 	collector: :permanent
       ],
       include_executables_for: [:unix],
