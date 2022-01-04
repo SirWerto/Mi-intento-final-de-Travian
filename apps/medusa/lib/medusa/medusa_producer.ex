@@ -33,7 +33,7 @@ defmodule Medusa.Producer do
 ### CALLBACKS
   @impl true
   def init([]) do
-    {:producer, {:queue.new(), 0}}
+    {:producer, {:queue.new(), 0}, dispatcher: GenStage.BroadcastDispatcher}
   end
 
   @impl true
