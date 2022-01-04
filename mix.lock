@@ -31,4 +31,6 @@
   "propcheck": {:hex, :propcheck, "1.4.0", "34ed3f05e7024be6ca4b45d48079cdcb0deb4ae1eed8b8405d3e14ed4b6c2c04", [:mix], [{:libgraph, "~> 0.13", [hex: :libgraph, repo: "hexpm", optional: false]}, {:proper, "~> 1.4", [hex: :proper, repo: "hexpm", optional: false]}], "hexpm", "305566952afba800e971e75a75526fb91e6c167ee3d78ceb67396848d90c6677"},
   "proper": {:hex, :proper, "1.4.0", "89a44b8c39d28bb9b4be8e4d715d534905b325470f2e0ec5e004d12484a79434", [:rebar3], [], "hexpm", "18285842185bd33efbda97d134a5cb5a0884384db36119fee0e3cfa488568cbb"},
   "telemetry": {:hex, :telemetry, "0.4.3", "a06428a514bdbc63293cd9a6263aad00ddeb66f608163bdec7c8995784080818", [:rebar3], [], "hexpm", "eb72b8365ffda5bed68a620d1da88525e326cb82a75ee61354fc24b844768041"},
+  "thoas": {:hex, :thoas, "0.2.0", "4d25ba900a1aaaee758244c9b69ce0bc44e869ecbaa0817c2e783ee223c02f91", [:rebar3], [], "hexpm", "630aaee57fb3fde201578e787259e15e788a27733d49de8dcce1354db1885b8d"},
+  "travianmap": {:hex, :travianmap, "0.1.0", "19feff5cc6a39f63a8cfe5abc75a6ccedeeb10ad23543390be33b4b02e799c0e", [:rebar3], [{:thoas, "~>0.2.0", [hex: :thoas, repo: "hexpm", optional: false]}], "hexpm", "7b1fa67433ca92ba44b26d614710df12ac89c001885f25c915ec89edb14965b0"},
 }

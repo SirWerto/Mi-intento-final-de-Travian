@@ -47,26 +47,38 @@ defmodule Collector.GenWorker do
 
   @spec collect(url :: binary(), init_date :: DateTime.t()) :: :ok | {:error, any()}
   defp collect(url, init_date) do
-    case Collector.ScrapServerInfo.get_aditional_info(url) do
+    case :travianmap.get_info(url) do
       {:error, reason} -> {:error, reason}
       {:ok, aditional_info} -> 
-	case Collector.ScrapMap.get_map(url) do
+	case :travianmap.get_map(url) do
 	  {:error, reason} -> {:error, reason}
 	  {:ok, server_map} -> 
-	    case handle_inserts(url, init_date, aditional_info, server_map) do
+	    records = :travianmap.parse_map(server_map, :filter)
+	    case handle_inserts(url, init_date, aditional_info, records) do
 	      {:error, reason} -> {:error, reason}
 	      {:ok, players_id} -> 
 		Medusa.eval_players(players_id)
+		Logger.info("(GenWorker)Successfully collected: " <> url)
 		:ok
 	    end
 	end
     end
   end
 
-  @spec handle_inserts(url :: binary(), init_date :: DateTime.t(), aditional_info :: map(), server_map :: [map()]) :: {:ok, [binary()]} | {:error, any()}
-  defp handle_inserts(url, init_date, aditional_info, server_map) do
+  @spec handle_inserts(url :: binary(), init_date :: DateTime.t(), aditional_info :: map(), records :: [tuple()]) :: {:ok, [binary()]} | {:error, any()}
+  defp handle_inserts(url, init_date, aditional_info, records) do
     try do
-      {server, players, alliances, villages, a_p, p_v} = Collector.PrepareData.process!({url, init_date}, aditional_info, server_map)
+
+      server_dict = for record <- records, do: Collector.ProcessTravianMap.tuple_to_map(record)
+
+      server_id = Collector.ProcessTravianMap.create_server_id(url, init_date)
+      server = Collector.ProcessTravianMap.process_server(server_id, url, init_date, aditional_info)
+      alliances = Collector.ProcessTravianMap.process_alliances(server_id, server_dict)
+      players = Collector.ProcessTravianMap.process_players(server_id, server_dict)
+      villages = Collector.ProcessTravianMap.process_villages(server_id, server_dict)
+      a_p = Collector.ProcessTravianMap.process_a_ps(server_id, server_dict)
+      p_v = Collector.ProcessTravianMap.process_p_vs(server_id, server_dict)
+
       Collector.Queries.insert_or_update_server!(server)
       Collector.Queries.insert_or_update_alliances!(alliances) |> TDB.Repo.transaction()
       Collector.Queries.insert_or_update_players!(players) |> TDB.Repo.transaction()

@@ -6,6 +6,8 @@ defmodule Collector.GenCollector do
   @milliseconds_in_day 24*60*60*1000
   @time_between_tries 10_000
 
+  @random_datetime ~U[2022-01-04 17:27:49.080543Z]
+
   @spec start_link() :: GenServer.on_start()
   def start_link(), do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
 
@@ -56,7 +58,7 @@ defmodule Collector.GenCollector do
 
   @spec handle_collection() :: :ok | {:error, any()}
   defp handle_collection() do
-    case Collector.ScrapUrls.get_current_urls() do
+    case :travianmap.get_urls() do
       {:error, reason} -> {:error, reason}
       {:ok, urls} -> 
 	urls
@@ -67,10 +69,12 @@ defmodule Collector.GenCollector do
     end
   end
 
-  @spec start_worker({url :: binary(), init_date :: DateTime.t()}) :: :ok | {:ignore, binary()} | {:error, any()}
-  defp start_worker({url, init_date}) do
-    case Task.Supervisor.start_child(Collector.TaskSupervisor, Collector.GenWorker, :start_link, [url, init_date]) do
-      {:ok, _} -> :ok
+  @spec start_worker(url :: binary()) :: :ok | {:ignore, binary()} | {:error, any()}
+  defp start_worker(url) do
+    case Task.Supervisor.start_child(Collector.TaskSupervisor, Collector.GenWorker, :start_link, [url, @random_datetime]) do
+      {:ok, pid} ->
+	IO.inspect(Process.info(pid))
+	:ok
       :ignore -> {:ignore, url}
       {:error, reason} -> {:error, {url, reason}}
     end

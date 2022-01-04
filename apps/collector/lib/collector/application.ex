@@ -14,7 +14,6 @@ defmodule Collector.Application do
       :type => :worker
     }
     children = [
-      {Finch, name: TFinch},
       {Task.Supervisor, name: Collector.TaskSupervisor},
       gen_collector
     ]
