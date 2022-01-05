@@ -4,6 +4,7 @@ defmodule Collector.GenCollector do
 
 
   @milliseconds_in_day 24*60*60*1000
+  @milliseconds_in_hour 60*60*1000
   @time_between_tries 10_000
 
   @random_datetime ~U[2022-01-04 17:27:49.080543Z]
@@ -18,6 +19,14 @@ defmodule Collector.GenCollector do
   @spec collect() :: :collect
   def collect(), do: send(__MODULE__, :collect)
 
+  @spec hours_until_collect() :: {:ok, float()} | {:error, :no_timer}
+  def hours_until_collect() do
+    case GenServer.call(__MODULE__, :milliseconds_until_collect) do
+      false -> {:error, :no_timer}
+      milliseconds -> {:ok, milliseconds/@milliseconds_in_hour}
+    end
+  end
+
 
   @impl true
   def init([]) do
@@ -26,13 +35,15 @@ defmodule Collector.GenCollector do
   end
 
   @impl true
+  def handle_call(:milliseconds_until_collect, _from, tref), do: {:reply, :erlang.read_timer(tref), tref}
+  def handle_call(_msg, _from, tref), do: {:noreply, tref}
+
+  @impl true
   def handle_info(:init, []) do
     collection_hour = Application.fetch_env!(:collector, :collection_hour)
     wait_time = time_until_collection(collection_hour) 
-    case :timer.send_after(wait_time, :collect) do
-      {:ok, tref} -> {:noreply, tref}
-      {:error, reason} -> {:stop, reason, []}
-    end
+    tref = :erlang.send_after(wait_time, self(), :collect)
+    {:noreply, tref}
   end
 
 
@@ -42,15 +53,12 @@ defmodule Collector.GenCollector do
       :ok ->
 	collection_hour = Application.fetch_env!(:collector, :collection_hour)
 	wait_time = time_until_collection(collection_hour) 
-	case :timer.send_after(wait_time, :collect) do
-	  {:ok, tref} -> {:noreply, tref}
-	  {:error, reason} -> {:stop, reason, []}
-	end
-
+	tref = :erlang.send_after(wait_time, self(), :collect)
+	{:noreply, tref}
       {:error, reason} ->
 	Logger.info("(GenCollector)Unable to collect: " <> IO.inspect(reason))
-	:timer.send_after(@time_between_tries, :collect)
-	{:noreply, []}
+	tref = :erlang.send_after(@time_between_tries, self(), :collect)
+	{:noreply, tref}
     end
   end
 
@@ -72,9 +80,7 @@ defmodule Collector.GenCollector do
   @spec start_worker(url :: binary()) :: :ok | {:ignore, binary()} | {:error, any()}
   defp start_worker(url) do
     case Task.Supervisor.start_child(Collector.TaskSupervisor, Collector.GenWorker, :start_link, [url, @random_datetime]) do
-      {:ok, pid} ->
-	IO.inspect(Process.info(pid))
-	:ok
+      {:ok, _pid} -> :ok
       :ignore -> {:ignore, url}
       {:error, reason} -> {:error, {url, reason}}
     end
@@ -86,6 +92,6 @@ defmodule Collector.GenCollector do
 
   defp time_until_collection(ch, ch), do: 0
   defp time_until_collection(ch, now) when ch > now, do: Time.diff(ch, now, :millisecond)
-  defp time_until_collection(ch, now), do: @milliseconds_in_day + Time.diff(now, ch, :millisecond)
+  defp time_until_collection(ch, now), do: @milliseconds_in_day + Time.diff(ch, now, :millisecond)
 
 end
