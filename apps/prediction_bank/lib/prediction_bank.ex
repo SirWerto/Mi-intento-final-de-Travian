@@ -24,6 +24,18 @@ defmodule PredictionBank do
     end
   end
 
+
+  @spec uninstall(nodes :: [atom()]) :: :ok | {:error, any()}
+  def uninstall(nodes) do
+    :rpc.multicall(nodes, :application, :stop, [:mnesia])
+    case :mnesia.delete_schema(nodes) do
+      {:error, reason} -> {:error, reason}
+      :ok -> 
+	:rpc.multicall(nodes, :application, :start, [:mnesia])
+	:ok
+    end
+  end
+
   @spec create_bank_players_table(nodes :: [atom()]) :: {:atomic, any()} | {:aborted, any()}
   defp create_bank_players_table(nodes) do
     bank_players_options = [
@@ -45,7 +57,7 @@ defmodule PredictionBank do
     match_function = {match_head, guards, results}
 
     f = fn -> :mnesia.select(:bank_players, [match_function]) end
-    :mnesia.activity(:transaction, f)
+    :mnesia.activity(:transaction, f) |> Enum.sort()
   end
 
   @spec current_servers() :: [[binary()]]
@@ -57,7 +69,7 @@ defmodule PredictionBank do
     match_function = {match_head, guards, results}
 
     f = fn -> :mnesia.select(:bank_players, [match_function]) end
-    :mnesia.activity(:transaction, f)
+    :mnesia.activity(:transaction, f) |> Enum.flat_map(fn x -> x end) |> Enum.sort() |> Enum.dedup()
   end
 
   @spec add_players([{player_id :: binary(), state :: binary()}]) :: {:atomic, any()} | {:aborted, any()}
