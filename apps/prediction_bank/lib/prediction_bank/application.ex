@@ -8,8 +8,7 @@ defmodule PredictionBank.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: PredictionBank.Worker.start_link(arg)
-      # {PredictionBank.Worker, arg}
+      {PredictionBank.GenRemover, []}
     ]
 
     tables = [:bank_players]

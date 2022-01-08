@@ -46,5 +46,26 @@ defmodule PredictionBankTest do
   end
 
 
+  test "remove registers which are not updated today" do
+    player_id1 = "https://ttq.x2.africa.travian.com--2021-06-16--P9902"
+    player_id2 = "https://ttq.x2.africa.travian.com--2021-06-16--P9903"
+    state = "future_inactive"
+    url = "https://ttq.x2.africa.travian.com"
+    puid2 = "P9903"
+    date_yesterday = DateTime.now!("Etc/UTC") |> DateTime.to_date() |> Date.add(-1)
+
+    func = fn -> :mnesia.write(PredictionBank.bank_players(
+player_id: player_id2,
+server_url: url,
+player_uid: puid2,
+state: state,
+date: date_yesterday)) end
+    :mnesia.activity(:transaction, func)
+
+    assert([:ok] == PredictionBank.add_players([{player_id1, state}]))
+    assert(Enum.sort([[player_id1, state], [player_id2, state]]) == PredictionBank.select(url))
+    PredictionBank.remove_old_players()
+    assert(Enum.sort([[player_id1, state]]) == PredictionBank.select(url))
+  end
 
 end

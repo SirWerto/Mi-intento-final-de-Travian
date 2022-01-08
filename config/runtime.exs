@@ -22,4 +22,9 @@ config :medusa,
   model_dir: System.fetch_env!("MITRAVIAN__MEDUSA_MODEL_DIR")
 
 
+config :prediction_bank,
+  remove_hour: Time.new!(
+    System.fetch_env!("MITRAVIAN__COLLECTION_HOUR") |> String.to_integer(),
+    System.fetch_env!("MITRAVIAN__COLLECTION_MINUTE") |> String.to_integer(),
+    System.fetch_env!("MITRAVIAN__COLLECTION_SECOND") |> String.to_integer())
 
