@@ -69,7 +69,9 @@ defmodule Medusa.Consumer do
     players_id = for {player, _status}<- players, do: player
     pop_attrs = get_population_attributes(players_id) |> TDB.Repo.all()
 
-    Enum.zip(players, pop_attrs)
+    players_sorted = Enum.sort_by(players, fn {player_id, _} -> player_id end)
+    pop_attrs_sorted = Enum.sort_by(pop_attrs, fn {player_id, _, _, _, _} -> player_id end)
+    Enum.zip(players_sorted, pop_attrs_sorted)
     |> Enum.map(&zip_player_info/1)
     |> Enum.filter(fn x -> x != {} end)
     |> PredictionBank.add_players()
