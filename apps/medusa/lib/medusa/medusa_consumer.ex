@@ -66,8 +66,13 @@ defmodule Medusa.Consumer do
   def handle_info({port, {:data, predictions = <<"[\"predicted\"", _rest::binary>>}}, state = %__MODULE__{port: port}) do
     ["predicted", predictions] = Jason.decode!(predictions)
     players = for player <- predictions, do: player
+    players_id = for {player, _status}<- players, do: player
+    pop_attrs = get_population_attributes(players_id) |> TDB.Repo.all()
 
-    PredictionBank.add_players(players)
+    Enum.zip(players, pop_attrs)
+    |> Enum.map(&zip_player_info/1)
+    |> Enum.filter(fn x -> x != {} end)
+    |> PredictionBank.add_players()
 
     {:noreply, [], state}
   end
@@ -76,12 +81,33 @@ defmodule Medusa.Consumer do
     {:noreply, [], state}
   end
 
+  defp zip_player_info({{player_id, state}, {player_id, name, a_name, n_villages, total_pop}}) do
+    {player_id, state, name, a_name, n_villages, total_pop}
+  end
+  defp zip_player_info(_), do: {}
+
   @spec get_last_5_days(players_id :: [binary()]) :: Ecto.Query.t()
   def get_last_5_days(players_id) do
     max_date = DateTime.utc_now() |> DateTime.add(-1*@seconds_in_day*4) |> DateTime.to_date()
     from p_v_d in TDB.Player_Village_Daily,
       where: p_v_d.day >= ^max_date and p_v_d.player_id in ^players_id,
       select: {p_v_d.player_id, p_v_d.village_id, p_v_d.day, p_v_d.race, p_v_d.population}
+  end
+
+
+  @spec get_population_attributes(players_id :: [binary()]) :: Ecto.Query.t()
+  def get_population_attributes(players_id) do
+    today = DateTime.utc_now() |> DateTime.to_date()
+    from players in TDB.Player,
+      join: p_v_d in TDB.Player_Village_Daily,
+      on: players.id == p_v_d.player_id,
+      join: a_p in TDB.Alliance_Player,
+      on: players.id == a_p.player_id,
+      join: alliances in TDB.Alliance,
+      on: a_p.alliance_id == alliances.id,
+      where: p_v_d.day == ^today and players.id in ^players_id and a_p.start_date == ^today,
+      group_by: [players.id, players.name, alliances.name],
+      select: {players.id, players.name, alliances.name, count(p_v_d.village_id), sum(p_v_d.population)}
   end
 
 
