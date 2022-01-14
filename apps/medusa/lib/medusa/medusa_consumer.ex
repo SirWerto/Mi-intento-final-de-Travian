@@ -69,11 +69,7 @@ defmodule Medusa.Consumer do
     players_id = for {player, _status}<- players, do: player
     pop_attrs = get_population_attributes(players_id) |> TDB.Repo.all()
 
-    players_sorted = Enum.sort_by(players, fn {player_id, _} -> player_id end)
-    pop_attrs_sorted = Enum.sort_by(pop_attrs, fn {player_id, _, _, _, _} -> player_id end)
-    Enum.zip(players_sorted, pop_attrs_sorted)
-    |> Enum.map(&zip_player_info/1)
-    |> Enum.filter(fn x -> x != {} end)
+    Medusa.CombineAttrs.combine(players, pop_attrs)
     |> PredictionBank.add_players()
 
     {:noreply, [], state}
@@ -82,11 +78,6 @@ defmodule Medusa.Consumer do
   def handle_info(_msg, state) do
     {:noreply, [], state}
   end
-
-  defp zip_player_info({{player_id, state}, {player_id, name, a_name, n_villages, total_pop}}) do
-    {player_id, state, name, a_name, n_villages, total_pop}
-  end
-  defp zip_player_info(_), do: {}
 
   @spec get_last_5_days(players_id :: [binary()]) :: Ecto.Query.t()
   def get_last_5_days(players_id) do
