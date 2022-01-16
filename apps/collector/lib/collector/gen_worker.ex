@@ -37,7 +37,7 @@ defmodule Collector.GenWorker do
     case collect(url, init_date) do
       :ok -> {:stop, :normal, []}
       {:error, reason} ->
-	Logger.info("(GenWorker)Unable to collect: " <> url <> "\nReason: " <> IO.inspect(reason))
+	Logger.info("(GenWorker)Unable to collect: " <> url <> "\nReason: " <> Kernel.inspect(reason))
 	send(self(), :collect)
 	{:noreply, {url, init_date, tries+1}}
     end

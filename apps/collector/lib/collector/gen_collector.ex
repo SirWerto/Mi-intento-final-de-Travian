@@ -56,7 +56,7 @@ defmodule Collector.GenCollector do
 	tref = :erlang.send_after(wait_time, self(), :collect)
 	{:noreply, tref}
       {:error, reason} ->
-	Logger.info("(GenCollector)Unable to collect: " <> IO.inspect(reason))
+	Logger.info("(GenCollector)Unable to collect: " <> Kernel.inspect(reason))
 	tref = :erlang.send_after(@time_between_tries, self(), :collect)
 	{:noreply, tref}
     end
@@ -69,10 +69,11 @@ defmodule Collector.GenCollector do
     case :travianmap.get_urls() do
       {:error, reason} -> {:error, reason}
       {:ok, urls} -> 
-	urls
+	bad_launched_tasks = urls
 	|> Enum.map(&start_worker/1)
 	|> Enum.filter(&(&1 != :ok))
-	|> Enum.map(fn x -> Logger.info("(GenCollector)Unable to launch task: " <> IO.inspect(x)) end)
+
+	for bad_task <- bad_launched_tasks, do: Logger.info("(GenCollector)Unable to launch task: " <> Kernel.inspect(bad_task))
 	:ok
     end
   end
