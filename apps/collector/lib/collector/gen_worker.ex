@@ -32,15 +32,17 @@ defmodule Collector.GenWorker do
 
   @impl true
   def handle_info(:collect, state = {url, _init_date, @max_tries}) do
-    Logger.info("(GenWorker)Unable to collect: " <> url <> "\nReason: Reached Max Tries(" <> Kernel.inspect(@max_tries) <> ")")
+    Logger.info("(GenWorker)Unable to collect: #{url} Reason: Reached Max Tries(#{inspect(@max_tries)})")
     {:stop, :normal, state}
   end
   def handle_info(:collect, {url, init_date, tries}) do
     Process.sleep(:rand.uniform(@delay_max - @delay_min) + @delay_min)
     case collect(url, init_date) do
-      :ok -> {:stop, :normal, []}
+      :ok ->
+	Logger.info("Successfully collected: #{url}")
+	{:stop, :normal, []}
       {:error, reason} ->
-	Logger.info("(GenWorker)Unable to collect: " <> url <> "\nReason: " <> Kernel.inspect(reason))
+	Logger.info("Unable to collect: #{url} Reason: #{inspect(reason)}")
 	send(self(), :collect)
 	{:noreply, {url, init_date, tries+1}}
     end
@@ -55,13 +57,12 @@ defmodule Collector.GenWorker do
       {:ok, aditional_info} -> 
 	case :travianmap.get_map(url) do
 	  {:error, reason} -> {:error, reason}
-	  {:ok, server_map} -> 
+	  {:ok, server_map} ->
 	    records = :travianmap.parse_map(server_map, :filter)
 	    case handle_inserts(url, init_date, aditional_info, records) do
 	      {:error, reason} -> {:error, reason}
 	      {:ok, players_id} -> 
 		Medusa.eval_players(players_id)
-		Logger.info("(GenWorker)Successfully collected: " <> url)
 		:ok
 	    end
 	end
