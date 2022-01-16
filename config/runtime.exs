@@ -18,7 +18,8 @@ config :t_db, TDB.Repo,
   database: System.fetch_env!("MITRAVIAN__TDB_DATABASE"),
   username: System.fetch_env!("MITRAVIAN__TDB_USERNAME"),
   password: System.fetch_env!("MITRAVIAN__TDB_PASSWORD"),
-  hostname: System.fetch_env!("MITRAVIAN__TDB_HOSTNAME")
+  hostname: System.fetch_env!("MITRAVIAN__TDB_HOSTNAME"),
+  timeout: System.get_env("MITRAVIAN__TDB_TIMEOUT", "30000") |> String.to_integer()
 
 
 config :collector,
