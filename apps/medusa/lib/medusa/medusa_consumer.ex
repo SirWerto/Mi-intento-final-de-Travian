@@ -1,5 +1,6 @@
 defmodule Medusa.Consumer do
   use GenStage
+  require Logger
   import Ecto.Query, only: [from: 2]
 
   @moduledoc """
@@ -40,11 +41,13 @@ defmodule Medusa.Consumer do
 
   @impl true
   def handle_events(players_ids, _from, state) do
+    Logger.info("Players entering the pipeline: #{length(players_ids)}")
     players_ids
     |> get_last_5_days()
     |> TDB.Repo.all()
     |> MedusaPipeline.apply()
     |> MedusaModels.apply_5d()
+    |> Kernel.tap(fn x -> Logger.info("Players entering the model: #{length(x)}") end)
     |> MedusaPort.send_players(state.port)
     {:noreply, [], state}
   end
@@ -70,6 +73,7 @@ defmodule Medusa.Consumer do
     pop_attrs = get_population_attributes(players_id) |> TDB.Repo.all()
 
     Medusa.CombineAttrs.combine(players, pop_attrs)
+    |> Kernel.tap(fn x -> Logger.info("Players leaving the pipeline: #{length(x)}") end)
     |> PredictionBank.add_players()
 
     {:noreply, [], state}

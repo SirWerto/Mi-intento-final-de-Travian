@@ -31,7 +31,10 @@ defmodule Collector.GenWorker do
 
 
   @impl true
-  def handle_info(:collect, {_url, _init_date, @max_tries}), do: {:stop, :reached_max_tries, []}
+  def handle_info(:collect, state = {url, _init_date, @max_tries}) do
+    Logger.info("(GenWorker)Unable to collect: " <> url <> "\nReason: Reached Max Tries(" <> Kernel.inspect(@max_tries) <> ")")
+    {:stop, :normal, state}
+  end
   def handle_info(:collect, {url, init_date, tries}) do
     Process.sleep(:rand.uniform(@delay_max - @delay_min) + @delay_min)
     case collect(url, init_date) do
