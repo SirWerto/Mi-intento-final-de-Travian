@@ -3,7 +3,7 @@ defmodule Collector.GenWorker do
   require Logger
 
 
-  @max_tries 3
+  @max_tries 10
 
 
   @delay_max 300_000
