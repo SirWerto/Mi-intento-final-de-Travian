@@ -104,4 +104,40 @@ defmodule TTypes do
 
   @type snapshot_row :: normal_snapshot_row() | conquer_snapshot_row()
 
+
+
+  @type normal_snapshot_row_enriched :: %{
+          grid_position: grid_position(),
+          x: x(),
+          y: y(),
+          tribe: tribe(),
+          village_id: village_id(),
+          village_name: village_name(),
+          player_id: player_id(),
+          player_name: player_name(),
+          alliance_id: alliance_id(),
+          alliance_name: alliance_name(),
+          population: population()
+        }
+
+  @type conquer_snapshot_row_enriched :: %{
+          grid_position: grid_position(),
+          x: x(),
+          y: y(),
+          tribe: tribe(),
+          village_id: village_id(),
+          village_name: village_name(),
+          player_id: player_id(),
+          player_name: player_name(),
+          alliance_id: alliance_id(),
+          alliance_name: alliance_name(),
+          population: population(),
+          region: region(),
+          bool1: boolean(),
+          bool2: boolean(),
+          integer1: integer()
+        }
+
+  @type enriched_row :: normal_snapshot_row_enriched() | conquer_snapshot_row_enriched()
+
 end
