@@ -22,13 +22,13 @@ defmodule Collector.GenWorker do
 
   @impl true
   def init([url, :info, init_date]) do
-    send(self(), :collect)
-    {:ok, {url, :info, init_date, 0}}
+    timeref = :erlang.send_after(:rand.uniform(@delay_max - @delay_min) + @delay_min, self(), :collect)
+    {:ok, {url, :info, init_date, 0, timeref}}
   end
 
   def init([url, :snapshot]) do
-    send(self(), :collect)
-    {:ok, {url, :snapshot, 0}}
+    timeref = :erlang.send_after(:rand.uniform(@delay_max - @delay_min) + @delay_min, self(), :collect)
+    {:ok, {url, :snapshot, 0, timeref}}
   end
 
 
@@ -42,26 +42,24 @@ defmodule Collector.GenWorker do
 
 
   @impl true
-  def handle_info(:collect, state = {server_id, type, _init_date, @max_tries}) do
+  def handle_info(:collect, state = {server_id, type, _init_date, @max_tries, _timeref}) do
     Logger.info("(GenWorker)Unable to collect: #{server_id} Type: #{inspect(type)} Reason: Reached Max Tries(#{inspect(@max_tries)})")
     {:stop, :normal, state}
   end
-  def handle_info(:collect, state = {server_id, :snapshot, tries}) do
-    Process.sleep(:rand.uniform(@delay_max - @delay_min) + @delay_min)
+  def handle_info(:collect, state = {server_id, :snapshot, tries, _timeref}) do
     case handle_collect_snapshot(server_id) do
       :ok -> {:stop, :normal, state}
       {:error, _} -> 
-	send(self(), :collect)
-	{:noreply, {server_id, :snapshot, tries+1}}
+	timeref = :erlang.send_after(:rand.uniform(@delay_max - @delay_min) + @delay_min, self(), :collect)
+	{:noreply, {server_id, :snapshot, tries+1, timeref}}
     end
   end
-  def handle_info(:collect, state = {server_id, :info, init_date, tries}) do
-    Process.sleep(:rand.uniform(@delay_max - @delay_min) + @delay_min)
+  def handle_info(:collect, state = {server_id, :info, init_date, tries, _timeref}) do
     case handle_collect_info(server_id, init_date) do
       :ok -> {:stop, :normal, state}
       {:error, _} -> 
-	send(self(), :collect)
-	{:noreply, {server_id, :info, init_date, tries+1}}
+	timeref = :erlang.send_after(:rand.uniform(@delay_max - @delay_min) + @delay_min, self(), :collect)
+	{:noreply, {server_id, :info, init_date, tries+1, timeref}}
     end
   end
 

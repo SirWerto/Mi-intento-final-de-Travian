@@ -14,7 +14,7 @@ defmodule Collector.Application do
       :type => :worker
     }
     children = [
-      {Task.Supervisor, name: Collector.TaskSupervisor},
+      {DynamicSupervisor, strategy: :one_for_one, name: Collector.DynamicSupervisor},
       gen_collector
     ]
 

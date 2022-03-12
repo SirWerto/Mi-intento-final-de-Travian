@@ -7,8 +7,6 @@ defmodule Collector.GenCollector do
   @milliseconds_in_hour 60*60*1000
   @time_between_tries 10_000
 
-  @random_datetime ~U[2022-01-04 17:27:49.080543Z]
-
   @spec start_link() :: GenServer.on_start()
   def start_link(), do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
 
@@ -70,20 +68,35 @@ defmodule Collector.GenCollector do
       {:error, reason} -> {:error, reason}
       {:ok, urls} -> 
 	bad_launched_tasks = urls
-	|> Enum.map(&start_worker/1)
+	|> Enum.flat_map(&start_worker/1)
 	|> Enum.filter(&(&1 != :ok))
 
-	for bad_task <- bad_launched_tasks, do: Logger.info("(GenCollector)Unable to launch task: " <> Kernel.inspect(bad_task))
+	for bad_task <- bad_launched_tasks, do: Logger.warning("Unable to launch task: #{inspect(bad_task)}")
 	:ok
     end
   end
 
-  @spec start_worker(url :: binary()) :: :ok | {:ignore, binary()} | {:error, any()}
-  defp start_worker(url) do
-    case Task.Supervisor.start_child(Collector.TaskSupervisor, Collector.GenWorker, :start_link, [url, @random_datetime]) do
+  @spec start_worker(server_id :: TTypes.server_id()) :: [:ok | {:ignore, binary()} | {:error, any()}]
+  defp start_worker(server_id) do
+    [start_worker_info(server_id), start_worker_snapshot(server_id)]
+  end
+
+  @spec start_worker_info(server_id :: TTypes.server_id()) :: :ok | {:ignore, binary()} | {:error, any()}
+  defp start_worker_info(server_id) do
+    case DynamicSupervisor.start_child(Collector.DynamicSupervisor, {Collector.GenWorker, [server_id, :info]}) do
       {:ok, _pid} -> :ok
-      :ignore -> {:ignore, url}
-      {:error, reason} -> {:error, {url, reason}}
+      :ignore -> {:ignore, server_id}
+      {:error, reason} -> {:error, {server_id, reason}}
+    end
+  end
+
+
+  @spec start_worker_snapshot(server_id :: TTypes.server_id()) :: :ok | {:ignore, binary()} | {:error, any()}
+  defp start_worker_snapshot(server_id) do
+    case DynamicSupervisor.start_child(Collector.DynamicSupervisor, {Collector.GenWorker, [server_id, :snapshot]}) do
+      {:ok, _pid} -> :ok
+      :ignore -> {:ignore, server_id}
+      {:error, reason} -> {:error, {server_id, reason}}
     end
   end
 
