@@ -33,8 +33,9 @@ defmodule Collector.MixProject do
       {:floki, "~> 0.31.0"},
       {:jason, "~> 1.2"},
       {:travianmap, "~> 0.2.0"},
-      {:t_db, in_umbrella: true},
-      {:medusa, in_umbrella: true}
+      {:t_types, in_umbrella: true},
+      {:snapshot_encoder, in_umbrella: true}
+      # {:medusa, in_umbrella: true}
     ]
   end
 end

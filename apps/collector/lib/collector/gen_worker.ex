@@ -9,18 +9,29 @@ defmodule Collector.GenWorker do
   @delay_max 300_000
   @delay_min 5_000
 
-  @spec start_link(url :: binary(), init_date :: DateTime.t()) :: GenServer.on_start()
-  def start_link(url, init_date), do: GenServer.start_link(__MODULE__, [url, init_date])
+  @spec start_link(server_id :: TTypes.server_id(), type :: :snapshot | :info) :: GenServer.on_start()
+  def start_link(server_id, :snapshot), do: GenServer.start_link(__MODULE__, [server_id, :snapshot])
+  def start_link(server_id, :info), do: start_link(server_id, :info, nil)
+
+  @spec start_link(server_id :: TTypes.server_id(), :info, init_date :: Date.t() | nil) :: GenServer.on_start()
+  def start_link(server_id, :info, init_date), do: GenServer.start_link(__MODULE__, [server_id, :info, init_date])
   
   @spec stop(pid :: pid(), reason :: term(), timeout :: timeout()) :: :ok
   def stop(pid, reason \\ :normal, timeout \\ 5000), do: GenServer.stop(pid, reason, timeout)
 
 
   @impl true
-  def init([url, init_date]) do
+  def init([url, :info, init_date]) do
     send(self(), :collect)
-    {:ok, {url, init_date, 0}}
+    {:ok, {url, :info, init_date, 0}}
   end
+
+  def init([url, :snapshot]) do
+    send(self(), :collect)
+    {:ok, {url, :snapshot, 0}}
+  end
+
+
 
 
   @impl true
@@ -31,69 +42,74 @@ defmodule Collector.GenWorker do
 
 
   @impl true
-  def handle_info(:collect, state = {url, _init_date, @max_tries}) do
-    Logger.info("(GenWorker)Unable to collect: #{url} Reason: Reached Max Tries(#{inspect(@max_tries)})")
+  def handle_info(:collect, state = {server_id, type, _init_date, @max_tries}) do
+    Logger.info("(GenWorker)Unable to collect: #{server_id} Type: #{inspect(type)} Reason: Reached Max Tries(#{inspect(@max_tries)})")
     {:stop, :normal, state}
   end
-  def handle_info(:collect, {url, init_date, tries}) do
+  def handle_info(:collect, state = {server_id, :snapshot, tries}) do
     Process.sleep(:rand.uniform(@delay_max - @delay_min) + @delay_min)
-    case collect(url, init_date) do
-      :ok ->
-	Logger.info("Successfully collected: #{url}")
-	{:stop, :normal, []}
-      {:error, reason} ->
-	Logger.info("Unable to collect: #{url} Reason: #{inspect(reason)}")
+    case handle_collect_snapshot(server_id) do
+      :ok -> {:stop, :normal, state}
+      {:error, _} -> 
 	send(self(), :collect)
-	{:noreply, {url, init_date, tries+1}}
+	{:noreply, {server_id, :snapshot, tries+1}}
     end
   end
+  def handle_info(:collect, state = {server_id, :info, init_date, tries}) do
+    Process.sleep(:rand.uniform(@delay_max - @delay_min) + @delay_min)
+    case handle_collect_info(server_id, init_date) do
+      :ok -> {:stop, :normal, state}
+      {:error, _} -> 
+	send(self(), :collect)
+	{:noreply, {server_id, :info, init_date, tries+1}}
+    end
+  end
+
   def handle_info(_msg, state), do: {:noreply, state}
 
 
-  @spec collect(url :: binary(), init_date :: DateTime.t()) :: :ok | {:error, any()}
-  defp collect(url, init_date) do
-    case :travianmap.get_info(url) do
-      {:error, reason} -> {:error, reason}
-      {:ok, aditional_info} -> 
-	case :travianmap.get_map(url) do
-	  {:error, reason} -> {:error, reason}
-	  {:ok, server_map} ->
-	    records = :travianmap.parse_map(server_map, :filter)
-	    case handle_inserts(url, init_date, aditional_info, records) do
-	      {:error, reason} -> {:error, reason}
-	      {:ok, players_id} -> 
-		Medusa.eval_players(players_id)
-		:ok
-	    end
+
+  @spec handle_collect_snapshot(server_id :: TTypes.server_id()) :: :ok | {:error, any()}
+  def handle_collect_snapshot(server_id) do
+    case :travianmap.get_map(server_id) do
+      {:error, reason} ->
+	Logger.info("Unable to collect snapshot: #{server_id} Reason: #{inspect(reason)}")
+	{:error, reason}
+      {:ok, raw_snapshot} ->
+	Logger.info("Snapshot successfully collected: #{server_id}")
+	enriched_rows = for tuple <- :travianmap.parse_map(raw_snapshot, :filter), do: Collector.ProcessTravianMap.enriched_map(tuple, server_id)
+	root_folder = Application.fetch_env!(:collector, :root_folder)
+	now = DateTime.now!("Etc/UTC") |> DateTime.to_date()
+	case SnapshotEncoder.encode(enriched_rows, root_folder, now, server_id) do
+	  {:ok, filename} ->
+	    Logger.info("Snapshot stored: #{server_id} Filename: #{filename}")
+	  {:error, reason} ->
+	    Logger.info("Unable to store snapshot: #{server_id} Reason: #{inspect(reason)}")
+	    {:error, reason}
 	end
     end
   end
 
-  @spec handle_inserts(url :: binary(), init_date :: DateTime.t(), aditional_info :: map(), records :: [tuple()]) :: {:ok, [binary()]} | {:error, any()}
-  defp handle_inserts(url, init_date, aditional_info, records) do
-    try do
 
-      server_dict = for record <- records, do: Collector.ProcessTravianMap.tuple_to_map(record)
-
-      server_id = Collector.ProcessTravianMap.create_server_id(url, init_date)
-      server = Collector.ProcessTravianMap.process_server(server_id, url, init_date, aditional_info)
-      alliances = Collector.ProcessTravianMap.process_alliances(server_id, server_dict)
-      players = Collector.ProcessTravianMap.process_players(server_id, server_dict)
-      villages = Collector.ProcessTravianMap.process_villages(server_id, server_dict)
-      a_p = Collector.ProcessTravianMap.process_a_ps(server_id, server_dict)
-      p_v = Collector.ProcessTravianMap.process_p_vs(server_id, server_dict)
-
-      Collector.Queries.insert_or_update_server!(server)
-      Collector.Queries.insert_or_update_alliances!(alliances) |> TDB.Repo.transaction()
-      Collector.Queries.insert_or_update_players!(players) |> TDB.Repo.transaction()
-      Collector.Queries.insert_or_update_villages!(villages) |> TDB.Repo.transaction()
-      Collector.Queries.insert_or_update_a_p!(a_p) |> TDB.Repo.transaction()
-      Collector.Queries.insert_or_update_p_v!(p_v) |> TDB.Repo.transaction()
-      players_id = for player <- players, do: player.data.id
-      {:ok, players_id}
-    rescue
-      error in RuntimeError -> {:error, error}
+  @spec handle_collect_info(server_id :: TTypes.server_id(), init_date :: Date.t() | nil) :: :ok | {:error, any()}
+  def handle_collect_info(server_id, init_date) do
+    case :travianmap.get_info(server_id) do
+      {:error, reason} ->
+	Logger.info("Unable to collect info: #{server_id} Reason: #{inspect(reason)}")
+	{:error, reason}
+      {:ok, info} ->
+	Logger.info("Info successfully collected: #{server_id}")
+	root_folder = Application.fetch_env!(:collector, :root_folder)
+	now = DateTime.now!("Etc/UTC") |> DateTime.to_date()
+	extra_info = %{"server_id" => server_id, "init_date" => init_date}
+	enriched_info = Map.merge(info, extra_info)
+	case SnapshotEncoder.encode_info(enriched_info, root_folder, now, server_id) do
+	  {:ok, filename} ->
+	    Logger.info("Info stored: #{server_id} Filename: #{filename}")
+	  {:error, reason} ->
+	    Logger.info("Unable to store info: #{server_id} Reason: #{inspect(reason)}")
+	    {:error, reason}
+	end
     end
   end
-
 end
