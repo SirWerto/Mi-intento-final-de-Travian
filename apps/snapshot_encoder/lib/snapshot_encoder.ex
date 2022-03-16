@@ -73,15 +73,47 @@ defmodule SnapshotEncoder do
   end
 
   @spec snapshot_filename(date :: Date.t(), server_id :: TTypes.server_id()) :: String.t()
-  def snapshot_filename(date, server_id),
-    do:
-      "snapshot--" <>
-        @snapshot_version <> "--" <> server_id <> "--" <> Date.to_string(date) <> ".json"
+  def snapshot_filename(date, server_id), do: "snapshot--#{@snapshot_version}--#{server_id}--#{Date.to_string(date)}.json"
 
   @spec server_info_filename(date :: Date.t(), server_id :: TTypes.server_id()) ::
           String.t()
-  def server_info_filename(date, server_id),
-    do:
-      "serverinfo--" <>
-        @server_info_version <> "--" <> server_id <> "--" <> Date.to_string(date) <> ".json"
+  def server_info_filename(date, server_id), do: "serverinfo--#{@snapshot_version}--#{server_id}--#{Date.to_string(date)}.json"
+
+      #-- test and decide names and pretify
+
+  @spec get_last_server_info(root_folder :: String.t(), server_id :: TTypes.server_id()) :: {:ok, %{}} | {:error, any()}
+  def get_last_server_info(root_folder, server_id) do
+    case get_server_files(root_folder, server_id) do
+      {:ok, files} -> {:ok, Enum.filter(files, fn file -> file[:type] == "serverinfo" end) |> Enum.max_by(fn file -> file[:date] end, Date)}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+
+  @spec get_last_snapshot(root_folder :: String.t(), server_id :: TTypes.server_id()) :: {:ok, %{}} | {:error, any()}
+  def get_last_snapshot(root_folder, server_id) do
+    case get_server_files(root_folder, server_id) do
+      {:ok, files} -> {:ok, Enum.filter(files, fn file -> file[:type] == "snapshot" end) |> Enum.max_by(fn file -> file[:date] end, Date)}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @spec get_server_files(root_folder :: String.t(), server_id :: TTypes.server_id()) :: {:ok, [%{}]} | {:error, any()}
+  def get_server_files(root_folder, server_id) do
+    case File.ls("#{root_folder}/#{server_id}") do
+      {:ok, []} -> {:error, :no_files}
+      {:ok, files} -> {:ok, Enum.map(files, &from_filename!/1)}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  ##@spec from_filename!(filename :: String.t()) :: %{}
+  defp from_filename!(filename) do
+	[type, version, server_id, dirty_date] = String.split(filename, "--")
+	len_date = String.length(dirty_date)-5
+	<<string_date::binary-size(len_date), ".json">> = dirty_date
+	date = Date.from_iso8601!(string_date)
+	%{type: type, version: version, server_id: server_id, date: date, filename: filename}
+  end
+
 end

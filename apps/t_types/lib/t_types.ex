@@ -140,4 +140,9 @@ defmodule TTypes do
 
   @type enriched_row :: normal_snapshot_row_enriched() | conquer_snapshot_row_enriched()
 
+
+
+  @typedoc "Information of the server, for example, speed."
+  @type server_info :: %{String.t() => any()}
+
 end

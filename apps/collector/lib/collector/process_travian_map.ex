@@ -60,6 +60,11 @@ defmodule Collector.ProcessTravianMap do
     }
   end
 
+  @spec compare_server_info(old_info :: TTypes.server_info(), new_info :: TTypes.server_info()) :: :not_necessary | TTypes.server_info()
+  def compare_server_info(old_info, new_info)
+  def compare_server_info(equal_info, equal_info), do: :not_necessary
+  def compare_server_info(old_info, new_info), do: Map.merge(old_info, new_info)
+
 
   @spec make_village_id(server_id :: TTypes.server_id(), v_server_id :: TTypes.village_server_id()) :: TTypes.village_id()
   defp make_village_id(server_id, v_server_id), do: server_id <> "--V--" <> Integer.to_string(v_server_id)

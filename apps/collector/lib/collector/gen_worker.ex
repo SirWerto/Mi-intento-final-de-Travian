@@ -81,6 +81,7 @@ defmodule Collector.GenWorker do
 	case SnapshotEncoder.encode(enriched_rows, root_folder, now, server_id) do
 	  {:ok, filename} ->
 	    Logger.info("Snapshot stored: #{server_id} Filename: #{filename}")
+	    :ok
 	  {:error, reason} ->
 	    Logger.info("Unable to store snapshot: #{server_id} Reason: #{inspect(reason)}")
 	    {:error, reason}
@@ -101,13 +102,35 @@ defmodule Collector.GenWorker do
 	now = DateTime.now!("Etc/UTC") |> DateTime.to_date()
 	extra_info = %{"server_id" => server_id, "init_date" => init_date}
 	enriched_info = Map.merge(info, extra_info)
-	case SnapshotEncoder.encode_info(enriched_info, root_folder, now, server_id) do
-	  {:ok, filename} ->
-	    Logger.info("Info stored: #{server_id} Filename: #{filename}")
+	case last_server_info(root_folder, server_id) do
 	  {:error, reason} ->
 	    Logger.info("Unable to store info: #{server_id} Reason: #{inspect(reason)}")
 	    {:error, reason}
+	  {:ok, last_info} ->
+	    case Collector.ProcessTravianMap.compare_server_info(last_info, enriched_info) do
+	      :not_necessary -> 
+		Logger.info("Not necessary to store info: #{server_id} Filename: #{filename}")
+		:ok
+	      new_info -> 
+		case SnapshotEncoder.encode_info(new_info, root_folder, now, server_id) do
+		  {:ok, filename} ->
+		    Logger.info("Info stored: #{server_id} Filename: #{filename}")
+		    :ok
+		  {:error, reason} ->
+		    Logger.info("Unable to store info: #{server_id} Reason: #{inspect(reason)}")
+		    {:error, reason}
+		end
+	    end
 	end
     end
   end
+
+  @psec last_server_info(root_folder :: String.t(), server_id :: TTypes.server_id()) :: TTypes.server_info()
+  defp last_server_info(root_folder, server_id) do
+    case SnapshotEncoder.get_last_server_info(root_folder, server_id) do
+      {:ok, file_info} -> SnapshotEncoder.decode_info(file_info[:filename])
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
 end

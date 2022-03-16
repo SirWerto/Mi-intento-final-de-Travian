@@ -42,4 +42,56 @@ defmodule ProcessTravianmapTest do
     }
     assert output == Collector.ProcessTravianMap.enriched_map(input, server_id)
   end
+
+
+  test "compare 2 equals servers_info" do
+    old_info = %{
+      "speed" => 4,
+      "another_key" => "some_info"
+    }
+
+    new_info = old_info
+
+    assert :not_necessary == Collector.ProcessTravianMap.compare_server_info(old_info, new_info)
+  end
+
+
+  test "compare 2 servers_info with new keys" do
+    old_info = %{
+      "speed" => 4,
+      "another_key" => "some_info"
+    }
+
+
+    new_info = %{
+      "conquer" => true
+    }
+
+    info_output = %{
+      "speed" => 4,
+      "another_key" => "some_info",
+      "conquer" => true
+    }
+    assert info_output == Collector.ProcessTravianMap.compare_server_info(old_info, new_info)
+  end
+
+
+  test "compare 2 non_equals servers_info" do
+    old_info = %{
+      "speed" => 4,
+      "another_key" => "some_info"
+    }
+
+
+    new_info = %{
+      "speed" => 5
+    }
+
+    info_output = %{
+      "speed" => 5,
+      "another_key" => "some_info"
+    }
+    assert info_output == Collector.ProcessTravianMap.compare_server_info(old_info, new_info)
+  end
+
 end
