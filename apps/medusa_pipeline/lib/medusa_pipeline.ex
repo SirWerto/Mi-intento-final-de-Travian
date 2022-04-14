@@ -62,4 +62,16 @@ defmodule MedusaPipeline do
       population_decrease: population_decrease,
       n_races: n_races}
   end
+
+  @type t :: any()
+
+
+  @spec pipe([{Date.t(), [TTypes.enriched_row()]}]) :: [t()]
+  def pipe([]), do: []
+  def pipe(snapshots) do
+    snapshots
+    |> Enum.map(&Step1.process_snapshot/1)
+    |> Enum.chunk_every(count=2, step=1, leftover=:discard)
+    |> Enum.flat_map(&Step2.process_2_snapshots/1)
+  end
 end

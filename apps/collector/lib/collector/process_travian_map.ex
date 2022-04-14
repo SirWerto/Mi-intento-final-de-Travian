@@ -4,43 +4,20 @@ defmodule Collector.ProcessTravianMap do
   @spec enriched_map(travian_tuple :: TTypes.snapshot_row(), server_id :: TTypes.server_id()) :: TTypes.enriched_row()
   def enriched_map(travian_tuple, server_id)
   def enriched_map({grid_position,
-			x_position,
-			y_position,
-			tribe,
-			village_server_id,
-			village_name,
-			player_server_id,
-			player_name,
-			alliance_server_id,
-			alliance_name,
-			population}, server_id) do
-    %{
-      grid_position: grid_position,
-      x: x_position,
-      y: y_position,
-      tribe: tribe,
-      village_id: make_village_id(server_id, village_server_id),
-      village_name: village_name,
-      player_id: make_player_id(server_id, player_server_id),
-      player_name: player_name,
-      alliance_id: make_alliance_id(server_id, alliance_server_id),
-      alliance_name: alliance_name,
-      population: population
-    }
-  end
-
-
-  def enriched_map({grid_position,
-			x_position,
-			y_position,
-			tribe,
-			village_server_id,
-			village_name,
-			player_server_id,
-			player_name,
-			alliance_server_id,
-			alliance_name,
-			population, region, bool1, bool2, integer1}, server_id) do
+		    x_position,
+		    y_position,
+		    tribe,
+		    village_server_id,
+		    village_name,
+		    player_server_id,
+		    player_name,
+		    alliance_server_id,
+		    alliance_name,
+		    population,
+		    region,
+		    undef_1,
+		    undef_2,
+		    victory_points}, server_id) do
     %{
       grid_position: grid_position,
       x: x_position,
@@ -54,9 +31,9 @@ defmodule Collector.ProcessTravianMap do
       alliance_name: alliance_name,
       population: population,
       region: region,
-      bool1: bool1,
-      bool2: bool2,
-      integer1: integer1
+      undef_1: undef_1,
+      undef_2: undef_2,
+      victory_points: victory_points
     }
   end
 

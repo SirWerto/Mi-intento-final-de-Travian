@@ -8,7 +8,8 @@ defmodule MyTravian.MixProject do
       version: "0.2.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      releases: releases()
+      releases: releases(),
+      aliases: aliases()
     ]
   end
 
@@ -31,7 +32,6 @@ defmodule MyTravian.MixProject do
     ]
   end
 
-
   defp release_collector do
     [
       applications: [
@@ -41,11 +41,16 @@ defmodule MyTravian.MixProject do
 	elixir: :permanent,
 	t_db: :permanent,
 	prediction_bank: :permanent,
-	medusa: :permanent,
+	#medusa: :permanent,
 	collector: :permanent
       ],
       include_executables_for: [:unix],
       steps: [:assemble, :tar]
+    ]
+  end
+
+  defp aliases do
+    [
     ]
   end
 end

@@ -16,8 +16,9 @@ defmodule SnapshotEncoder do
           server_id :: TTypes.server_id()
         ) :: {:ok, String.t()} | {:error, any()}
   def encode(enriched_snapshot, root_folder, date, server_id) do
-    folder_name = root_folder <> "/" <> server_id
-    file_name = folder_name <> "/" <> snapshot_filename(date, server_id)
+    file_server_id = remove_http(server_id)
+    folder_name = root_folder <> "/" <> file_server_id
+    file_name = folder_name <> "/" <> snapshot_filename(date, file_server_id)
 
     with {:ok, json_string} <- Jason.encode(enriched_snapshot),
          :ok <- File.mkdir_p(folder_name),
@@ -45,8 +46,9 @@ defmodule SnapshotEncoder do
 
   @spec encode_info(server_info :: server_info(), root_folder :: Path.t(), date :: Date.t(), server_id :: TTypes.server_id()) :: {:ok, String.t()} | {:error, any()}
   def encode_info(server_info, root_folder, date, server_id) do
-    folder_name = root_folder <> "/" <> server_id
-    file_name = folder_name <> "/" <> server_info_filename(date, server_id)
+    file_server_id = remove_http(server_id)
+    folder_name = root_folder <> "/" <> file_server_id
+    file_name = folder_name <> "/" <> server_info_filename(date, file_server_id)
 
     with true <- Enum.all?(Map.keys(server_info), fn key -> is_binary(key) end),
     {:ok, json_string} <- Jason.encode(server_info),
@@ -77,14 +79,16 @@ defmodule SnapshotEncoder do
 
   @spec server_info_filename(date :: Date.t(), server_id :: TTypes.server_id()) ::
           String.t()
-  def server_info_filename(date, server_id), do: "serverinfo--#{@snapshot_version}--#{server_id}--#{Date.to_string(date)}.json"
+  def server_info_filename(date, server_id), do: "serverinfo--#{@server_info_version}--#{server_id}--#{Date.to_string(date)}.json"
 
       #-- test and decide names and pretify
 
   @spec get_last_server_info(root_folder :: String.t(), server_id :: TTypes.server_id()) :: {:ok, %{}} | {:error, any()}
   def get_last_server_info(root_folder, server_id) do
     case get_server_files(root_folder, server_id) do
+      {:ok, :no_files} -> {:ok, :no_files}
       {:ok, files} -> {:ok, Enum.filter(files, fn file -> file[:type] == "serverinfo" end) |> Enum.max_by(fn file -> file[:date] end, Date)}
+
       {:error, reason} -> {:error, reason}
     end
   end
@@ -100,8 +104,8 @@ defmodule SnapshotEncoder do
 
   @spec get_server_files(root_folder :: String.t(), server_id :: TTypes.server_id()) :: {:ok, [%{}]} | {:error, any()}
   def get_server_files(root_folder, server_id) do
-    case File.ls("#{root_folder}/#{server_id}") do
-      {:ok, []} -> {:error, :no_files}
+    case File.ls("#{root_folder}/#{remove_http(server_id)}") do
+      {:ok, []} -> {:ok, :no_files}
       {:ok, files} -> {:ok, Enum.map(files, &from_filename!/1)}
       {:error, reason} -> {:error, reason}
     end
@@ -115,5 +119,9 @@ defmodule SnapshotEncoder do
 	date = Date.from_iso8601!(string_date)
 	%{type: type, version: version, server_id: server_id, date: date, filename: filename}
   end
+
+  @spec remove_http(http_string :: String.t()) :: String.t()
+  defp remove_http(<<"https://", server_id::binary>>), do: server_id
+  defp remove_http(<<"http://", server_id::binary>>), do: server_id
 
 end

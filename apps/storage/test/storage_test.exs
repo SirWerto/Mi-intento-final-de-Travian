@@ -11,6 +11,8 @@ defmodule StorageTest do
   end
 
 
+
+
   @tag :tmp_dir
   test "If only one info stored, fetch_last_info should return it", %{tmp_dir: tmp_dir} do
     root_folder = tmp_dir
@@ -36,6 +38,54 @@ defmodule StorageTest do
     assert(:ok = Storage.store_info(root_folder, server_id, date2, info2))
     assert(:ok = Storage.store_info(root_folder, server_id, date3, info3))
     assert(Storage.fetch_last_info(root_folder, server_id) == {:ok, info2})
+  end
+
+
+  @tag :tmp_dir
+  test "fetch_last_info only compare info files", %{tmp_dir: tmp_dir} do
+    root_folder = tmp_dir
+    server_id = "https://ts8.x1.europe.travian.com"
+    info = %{"speed" => "3", "some_value" => "<3"}
+    date = DateTime.now!("Etc/UTC") |> DateTime.to_date()
+
+    snap = [%{
+	       alliance_id: "https://ts8.x1.europe.travian.com--A--44",
+	       alliance_name: "TOP+",
+	       grid_position: 15,
+	       player_id: "https://ts8.x1.europe.travian.com--P--14630",
+	       player_name: "Tierwelt",
+	       population: 47,
+	       region: nil,
+	       tribe: 3,
+	       undef_1: false,
+	       undef_2: nil,
+	       victory_points: nil,
+	       village_id: "https://ts8.x1.europe.travian.com--V--74847",
+	       village_name: "Neues Dorf",
+	       x: -186,
+	       y: 200
+	    },
+	    %{
+	      alliance_id: "https://ts8.x1.europe.travian.com--A--46",
+	      alliance_name: "GW",
+	      grid_position: 29,
+	      player_id: "https://ts8.x1.europe.travian.com--P--4080",
+	      player_name: "Barabbas",
+	      population: 853,
+	      region: nil,
+	      tribe: 1,
+	      undef_1: false,
+	      undef_2: nil,
+	      victory_points: nil,
+	      village_id: "https://ts8.x1.europe.travian.com--V--44259",
+	      village_name: "05",
+	      x: -172,
+	      y: 200
+	    }]
+
+    assert(Storage.store_snapshot(root_folder, server_id, date, snap) == :ok)
+    assert(:ok = Storage.store_info(root_folder, server_id, date, info))
+    assert(Storage.fetch_last_info(root_folder, server_id) == {:ok, info})
   end
 
 

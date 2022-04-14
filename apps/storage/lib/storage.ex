@@ -46,14 +46,23 @@ defmodule Storage do
       {:error, reason} -> {:error, reason}
       {:ok, []} -> {:ok, :no_files}
       {:ok, files} -> 
-	files
-	|> Enum.filter(fn <<"info", _::binary()>> -> true
+	files = files |> Enum.filter(fn <<"info", _::binary()>> -> true
 	  _ -> false end)
-	|> Enum.reduce(&get_last_info/2)
-	|> (fn x -> folder <> x end).()
-	|> File.read()
-	|> info_from_format()
+      case files do
+	[] -> {:ok, :no_files}
+	[last] -> process_last_info(last, folder)
+	_ ->
+	  files
+	  |> Enum.reduce(&get_last_info/2)
+	  |> process_last_info(folder)
+      end
     end
+  end
+
+  defp process_last_info(filename, folder) do
+    folder <> filename
+    |> File.read()
+    |> info_from_format()
   end
 
   @spec fetch_last_n_snapshots(root_folder :: String.t(), server_id :: TTypes.server_id(), n :: pos_integer()) :: {:ok, [{Date.t(), [TTypes.enriched_row()]}]} | {:error, any()}

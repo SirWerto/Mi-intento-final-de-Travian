@@ -27,7 +27,8 @@ defmodule MedusaPipeline.MixProject do
     [
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:propcheck, "~> 1.4", only: [:test, :dev]},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:t_types, in_umbrella: true}
     ]
   end
 end

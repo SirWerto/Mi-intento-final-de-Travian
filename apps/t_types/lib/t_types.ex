@@ -7,7 +7,7 @@ defmodule TTypes do
   @type server_id :: String.t()
 
   @typedoc "Player's unique Travian server identifier. Collected from a map.sql snapshot."
-  @type player_server_id :: String.t()
+  @type player_server_id :: integer()
 
   @typedoc "Player's unique identifier. It is made by `server_id <> \"--P--\" <> player_server_id`."
   @type player_id :: String.t()
@@ -16,7 +16,7 @@ defmodule TTypes do
   @type player_name :: String.t()
 
   @typedoc "Village's unique Travian server identifier. Collected from a map.sql snapshot."
-  @type village_server_id :: String.t()
+  @type village_server_id :: integer()
 
   @typedoc "Village's unique identifier. It is made by `server_id <> \"--V--\" <> village_server_id`."
   @type village_id :: String.t()
@@ -25,7 +25,7 @@ defmodule TTypes do
   @type village_name :: String.t()
 
   @typedoc "Alliance's unique Travian server identifier. Collected from a map.sql snapshot."
-  @type alliance_server_id :: String.t()
+  @type alliance_server_id :: integer()
 
   @typedoc "Alliance's unique identifier. It is made by `server_id <> \"--A--\" <> alliance_server_id`."
   @type alliance_id :: String.t()
@@ -51,6 +51,9 @@ defmodule TTypes do
   \n7 => Egyptians"
   @type tribe :: pos_integer()
 
+  @type tribes_map :: %{romans: non_neg_integer(),
+  }
+
   @typedoc "Number of inhabitans who lives in the villages. It can grow if the player makes buildings and it can descend if the buildings are destroy or donwgrade. The minimun population is 1."
   @type population :: pos_integer()
 
@@ -65,26 +68,17 @@ defmodule TTypes do
 
 
   @typedoc "If the server is type `Conquer`, this attribute defines the region where the village is."
-  @type region() :: String.t()
-
-  @typedoc "Row information in the snapshot if the server is normal."
-  @type normal_snapshot_row :: {
-    grid_position(),
-    x(),
-    y(),
-    tribe(),
-    village_server_id(),
-    village_name(),
-    player_server_id(),
-    player_name(),
-    alliance_server_id(),
-    alliance_name(),
-    population()
-  }
+  @type region() :: String.t() | nil
 
 
-  @typedoc "Row information in the snapshot if the server is `Conquer`."
-  @type conquer_snapshot_row :: {
+  @typedoc "If the server is type `Conquer`, this attribute defines the points obtained by this village."
+  @type victory_points() :: pos_integer() | nil
+
+  @type undef_1() :: boolean() | nil
+  @type undef_2() :: boolean() | nil
+
+  @typedoc "Row information in the snapshot."
+  @type snapshot_row :: {
     grid_position(),
     x(),
     y(),
@@ -97,30 +91,15 @@ defmodule TTypes do
     alliance_name(),
     population(),
     region(),
-    boolean(),
-    boolean(),
-    integer()
-  }
-
-  @type snapshot_row :: normal_snapshot_row() | conquer_snapshot_row()
+    undef_1(),
+    undef_2(),
+    victory_points()}
 
 
 
-  @type normal_snapshot_row_enriched :: %{
-          grid_position: grid_position(),
-          x: x(),
-          y: y(),
-          tribe: tribe(),
-          village_id: village_id(),
-          village_name: village_name(),
-          player_id: player_id(),
-          player_name: player_name(),
-          alliance_id: alliance_id(),
-          alliance_name: alliance_name(),
-          population: population()
-        }
 
-  @type conquer_snapshot_row_enriched :: %{
+
+  @type enriched_row :: %{
           grid_position: grid_position(),
           x: x(),
           y: y(),
@@ -132,13 +111,12 @@ defmodule TTypes do
           alliance_id: alliance_id(),
           alliance_name: alliance_name(),
           population: population(),
-          region: region(),
-          bool1: boolean(),
-          bool2: boolean(),
-          integer1: integer()
+          region: region() | nil,
+          undef_1: boolean() | nil,
+          undef_2: boolean() | nil,
+          victory_points: integer() | nil
         }
 
-  @type enriched_row :: normal_snapshot_row_enriched() | conquer_snapshot_row_enriched()
 
 
 

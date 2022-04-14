@@ -1,5 +1,5 @@
 defmodule Collector.GenWorker do
-  use GenServer
+  use GenServer, restart: :temporary
   require Logger
 
 
@@ -9,12 +9,10 @@ defmodule Collector.GenWorker do
   @delay_max 300_000
   @delay_min 5_000
 
-  @spec start_link(server_id :: TTypes.server_id(), type :: :snapshot | :info) :: GenServer.on_start()
-  def start_link(server_id, :snapshot), do: GenServer.start_link(__MODULE__, [server_id, :snapshot])
-  def start_link(server_id, :info), do: start_link(server_id, :info, nil)
+  # @spec start_link(server_id :: TTypes.server_id(), type :: :snapshot | :info) :: GenServer.on_start()
+  def start_link([server_id, :snapshot]), do: GenServer.start_link(__MODULE__, [server_id, :snapshot])
+  def start_link([server_id, :info]), do: GenServer.start_link(__MODULE__, [server_id, :info, nil])
 
-  @spec start_link(server_id :: TTypes.server_id(), :info, init_date :: Date.t() | nil) :: GenServer.on_start()
-  def start_link(server_id, :info, init_date), do: GenServer.start_link(__MODULE__, [server_id, :info, init_date])
   
   @spec stop(pid :: pid(), reason :: term(), timeout :: timeout()) :: :ok
   def stop(pid, reason \\ :normal, timeout \\ 5000), do: GenServer.stop(pid, reason, timeout)
@@ -78,9 +76,10 @@ defmodule Collector.GenWorker do
 	enriched_rows = for tuple <- :travianmap.parse_map(raw_snapshot, :filter), do: Collector.ProcessTravianMap.enriched_map(tuple, server_id)
 	root_folder = Application.fetch_env!(:collector, :root_folder)
 	now = DateTime.now!("Etc/UTC") |> DateTime.to_date()
-	case SnapshotEncoder.encode(enriched_rows, root_folder, now, server_id) do
-	  {:ok, filename} ->
-	    Logger.info("Snapshot stored: #{server_id} Filename: #{filename}")
+	case Storage.store_snapshot(root_folder, server_id, now, enriched_rows) do
+	# case SnapshotEncoder.encode(enriched_rows, root_folder, now, server_id) do
+	  :ok ->
+	    Logger.info("Snapshot stored: #{server_id}")
 	    :ok
 	  {:error, reason} ->
 	    Logger.info("Unable to store snapshot: #{server_id} Reason: #{inspect(reason)}")
@@ -102,19 +101,31 @@ defmodule Collector.GenWorker do
 	now = DateTime.now!("Etc/UTC") |> DateTime.to_date()
 	extra_info = %{"server_id" => server_id, "init_date" => init_date}
 	enriched_info = Map.merge(info, extra_info)
-	case last_server_info(root_folder, server_id) do
+	case Storage.fetch_last_info(root_folder, server_id) do
+	# case last_server_info(root_folder, server_id) do
 	  {:error, reason} ->
 	    Logger.info("Unable to store info: #{server_id} Reason: #{inspect(reason)}")
 	    {:error, reason}
+	  {:ok, :no_files} ->
+	    case Storage.store_info(root_folder, server_id, now, enriched_info) do
+	    # case SnapshotEncoder.encode_info(enriched_info, root_folder, now, server_id) do
+	      :ok ->
+		Logger.info("Info stored: #{server_id}")
+		:ok
+	      {:error, reason} ->
+		Logger.info("Unable to store info: #{server_id} Reason: #{inspect(reason)}")
+		{:error, reason}
+	    end
 	  {:ok, last_info} ->
 	    case Collector.ProcessTravianMap.compare_server_info(last_info, enriched_info) do
 	      :not_necessary -> 
-		Logger.info("Not necessary to store info: #{server_id} Filename: #{filename}")
+		Logger.info("Not necessary to store info: #{server_id}")
 		:ok
 	      new_info -> 
-		case SnapshotEncoder.encode_info(new_info, root_folder, now, server_id) do
-		  {:ok, filename} ->
-		    Logger.info("Info stored: #{server_id} Filename: #{filename}")
+		case Storage.store_info(root_folder, server_id, now, new_info) do
+		# case SnapshotEncoder.encode_info(new_info, root_folder, now, server_id) do
+		  :ok ->
+		    Logger.info("Info stored: #{server_id}")
 		    :ok
 		  {:error, reason} ->
 		    Logger.info("Unable to store info: #{server_id} Reason: #{inspect(reason)}")
@@ -124,13 +135,4 @@ defmodule Collector.GenWorker do
 	end
     end
   end
-
-  @psec last_server_info(root_folder :: String.t(), server_id :: TTypes.server_id()) :: TTypes.server_info()
-  defp last_server_info(root_folder, server_id) do
-    case SnapshotEncoder.get_last_server_info(root_folder, server_id) do
-      {:ok, file_info} -> SnapshotEncoder.decode_info(file_info[:filename])
-      {:error, reason} -> {:error, reason}
-    end
-  end
-
 end
