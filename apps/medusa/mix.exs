@@ -30,11 +30,10 @@ defmodule Medusa.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:propcheck, "~> 1.4", only: [:test, :dev]},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:t_db, in_umbrella: true},
       {:medusa_pipeline, in_umbrella: true},
       {:medusa_models, in_umbrella: true},
       {:medusa_port, in_umbrella: true},
-      {:prediction_bank, in_umbrella: true},
+      {:prediction_bank, in_umbrella: true}
     ]
   end
 end
