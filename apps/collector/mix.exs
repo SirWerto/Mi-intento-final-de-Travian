@@ -32,7 +32,7 @@ defmodule Collector.MixProject do
       {:finch, "~> 0.8"},
       {:floki, "~> 0.31.0"},
       {:jason, "~> 1.2"},
-      {:travianmap, "~> 0.3.0"},
+      {:travianmap, "~> 0.3.1"},
       {:t_types, in_umbrella: true},
       {:storage, in_umbrella: true}
       # {:medusa, in_umbrella: true}

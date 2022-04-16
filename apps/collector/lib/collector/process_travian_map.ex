@@ -15,8 +15,8 @@ defmodule Collector.ProcessTravianMap do
 		    alliance_name,
 		    population,
 		    region,
-		    undef_1,
-		    undef_2,
+		    is_capital,
+		    is_city,
 		    victory_points}, server_id) do
     %{
       grid_position: grid_position,
@@ -31,8 +31,8 @@ defmodule Collector.ProcessTravianMap do
       alliance_name: alliance_name,
       population: population,
       region: region,
-      undef_1: undef_1,
-      undef_2: undef_2,
+      is_capital: is_capital,
+      is_city: is_city,
       victory_points: victory_points
     }
   end

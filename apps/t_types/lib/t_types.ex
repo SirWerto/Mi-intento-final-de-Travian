@@ -74,8 +74,11 @@ defmodule TTypes do
   @typedoc "If the server is type `Conquer`, this attribute defines the points obtained by this village."
   @type victory_points() :: pos_integer() | nil
 
-  @type undef_1() :: boolean() | nil
-  @type undef_2() :: boolean() | nil
+  @typedoc "This attribute defines if the village is a capital."
+  @type is_capital() :: boolean() | nil
+
+  @typedoc "If the server is type `Conquer`, this attribute defines if the village is a city?."
+  @type is_city() :: boolean() | nil
 
   @typedoc "Row information in the snapshot."
   @type snapshot_row :: {
@@ -91,8 +94,8 @@ defmodule TTypes do
     alliance_name(),
     population(),
     region(),
-    undef_1(),
-    undef_2(),
+    is_capital(),
+    is_city(),
     victory_points()}
 
 
@@ -111,10 +114,10 @@ defmodule TTypes do
           alliance_id: alliance_id(),
           alliance_name: alliance_name(),
           population: population(),
-          region: region() | nil,
-          undef_1: boolean() | nil,
-          undef_2: boolean() | nil,
-          victory_points: integer() | nil
+          region: region(),
+          is_capital: is_capital(),
+          is_city: is_city(),
+          victory_points: victory_points()
         }
 
 
