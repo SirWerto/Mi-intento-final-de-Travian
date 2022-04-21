@@ -3,15 +3,14 @@ defmodule Collector.GenWorker do
   require Logger
 
 
-  @max_tries 10
+  @max_tries 3
 
 
   @delay_max 300_000
   @delay_min 5_000
 
   # @spec start_link(server_id :: TTypes.server_id(), type :: :snapshot | :info) :: GenServer.on_start()
-  def start_link([server_id, :snapshot]), do: GenServer.start_link(__MODULE__, [server_id, :snapshot])
-  def start_link([server_id, :info]), do: GenServer.start_link(__MODULE__, [server_id, :info, nil])
+  def start_link([server_id, type]), do: GenServer.start_link(__MODULE__, [server_id, type])
 
   
   @spec stop(pid :: pid(), reason :: term(), timeout :: timeout()) :: :ok
@@ -19,9 +18,9 @@ defmodule Collector.GenWorker do
 
 
   @impl true
-  def init([url, :info, init_date]) do
+  def init([url, :info]) do
     timeref = :erlang.send_after(:rand.uniform(@delay_max - @delay_min) + @delay_min, self(), :collect)
-    {:ok, {url, :info, init_date, 0, timeref}}
+    {:ok, {url, :info, 0, timeref}}
   end
 
   def init([url, :snapshot]) do
@@ -40,7 +39,7 @@ defmodule Collector.GenWorker do
 
 
   @impl true
-  def handle_info(:collect, state = {server_id, type, _init_date, @max_tries, _timeref}) do
+  def handle_info(:collect, state = {server_id, type, @max_tries, _timeref}) do
     Logger.info("(GenWorker)Unable to collect: #{server_id} Type: #{inspect(type)} Reason: Reached Max Tries(#{inspect(@max_tries)})")
     {:stop, :normal, state}
   end
@@ -52,12 +51,12 @@ defmodule Collector.GenWorker do
 	{:noreply, {server_id, :snapshot, tries+1, timeref}}
     end
   end
-  def handle_info(:collect, state = {server_id, :info, init_date, tries, _timeref}) do
-    case handle_collect_info(server_id, init_date) do
+  def handle_info(:collect, state = {server_id, :info, tries, _timeref}) do
+    case handle_collect_info(server_id) do
       :ok -> {:stop, :normal, state}
       {:error, _} -> 
 	timeref = :erlang.send_after(:rand.uniform(@delay_max - @delay_min) + @delay_min, self(), :collect)
-	{:noreply, {server_id, :info, init_date, tries+1, timeref}}
+	{:noreply, {server_id, :info, tries+1, timeref}}
     end
   end
 
@@ -66,7 +65,7 @@ defmodule Collector.GenWorker do
 
 
   @spec handle_collect_snapshot(server_id :: TTypes.server_id()) :: :ok | {:error, any()}
-  def handle_collect_snapshot(server_id) do
+  defp handle_collect_snapshot(server_id) do
     case :travianmap.get_map(server_id) do
       {:error, reason} ->
 	Logger.info("Unable to collect snapshot: #{server_id} Reason: #{inspect(reason)}")
@@ -89,8 +88,8 @@ defmodule Collector.GenWorker do
   end
 
 
-  @spec handle_collect_info(server_id :: TTypes.server_id(), init_date :: Date.t() | nil) :: :ok | {:error, any()}
-  def handle_collect_info(server_id, init_date) do
+  @spec handle_collect_info(server_id :: TTypes.server_id()) :: :ok | {:error, any()}
+  defp handle_collect_info(server_id) do
     case :travianmap.get_info(server_id) do
       {:error, reason} ->
 	Logger.info("Unable to collect info: #{server_id} Reason: #{inspect(reason)}")
@@ -99,7 +98,7 @@ defmodule Collector.GenWorker do
 	Logger.info("Info successfully collected: #{server_id}")
 	root_folder = Application.fetch_env!(:collector, :root_folder)
 	now = DateTime.now!("Etc/UTC") |> DateTime.to_date()
-	extra_info = %{"server_id" => server_id, "init_date" => init_date}
+	extra_info = %{"server_id" => server_id}
 	enriched_info = Map.merge(info, extra_info)
 	case Storage.fetch_last_info(root_folder, server_id) do
 	# case last_server_info(root_folder, server_id) do
