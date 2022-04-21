@@ -1,6 +1,8 @@
 defmodule GenWorkerTest do
   use ExUnit.Case
 
+  @moduletag :capture_log
+
 
   test "stop and return normal when 3 attemps are reached" do
     server_id = "https://ts1.x1.asia.travian.com"

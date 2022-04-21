@@ -45,7 +45,9 @@ defmodule Collector.GenWorker do
   end
   def handle_info(:collect, state = {server_id, :snapshot, tries, _timeref}) do
     case handle_collect_snapshot(server_id) do
-      :ok -> {:stop, :normal, state}
+      :ok ->
+	GenServer.cast(Collector.GenCollector, {:collected, :snapshot, server_id, self()})
+	{:stop, :normal, state}
       {:error, _} -> 
 	timeref = :erlang.send_after(:rand.uniform(@delay_max - @delay_min) + @delay_min, self(), :collect)
 	{:noreply, {server_id, :snapshot, tries+1, timeref}}
@@ -53,7 +55,9 @@ defmodule Collector.GenWorker do
   end
   def handle_info(:collect, state = {server_id, :info, tries, _timeref}) do
     case handle_collect_info(server_id) do
-      :ok -> {:stop, :normal, state}
+      :ok ->
+	GenServer.cast(Collector.GenCollector, {:collected, :info, server_id, self()})
+	{:stop, :normal, state}
       {:error, _} -> 
 	timeref = :erlang.send_after(:rand.uniform(@delay_max - @delay_min) + @delay_min, self(), :collect)
 	{:noreply, {server_id, :info, tries+1, timeref}}
