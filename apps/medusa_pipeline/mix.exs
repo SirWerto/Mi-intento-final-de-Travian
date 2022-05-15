@@ -18,7 +18,7 @@ defmodule MedusaPipeline.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :collector]
     ]
   end
 
@@ -28,6 +28,8 @@ defmodule MedusaPipeline.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:propcheck, "~> 1.4", only: [:test, :dev]},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:collector, in_umbrella: true},
+      {:storage, in_umbrella: true},
       {:t_types, in_umbrella: true}
     ]
   end

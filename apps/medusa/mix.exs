@@ -17,23 +17,20 @@ defmodule Medusa.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :prediction_bank],
+      extra_applications: [:logger, :collector],
       mod: {Medusa.Application, []}
     ]
   end
 
   defp deps do
     [
-      {:ecto_sql, "~> 3.0"},
-      {:postgrex, ">= 0.0.0"},
       {:gen_stage, "~> 1.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:propcheck, "~> 1.4", only: [:test, :dev]},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:medusa_pipeline, in_umbrella: true},
-      {:medusa_models, in_umbrella: true},
-      {:medusa_port, in_umbrella: true},
-      {:prediction_bank, in_umbrella: true}
+      {:t_types, in_umbrella: true},
+      {:storage, in_umbrella: true},
+      {:collector, in_umbrella: true}
     ]
   end
 end

@@ -51,8 +51,11 @@ defmodule TTypes do
   \n7 => Egyptians"
   @type tribe :: pos_integer()
 
-  @type tribes_map :: %{romans: non_neg_integer(),
-  }
+  @typedoc "Name of the different tribes."
+  @type tribe_name :: :romans | :teutons | :gauls | :nature | :natars | :huns | :egyptians
+
+  @typedoc "A map to used to store the village tribes of each player."
+  @type tribes_map :: %{tribe_name() => non_neg_integer()}
 
   @typedoc "Number of inhabitans who lives in the villages. It can grow if the player makes buildings and it can descend if the buildings are destroy or donwgrade. The minimun population is 1."
   @type population :: pos_integer()
