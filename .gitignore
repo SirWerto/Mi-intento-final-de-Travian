@@ -29,4 +29,4 @@ erl_crash.dump
 .tool-versions
 
 # Ignore models folder
-/models/
+/apps/medusa/priv/

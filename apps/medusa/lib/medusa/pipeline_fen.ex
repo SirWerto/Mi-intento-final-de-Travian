@@ -18,6 +18,7 @@ defmodule Medusa.Pipeline.FEN do
 		 :n_village_decrease, :n_village_increase, :n_villages, :player_id,
 		 :inactive_in_current, :prev_distance_to_origin, :total_population, :total_population_decrease,
 		 :total_population_increase, :tribes_summary]
+  @derive Jason.Encoder
   defstruct [:center_mass_x, :center_mass_y, :date, :n_days, :dow, :distance_to_origin,
 	     :n_village_decrease, :n_village_increase, :n_villages, :player_id,
 	     :inactive_in_current, :prev_distance_to_origin, :total_population, :total_population_decrease,

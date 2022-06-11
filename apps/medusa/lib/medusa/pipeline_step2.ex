@@ -2,6 +2,7 @@ defmodule Medusa.Pipeline.Step2 do
 
 
   @enforce_keys [:fe_type, :fe_struct]
+  @derive Jason.Encoder
   defstruct [:fe_type, :fe_struct]
 
   @type fe_type :: :ndays_1, :ndays_n

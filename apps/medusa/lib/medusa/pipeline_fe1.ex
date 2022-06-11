@@ -2,6 +2,7 @@ defmodule Medusa.Pipeline.FE1 do
 
 
   @enforce_keys [:player_id, :date, :inactive_in_current, :total_population, :n_villages, :tribes_summary, :center_mass_x, :center_mass_y, :distance_to_origin]
+  @derive Jason.Encoder
   defstruct [:player_id, :date, :inactive_in_current, :total_population, :n_villages, :tribes_summary, :center_mass_x, :center_mass_y, :distance_to_origin]
   
   @type t :: %__MODULE__{

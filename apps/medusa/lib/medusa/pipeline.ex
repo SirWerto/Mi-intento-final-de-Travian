@@ -31,10 +31,7 @@ defmodule Medusa.Pipeline do
       |> Medusa.Pipeline.Step2.remove_non_consecutive()
       |> get_chunks()
       |> Enum.map(&assign_status/1)
-      #|> Enum.chunk_every(3, 1, :discard)
     end)
-  #   |> Enum.map(&assign_status/1)
-  #   |> Enum.map(fn {status, sample} -> {status, Medusa.Pipeline.Step2.apply_FE(sample)} end)
   end
 
   defp get_chunks(structs) do
