@@ -4,7 +4,7 @@ defmodule Medusa.Port.Test do
 
   setup_all do
     fen = %Medusa.Pipeline.FEN{
-    player_id: "player_id",
+    player_id: "player_id_n",
     date: ~D[2022-01-02],
     inactive_in_current: false,
     n_days: 3,
@@ -25,7 +25,7 @@ defmodule Medusa.Port.Test do
 
     fe1 = %Medusa.Pipeline.FE1{
 
-    player_id: "player_id",
+    player_id: "player_id_1",
     date: ~D[2022-01-02],
     inactive_in_current: :undefined,
     total_population: 100,
@@ -39,20 +39,53 @@ defmodule Medusa.Port.Test do
     sample_n = %Medusa.Pipeline.Step2{fe_type: :ndays_n, fe_struct: fen}
     sample_1 = %Medusa.Pipeline.Step2{fe_type: :ndays_1, fe_struct: fe1}
 
-    %{sample_n: sample_n, sample_1: sample_1}
+    samples = [sample_n, sample_1]
+    players_id = for x <- samples, do: x.fe_struct.player_id
+
+    %{samples: samples, players_id: players_id}
   end
 
   setup do
-    {port, ref} = Medusa.Port.open(System.fetch_env!("MITRAVIAN__MEDUSA_MODEL_DIR"))
+    {port, ref} = Medusa.Port.open(System.get_env("MITRAVIAN__MEDUSA_MODEL_DIR", "priv"))
     on_exit(fn -> Medusa.Port.close(port, ref) end)
     %{port: port, ref: ref}
   end
 
-  test "Input is step2 and output is just Medusa.Port.t() -> %{player_id: player_id, inactive_in_future: true | false}", %{port: port, sample_n: sample_n, sample_1: sample_1} do
 
-    [predict_n, predict_1] = Medusa.Port.predict!(port, [sample_n, sample_1])
+  test "Predictions has the same length as input", %{port: port, samples: samples} do
+    predictions = Medusa.Port.predict!(port, samples)
+    assert(length(predictions) == length(samples))
+  end
 
-    assert(is_boolean(predict_1.inactive_in_future))
-    assert(is_boolean(predict_n.inactive_in_future))
+  test "players_id has to be keep in predictions", %{port: port, samples: samples, players_id: players_id} do
+    predictions = Medusa.Port.predict!(port, samples)
+    pred_players_id = Enum.map(predictions, fn x -> x.player_id end)
+    |> Enum.sort()
+    |> Enum.uniq()
+
+    sorted_players_id = Enum.sort(players_id)
+    assert(sorted_players_id == pred_players_id)
+  end
+
+  test "Predictions should be model and bool", %{port: port, samples: samples} do
+    predictions = Medusa.Port.predict!(port, samples)
+    for pred <- predictions, do: assert_pred(pred)
+  end
+
+
+  test "Predict 2 times with the same port doesn't break it", %{port: port, samples: samples} do
+    _ = Medusa.Port.predict!(port, samples)
+    _ = Medusa.Port.predict!(port, samples)
+  end
+
+
+  test "Predict an [] shuld return []", %{port: port} do
+    assert([] == Medusa.Port.predict!(port, []))
+  end
+
+
+  defp assert_pred(pred) do
+    assert(is_boolean(pred.inactive_in_future))
+    assert(pred.model == :player_n or pred.model == :player_1)
   end
 end

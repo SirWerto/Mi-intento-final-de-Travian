@@ -6,7 +6,7 @@ defmodule Medusa.Pipeline.TrainIntegration.Test do
 
 
   test "get_train_data split&process the input data in different samples for the models and assigns an status to them" do
-    input = [
+    _input = [
       {~D[2022-01-02], [%{
 			   grid_position: 1,
 			   x: 1,

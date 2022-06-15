@@ -3,8 +3,10 @@ defmodule Medusa.Port do
   Documentation for `Medusa.Port`.
   """
 
+  @python_version 3.7
+
   @medusa_py "medusa_app.py"
-  @medusa_py_env "medusa_env/lib/python3.7/site-packages"
+  @medusa_py_env "medusa_env/lib/python#{@python_version}/site-packages"
   @medusa_model_1 "medusa_model_1.pkl"
   @medusa_model_n "medusa_model_n.pkl"
 
@@ -34,7 +36,7 @@ defmodule Medusa.Port do
       {:env, env}
     ]
     
-    port = Port.open({:spawn, "python3 #{medusa_py} #{medusa_model_1} #{medusa_model_n}"}, options)
+    port = Port.open({:spawn, "python#{@python_version} #{medusa_py} #{medusa_model_1} #{medusa_model_n}"}, options)
     ref = Port.monitor(port)
     
     {port, ref}
@@ -42,8 +44,8 @@ defmodule Medusa.Port do
 
   @spec close(port :: port(), ref :: reference()) :: :ok
   def close(port, ref) do
-    Port.demonitor(ref, :flush)
-    Port.close(port)
+    Port.demonitor(ref, [:flush])
+    send(port, {self(), :close})
     receive do
       {^port, :closed} -> :ok
       after
@@ -57,58 +59,24 @@ defmodule Medusa.Port do
     Port.command(port, cmd)
     receive do
       {^port, {:data, data}} ->
-	for [model, player, pred] <- Jason.decode!(data), do: %__MODULE__{player_id: player, inactive_in_future: pred, model: model}
+	for [model, player, pred] <- Jason.decode!(data), do: map_port_to_struct(model, player, pred)
     end
   end
-end
 
-defmodule MedusaPort do
-  
-  # this should be arguments or app enviroments, not module attributes
-  @medusa_port_file "medusa_app.py"
-  @medusa_model_file "medusa_model.pkl"
-  @medusa_env_dir "medusa_env/lib/python3.7/site-packages"
-  
-  
-  @doc """
-  Launch the port wich will communicate with the prediction model. The codification is trought JSON.
-  """
-  @spec open_port(model_dir :: binary()) :: {port(), reference()}
-  def open_port(model_dir) do
-    file_port = model_dir <> "/" <> @medusa_port_file
-    file_model = model_dir <> "/" <> @medusa_model_file
-    python_path = model_dir <> "/" <> @medusa_env_dir
-    
-    env = [{'PYTHONPATH', String.to_charlist(python_path)}]
-    
-    options = [
-      :binary,
-      {:packet, 4},
-      {:env, env}
-    ]
-    
-    port = Port.open({:spawn, "python3 " <> file_port <> " " <> file_model}, options)
-    ref = Port.monitor(port)
-    
-    {port, ref}
-    
+  @spec map_port_to_struct(model :: String.t(), player :: TTypes.player_id(), pred :: String.t()) :: t()
+  defp map_port_to_struct(model, player, pred) do
+    %__MODULE__{
+      player_id: player,
+      inactive_in_future: future_to_bool!(pred),
+      model: model_to_atom!(model)
+    }
   end
-  
-  @doc """
-  Load the prediction model `model_name` in the current python port. You shuld receive 
-  `{port, {:data, "\"loaded\""}}` in case of a succesfull loading or `{port, {:data, "\"not loaded\""}}` in case
-  of failure.
-  """
-  @spec load_model(port :: port()) :: true
-  def load_model(port) do
-    cmd = Jason.encode!(["load", ""])
-    Port.command(port, cmd)
-  end
-  
-  @spec send_players(any(), port :: port()) :: true
-  def send_players(players, port) do
-    cmd = Jason.encode!(["predict", players])
-    Port.command(port, cmd)
-  end
-  
+
+  @spec future_to_bool!(String.t()) :: boolean()
+  defp future_to_bool!("Active"), do: true
+  defp future_to_bool!("Inactive"), do: false
+
+  @spec model_to_atom!(String.t()) :: :player_1 | :player_n
+  defp model_to_atom!("player_1"), do: :player_1
+  defp model_to_atom!("player_n"), do: :player_n
 end

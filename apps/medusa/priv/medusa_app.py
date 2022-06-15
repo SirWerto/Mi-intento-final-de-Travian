@@ -7,6 +7,9 @@ from medusa_model_n import medusa_model_n
 
 def eval_message(message, model_1, model_n):
 
+    if message == []:
+        return []
+
     ndays_n, ndays_1 = [], []
     [ndays_n.append(x["fe_struct"]) if x["fe_type"] == "ndays_n"
      else ndays_1.append(x["fe_struct"]) for x in message]
