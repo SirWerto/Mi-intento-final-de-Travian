@@ -1,16 +1,25 @@
 # MyTravian
 
-MyTravian is a project which tries to fill the gap between identifying the inactive/cows/farms players by hand and doing with machine learning techniques
+MyTravian will be a platform for analyzing [Travian](https://www.travian.com)'s data with machine learning algorithms.
 
-For achieving this goal, it needs:
+The project born during my master's thesis and I am still pushing the idea.
 
-    [x] A collector to fetch all necesary data
-    [x] A database interface for storing the data
-    [] A clasifier model for prediction
-    [] A beautiful web interface which is going to run in the cloud (suggestions are appreciated)
+## Roadmap for the Beta
+    [x] Collector for fetching the data
+    [x] Storage system
+    [] Medusa for player predictions
+    [] Satellite tables for pushing the data to the front
+    [] Front for showing the results
 
-### Why do i choose elixir/erlang/beam over other lenguages?
+## Arch Overview
 
-1. It fits very well the objetive of the project
-2. More people should learn it
-3. I like it a lot
+The platform is divided in serveral Erlang style applications and it drives itself using events.
+
+Apps:
+	- [Collector](/apps/collector/README.md)
+	- [Medusa](/apps/medusa/README.md)
+	- [Satellite](/apps/satellite/README.md)
+	- [Front](/apps/front/README.md)
+
+
+![MyTrvian Arch](/imgs/mytravian_arch.png)
