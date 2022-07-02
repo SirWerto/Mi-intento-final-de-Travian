@@ -15,4 +15,4 @@ Medusa.subscribe()
 
 ## Architecture
 
-[Medusa arch](./imgs/medusa_arch.png)
+![Medusa arch](./imgs/medusa_arch.png)
