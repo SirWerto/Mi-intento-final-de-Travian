@@ -16,7 +16,6 @@ The project born during my master's thesis and I am still pushing the idea.
 The platform is divided in serveral Erlang style applications and it drives itself using events.
 
 Apps:
-
 - [Collector](/apps/collector/README.md)
 - [Medusa](/apps/medusa/README.md)
 - [Satellite](/apps/satellite/README.md)
