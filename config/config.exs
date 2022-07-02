@@ -15,8 +15,6 @@ import Config
 #   password: "postgres",
 #   hostname: "localhost"
 
-config :t_db, ecto_repos: [TDB.Repo]
-
 import_config "#{config_env()}.exs"
 # Sample configuration:
 #

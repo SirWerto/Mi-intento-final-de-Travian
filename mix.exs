@@ -27,25 +27,39 @@ defmodule MyTravian.MixProject do
 
   defp releases do
     [
-      collector: release_collector()
+      imperatoris: release_imperatoris(),
+      legati: release_legati()
     ]
   end
 
-
-  defp release_collector do
+  defp release_imperatoris do
     [
       applications: [
 	kernel: :permanent,
 	stdlib: :permanent,
 	sasl: :permanent,
 	elixir: :permanent,
-	t_db: :permanent,
-	prediction_bank: :permanent,
-	medusa: :permanent,
+	#prediction_bank: :permanent,
+	#medusa: :permanent,
 	collector: :permanent
       ],
       include_executables_for: [:unix],
       steps: [:assemble, :tar]
     ]
   end
+
+
+  defp release_legati do
+    [
+      applications: [
+	kernel: :permanent,
+	stdlib: :permanent,
+	sasl: :permanent,
+	elixir: :permanent
+      ],
+      include_executables_for: [:unix],
+      steps: [:assemble, :tar]
+    ]
+  end
+
 end
