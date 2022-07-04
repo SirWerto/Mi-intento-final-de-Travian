@@ -3,7 +3,10 @@ defmodule ProcessTravianmapTest do
 
   test "enriched_map from tuple" do
     server_id = "www.some_server.fr"
-    input = {406, -196, 199, 3, 21566, "Coruscant", 3896, "tiwi", 0, "", 525, "Cannes", true, false, 44}
+
+    input =
+      {406, -196, 199, 3, 21566, "Coruscant", 3896, "tiwi", 0, "", 525, "Cannes", true, false, 44}
+
     output = %{
       grid_position: 406,
       x: -196,
@@ -21,9 +24,9 @@ defmodule ProcessTravianmapTest do
       is_city: false,
       victory_points: 44
     }
+
     assert output == Collector.ProcessTravianMap.enriched_map(input, server_id)
   end
-
 
   test "compare 2 equals servers_info" do
     old_info = %{
@@ -36,13 +39,11 @@ defmodule ProcessTravianmapTest do
     assert :not_necessary == Collector.ProcessTravianMap.compare_server_info(old_info, new_info)
   end
 
-
   test "compare 2 servers_info with new keys" do
     old_info = %{
       "speed" => 4,
       "another_key" => "some_info"
     }
-
 
     new_info = %{
       "conquer" => true
@@ -53,16 +54,15 @@ defmodule ProcessTravianmapTest do
       "another_key" => "some_info",
       "conquer" => true
     }
+
     assert info_output == Collector.ProcessTravianMap.compare_server_info(old_info, new_info)
   end
-
 
   test "compare 2 non_equals servers_info" do
     old_info = %{
       "speed" => 4,
       "another_key" => "some_info"
     }
-
 
     new_info = %{
       "speed" => 5
@@ -72,7 +72,7 @@ defmodule ProcessTravianmapTest do
       "speed" => 5,
       "another_key" => "some_info"
     }
+
     assert info_output == Collector.ProcessTravianMap.compare_server_info(old_info, new_info)
   end
-
 end

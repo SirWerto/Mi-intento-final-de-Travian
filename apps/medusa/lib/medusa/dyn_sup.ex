@@ -5,7 +5,7 @@ defmodule Medusa.DynSup do
     DynamicSupervisor.start_link(__MODULE__, [], name: __MODULE__)
   end
 
-  @spec start_child(model_dir :: String.t()) :: :ok
+  @spec start_child(model_dir :: String.t()) :: DynamicSupervisor.on_start_child()
   def start_child(model_dir) do
     spec = %{
       id: "ConsumerSup",

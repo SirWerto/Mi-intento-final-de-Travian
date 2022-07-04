@@ -2,7 +2,7 @@ defmodule PredictionBank.GenRemover do
   use GenServer
   require Logger
 
-  @milliseconds_in_day 24*60*60*1000
+  @milliseconds_in_day 24 * 60 * 60 * 1000
 
   def start_link([]), do: GenServer.start_link(__MODULE__, [], [])
 
@@ -12,18 +12,16 @@ defmodule PredictionBank.GenRemover do
     {:ok, []}
   end
 
-
   @impl true
   def handle_call(_msg, _from, state), do: {:noreply, state}
 
   @impl true
   def handle_cast(_msg, state), do: {:noreply, state}
 
-
   @impl true
   def handle_info(:init, _state) do
     removing_hour = Application.fetch_env!(:prediction_bank, :remove_hour)
-    wait_time = time_until_removing(removing_hour) 
+    wait_time = time_until_removing(removing_hour)
     tref = :erlang.send_after(wait_time, self(), :remove)
     {:noreply, tref}
   end
@@ -33,11 +31,10 @@ defmodule PredictionBank.GenRemover do
     PredictionBank.remove_old_players()
     Logger.debug("removed old players")
     removing_hour = Application.fetch_env!(:prediction_bank, :remove_hour)
-    wait_time = time_until_removing(removing_hour) 
+    wait_time = time_until_removing(removing_hour)
     tref = :erlang.send_after(wait_time, self(), :remove)
     {:noreply, tref}
   end
-
 
   defp time_until_removing(removing_hour), do: time_until_removing(removing_hour, Time.utc_now())
 

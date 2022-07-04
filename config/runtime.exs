@@ -1,22 +1,22 @@
 import Config
 
-
-
 config :logger,
-  :console,
-  level: System.get_env("MITRAVIAN__LOGGER_LEVEL", "info") |> String.to_atom(),
-  format: "$node $date $time [$level] ($metadata) $message\n",
-  metadata: [:mfa]
+       :console,
+       level: System.get_env("MITRAVIAN__LOGGER_LEVEL", "info") |> String.to_atom(),
+       format: "$node $date $time [$level] ($metadata) $message\n",
+       metadata: [:mfa]
 
 config :mnesia,
   dir: System.get_env("MITRAVIAN__MNESIA_DIR", "/tmp/mnesia") |> String.to_charlist()
 
 config :collector,
   root_folder: System.get_env("MITRAVIAN_ROOTFOLDER", "/tmp/travian_folder"),
-  collection_hour: Time.new!(
-    System.get_env("MITRAVIAN__COLLECTION_HOUR", "9") |> String.to_integer(),
-    System.get_env("MITRAVIAN__COLLECTION_MINUTE", "0") |> String.to_integer(),
-    System.get_env("MITRAVIAN__COLLECTION_SECOND", "0") |> String.to_integer())
+  collection_hour:
+    Time.new!(
+      System.get_env("MITRAVIAN__COLLECTION_HOUR", "9") |> String.to_integer(),
+      System.get_env("MITRAVIAN__COLLECTION_MINUTE", "0") |> String.to_integer(),
+      System.get_env("MITRAVIAN__COLLECTION_SECOND", "0") |> String.to_integer()
+    )
 
 # config :medusa,
 #   model_dir: System.fetch_env!("MITRAVIAN__MEDUSA_MODEL_DIR")
@@ -26,4 +26,3 @@ config :collector,
 #     System.fetch_env!("MITRAVIAN__COLLECTION_HOUR") |> String.to_integer(),
 #     System.fetch_env!("MITRAVIAN__COLLECTION_MINUTE") |> String.to_integer(),
 #     System.fetch_env!("MITRAVIAN__COLLECTION_SECOND") |> String.to_integer())
-

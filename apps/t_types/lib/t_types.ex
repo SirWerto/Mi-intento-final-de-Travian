@@ -39,7 +39,6 @@ defmodule TTypes do
   @typedoc "Attribute related to the `village`"
   @type villages_attrs :: villages_attrs_inmutable() | villages_attrs_mutable()
 
-
   @typedoc "It's the tribe of the village. It can change if the village is conquered by another player with diffrent tribe. 
   \nIts values are: 
   \n1 => Romans
@@ -69,10 +68,8 @@ defmodule TTypes do
   @typedoc "Number of the field in the grid. It starts counting from the top left of the grid."
   @type grid_position :: pos_integer()
 
-
   @typedoc "If the server is type `Conquer`, this attribute defines the region where the village is."
   @type region() :: String.t() | nil
-
 
   @typedoc "If the server is type `Conquer`, this attribute defines the points obtained by this village."
   @type victory_points() :: pos_integer() | nil
@@ -85,25 +82,22 @@ defmodule TTypes do
 
   @typedoc "Row information in the snapshot."
   @type snapshot_row :: {
-    grid_position(),
-    x(),
-    y(),
-    tribe(),
-    village_server_id(),
-    village_name(),
-    player_server_id(),
-    player_name(),
-    alliance_server_id(),
-    alliance_name(),
-    population(),
-    region(),
-    is_capital(),
-    is_city(),
-    victory_points()}
-
-
-
-
+          grid_position(),
+          x(),
+          y(),
+          tribe(),
+          village_server_id(),
+          village_name(),
+          player_server_id(),
+          player_name(),
+          alliance_server_id(),
+          alliance_name(),
+          population(),
+          region(),
+          is_capital(),
+          is_city(),
+          victory_points()
+        }
 
   @type enriched_row :: %{
           grid_position: grid_position(),
@@ -123,10 +117,6 @@ defmodule TTypes do
           victory_points: victory_points()
         }
 
-
-
-
   @typedoc "Information of the server, for example, speed."
   @type server_info :: %{String.t() => any()}
-
 end

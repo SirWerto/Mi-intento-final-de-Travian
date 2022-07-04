@@ -1,30 +1,51 @@
 defmodule Step2 do
-  
-  @enforce_keys [:center_mass_x, :center_mass_y, :date, :distance_to_origin,
-		 :n_village_decrease, :n_village_increase, :n_villages, :player_id,
-		 :prev_distance_to_origin, :total_population, :total_population_decrease,
-		 :total_population_increase, :tribes_summary]
-  defstruct [:center_mass_x, :center_mass_y, :date, :distance_to_origin,
-	     :n_village_decrease, :n_village_increase, :n_villages, :player_id,
-	     :prev_distance_to_origin, :total_population, :total_population_decrease,
-	     :total_population_increase, :tribes_summary]
-  
-  
+  @enforce_keys [
+    :center_mass_x,
+    :center_mass_y,
+    :date,
+    :distance_to_origin,
+    :n_village_decrease,
+    :n_village_increase,
+    :n_villages,
+    :player_id,
+    :prev_distance_to_origin,
+    :total_population,
+    :total_population_decrease,
+    :total_population_increase,
+    :tribes_summary
+  ]
+  defstruct [
+    :center_mass_x,
+    :center_mass_y,
+    :date,
+    :distance_to_origin,
+    :n_village_decrease,
+    :n_village_increase,
+    :n_villages,
+    :player_id,
+    :prev_distance_to_origin,
+    :total_population,
+    :total_population_decrease,
+    :total_population_increase,
+    :tribes_summary
+  ]
+
   @type t :: %__MODULE__{
-    player_id: TTypes.player_id(),
-    date: Date.t(),
-    total_population: pos_integer(),
-    total_population_increase: non_neg_integer(),
-    total_population_decrease: non_neg_integer(),
-    n_villages: pos_integer(),
-    n_village_increase: non_neg_integer(),
-    n_village_decrease: non_neg_integer(),
-    tribes_summary: TTypes.tribes_map(),
-    center_mass_x: float(),
-    center_mass_y: float(),
-    distance_to_origin: float(),
-    prev_distance_to_origin: float()}
-  
+          player_id: TTypes.player_id(),
+          date: Date.t(),
+          total_population: pos_integer(),
+          total_population_increase: non_neg_integer(),
+          total_population_decrease: non_neg_integer(),
+          n_villages: pos_integer(),
+          n_village_increase: non_neg_integer(),
+          n_village_decrease: non_neg_integer(),
+          tribes_summary: TTypes.tribes_map(),
+          center_mass_x: float(),
+          center_mass_y: float(),
+          distance_to_origin: float(),
+          prev_distance_to_origin: float()
+        }
+
   @spec process_2_snapshots([Step1.t()]) :: t()
   def process_2_snapshots([old, new]) do
     Enum.concat(old, new)
@@ -42,6 +63,7 @@ defmodule Step2 do
   defp p(old, new) do
     {pop_inc, pop_dec} = compute_pop_diff(new.total_population - old.total_population)
     {n_v_inc, n_v_dec} = compute_n_v_diff(new.n_villages - old.n_villages)
+
     %__MODULE__{
       player_id: new.player_id,
       date: new.date,
@@ -55,7 +77,8 @@ defmodule Step2 do
       center_mass_x: new.center_mass_x,
       center_mass_y: new.center_mass_y,
       distance_to_origin: new.distance_to_origin,
-      prev_distance_to_origin: old.distance_to_origin}
+      prev_distance_to_origin: old.distance_to_origin
+    }
   end
 
   defp compute_pop_diff(0), do: {0, 0}

@@ -1,23 +1,24 @@
 defmodule MedusaPipeline.VillageHistoric do
-
   @moduledoc """
   This module transform village's raw data to multiple tuples with growth information.
   """
 
-  @type date_diff :: pos_integer() # number of days untile the next record
+  # number of days untile the next record
+  @type date_diff :: pos_integer()
   @type population_diff :: integer()
 
   @type input_tuple :: {TTypes.date(), TTypes.race(), TTypes.population()}
   @type input_data :: [input_tuple()]
   @type input :: {{TTypes.player_id(), TTypes.village_id()}, input_data()}
 
-  @type output_tuple :: {TTypes.date(), TTypes.race(), TTypes.population(), population_diff(), date_diff()}
+  @type output_tuple ::
+          {TTypes.date(), TTypes.race(), TTypes.population(), population_diff(), date_diff()}
   @type output_data :: [output_tuple()]
   @type output :: {{TTypes.player_id(), TTypes.village_id()}, output_data()}
 
   @doc ~S"""
   It recives an activity track of one village and returns a list of tuple with custom activity related information.
-  
+
   The result is a list of tuples with some special attributes:
 
   `[{date, race, population, population_diff, date_diff}]`
@@ -27,7 +28,7 @@ defmodule MedusaPipeline.VillageHistoric do
   - `population` -> Day's initial population.
   - `population_diff` -> Population growth until next snapshot date. Could be positive, negative or 0.
   - `date_diff` -> Difference in days bettween snapshots.
-  
+
   ## Example
       iex> player_id = "player1"  #the owner of the village in this date
       iex> village_id = "village1"  #the village identifier
@@ -53,10 +54,12 @@ defmodule MedusaPipeline.VillageHistoric do
   """
   @spec create_village_attrs(input()) :: output()
   def create_village_attrs({{player_id, village_id}, village_log}) do
-    output_data = village_log
-    |> Enum.sort_by(fn {date, _race, _population} -> date end, {:asc, Date})
-    |> Enum.chunk_every(2, 1, :discard)
-    |> Enum.map(&get_attributes/1)
+    output_data =
+      village_log
+      |> Enum.sort_by(fn {date, _race, _population} -> date end, {:asc, Date})
+      |> Enum.chunk_every(2, 1, :discard)
+      |> Enum.map(&get_attributes/1)
+
     {{player_id, village_id}, output_data}
   end
 
@@ -66,7 +69,4 @@ defmodule MedusaPipeline.VillageHistoric do
     date_diff = Date.diff(date2, date1)
     {date1, race1, population1, population_diff, date_diff}
   end
-
-
-
 end

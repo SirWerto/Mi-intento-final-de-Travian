@@ -13,16 +13,13 @@ defmodule Collector.Application do
       :shutdown => 5_000,
       :type => :worker
     }
+
     children = [
       Collector.CollectorSupervisor,
       gen_collector
     ]
 
-    opts = [strategy: :rest_for_one,
-	    name: Collector.Supervisor,
-	    max_restarts: 8,
-	    max_seconds: 30
-	   ]
+    opts = [strategy: :rest_for_one, name: Collector.Supervisor, max_restarts: 8, max_seconds: 30]
     Supervisor.start_link(children, opts)
   end
 end

@@ -35,31 +35,29 @@ defmodule MyTravian.MixProject do
   defp release_imperatoris do
     [
       applications: [
-	kernel: :permanent,
-	stdlib: :permanent,
-	sasl: :permanent,
-	elixir: :permanent,
-	#prediction_bank: :permanent,
-	#medusa: :permanent,
-	collector: :permanent
+        kernel: :permanent,
+        stdlib: :permanent,
+        sasl: :permanent,
+        elixir: :permanent,
+        # prediction_bank: :permanent,
+        # medusa: :permanent,
+        collector: :permanent
       ],
       include_executables_for: [:unix],
       steps: [:assemble, :tar]
     ]
   end
-
 
   defp release_legati do
     [
       applications: [
-	kernel: :permanent,
-	stdlib: :permanent,
-	sasl: :permanent,
-	elixir: :permanent
+        kernel: :permanent,
+        stdlib: :permanent,
+        sasl: :permanent,
+        elixir: :permanent
       ],
       include_executables_for: [:unix],
       steps: [:assemble, :tar]
     ]
   end
-
 end

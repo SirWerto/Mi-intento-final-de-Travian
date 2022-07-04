@@ -3,7 +3,6 @@ defmodule GenWorkerTest do
 
   @moduletag :capture_log
 
-
   test "stop and return normal when 3 attemps are reached" do
     server_id = "https://ts1.x1.asia.travian.com"
     max_tries = 3
@@ -13,5 +12,4 @@ defmodule GenWorkerTest do
 
     assert({:stop, :normal, state} == Collector.GenWorker.handle_info(:collect, state))
   end
-
 end

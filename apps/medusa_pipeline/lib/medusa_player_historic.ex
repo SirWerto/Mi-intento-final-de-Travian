@@ -1,21 +1,16 @@
 defmodule MedusaPipeline.PlayerHistoric do
-
   @moduledoc """
   This module summarize players's information of one day.
   """
-  @type input_tuple :: {TTypes.race(), TTypes.population(), TTypes.population_diff(), TTypes.date_diff()}
+  @type input_tuple ::
+          {TTypes.race(), TTypes.population(), TTypes.population_diff(), TTypes.date_diff()}
   @type input_data :: [input_tuple()]
   @type input :: {{TTypes.player_id(), TTypes.date()}, input_data()}
 
-  @type output:: {TTypes.player_id(),
-		  TTypes.date(),
-		  TTypes.date_diff(),
-		  TTypes.n_village(), 
-		  TTypes.n_active_village(),
-		  TTypes.population(),
-		  TTypes.population_increase(),
-		  TTypes.population_decrease(),
-		  TTypes.n_races()}
+  @type output ::
+          {TTypes.player_id(), TTypes.date(), TTypes.date_diff(), TTypes.n_village(),
+           TTypes.n_active_village(), TTypes.population(), TTypes.population_increase(),
+           TTypes.population_decrease(), TTypes.n_races()}
 
   @doc ~S"""
 
@@ -36,7 +31,7 @@ defmodule MedusaPipeline.PlayerHistoric do
   `population_increase` and `population_decrease` can be both different from 0 because can be some villages
   which loose population and other which gain population. As a recordatory, `population_increase` and 
   `population_decrease` are the population modifiers of the current `date`.
-  
+
   ## Example
       iex> player_id = "player1"  #the owner of the village in this date
       iex> date = ~D[2021-10-22]  #the date of the snapshot
@@ -66,10 +61,15 @@ defmodule MedusaPipeline.PlayerHistoric do
     population_total = for {_race, pop, _pop_diff, _date_diff} <- villages, do: pop
     population_total = Enum.sum(population_total)
     population_increase = Enum.sum(active_pops)
-    population_decrease = for {_race, _pop, pop_diff, _date_diff} <- villages, pop_diff < 0, do: pop_diff
+
+    population_decrease =
+      for {_race, _pop, pop_diff, _date_diff} <- villages, pop_diff < 0, do: pop_diff
+
     population_decrease = Enum.sum(population_decrease)
     n_village = length(villages)
     n_active_village = length(active_pops)
-    {player_id, date, date_diff, n_village, n_active_village, population_total, population_increase, population_decrease, n_races}
+
+    {player_id, date, date_diff, n_village, n_active_village, population_total,
+     population_increase, population_decrease, n_races}
   end
 end
