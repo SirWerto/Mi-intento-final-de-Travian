@@ -15,7 +15,7 @@ defmodule Medusa.GenPort do
   @spec predict(port :: pid(), data :: [Medusa.Pipeline.Step2.t()]) :: {:ok, [Medusa.Port.t()]} | {:error, any()}
   def predict(port, data) do
     try do
-      GenServer.call(port, {:predict, data}, 15_000)
+      {:ok, GenServer.call(port, {:predict, data}, 15_000)}
     rescue
       e in RuntimeError -> {:error, e}
     end
@@ -45,7 +45,7 @@ defmodule Medusa.GenPort do
   @impl true
   def handle_call({:predict, data}, _, state = %{setup: true}) do
     predictions = Medusa.Port.predict!(state.port, data)
-    {:reply, predictions}
+    {:reply, predictions, state}
   end
   def handle_call(_, _, state), do: {:noreply, state}
 
