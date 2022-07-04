@@ -83,7 +83,7 @@ defmodule Medusa.GenConsumer do
       {:ok, snapshots} <- Storage.fetch_last_n_snapshots(state.root_folder, server_id, @n_snapshots),
       {_recent_date, recent} = hd(snapshots),
       processed = Medusa.Pipeline.apply(snapshots),
-      {:ok, predictions} <- Medusa.GenPort.predict(processed),
+      {:ok, predictions} <- Medusa.GenPort.predict(state.port_pid, processed),
       enriched_predictions = enrich_preds(predictions, processed, recent),
       :ok <- Satellite.send_medusa_predictions(enriched_predictions)
     ) do

@@ -1,4 +1,4 @@
-defmodule PredictionBank.Application do
+defmodule Satellite.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,16 +8,13 @@ defmodule PredictionBank.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {PredictionBank.GenRemover, []}
+      # Starts a worker by calling: Satellite.Worker.start_link(arg)
+      # {Satellite.Worker, arg}
     ]
-
-    tables = [:bank_players]
-
-    :mnesia.wait_for_tables(tables, 5000)
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: PredictionBank.Supervisor]
+    opts = [strategy: :one_for_one, name: Satellite.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

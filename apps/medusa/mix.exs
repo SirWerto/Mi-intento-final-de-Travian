@@ -30,6 +30,7 @@ defmodule Medusa.MixProject do
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:t_types, in_umbrella: true},
       {:storage, in_umbrella: true},
+      {:satellite, in_umbrella: true},
       {:collector, in_umbrella: true}
     ]
   end
