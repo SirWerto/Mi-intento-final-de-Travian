@@ -24,12 +24,12 @@ defmodule Collector do
   Subscribe the process to the `Collector`. When a server is collected, the subscriber
   will receive {:collected, type, server_id}. It also monitors the `Collector`.
   """
-  @spec subscribe() :: :ok | {:error, :no_timer}
+  @spec subscribe() :: {:ok, reference()} | {:error, :no_timer}
   def subscribe(), do: Collector.GenCollector.subscribe()
 
   @doc """
   Unsubscribe and demonitor to `Collector`.
   """
-  @spec unsubscribe() :: :ok | {:error, :no_timer}
-  def unsubscribe(), do: Collector.GenCollector.subscribe()
+  @spec unsubscribe(ref :: reference()) :: :ok | {:error, :no_timer}
+  def unsubscribe(ref), do: Collector.GenCollector.unsubscribe(ref)
 end

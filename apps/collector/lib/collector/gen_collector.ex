@@ -25,22 +25,22 @@ defmodule Collector.GenCollector do
     end
   end
 
-  @spec subscribe() :: :ok | {:error, any()}
+  @spec subscribe() :: {:ok, reference()} | {:error, any()}
   def subscribe() do
     try do
       :subscribed = GenServer.call(__MODULE__, :subscribe)
-      Process.monitor(Collector.GenCollector)
-      :ok
+      ref = Process.monitor(Collector.GenCollector)
+      {:ok, ref}
     rescue
       e in RuntimeError -> {:error, e}
     end
   end
 
-  @spec unsubscribe() :: :ok | {:error, any()}
-  def unsubscribe() do
+  @spec unsubscribe(ref :: reference()) :: :ok | {:error, any()}
+  def unsubscribe(ref) do
     try do
       :unsubscribed = GenServer.call(__MODULE__, :unsubscribe)
-      Process.demonitor(Collector.GenCollector, [:flush])
+      Process.demonitor(ref, [:flush])
       :ok
     rescue
       e in RuntimeError -> {:error, e}

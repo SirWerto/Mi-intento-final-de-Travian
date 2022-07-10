@@ -8,28 +8,31 @@ defmodule Medusa.Application do
 
     # model_dir = Application.fetch_env!(:medusa, :model_dir)
 
-    # producer = %{
-    #   :id => "producer",
-    #   :start => {Medusa.Producer, :start_link, []},
-    #   :restart => :permanent,
-    #   :shutdown => 5_000,
-    #   :type => :worker
-    # }
+    model_dir = Application.fetch_env!(:medusa, :model_dir)
+    root_folder = Application.fetch_env!(:medusa, :root_folder)
+    n_consumers = Application.fetch_env!(:medusa, :n_consumers)
 
-    # consumers = for i <- [1], do: %{
-    #   :id => "consumer_" <> Integer.to_string(i),
-    #   :start => {Medusa.Consumer, :start_link, [model_dir]},
-    #   :restart => :permanent,
-    #   :shutdown => 5_000,
-    #   :type => :worker
-    # }
+    producer = %{
+      :id => "producer",
+      :start => {Medusa.GenProducer, :start_link, [model_dir, root_folder, n_consumers]},
+      :restart => :permanent,
+      :shutdown => 5_000,
+      :type => :worker
+    }
 
 
-    # children = [producer | consumers]
-     children = []
+    dyn_sup = %{
+      :id => "dynsup",
+      :start => {Medusa.DynSup, :start_link, []},
+      :restart => :permanent,
+      :shutdown => 5_000,
+      :type => :supervisor
+    }
+
+     children = [producer, dyn_sup]
     
 
-    opts = [strategy: :one_for_all, name: Medusa.Supervisor]
+    opts = [strategy: :rest_for_one, name: Medusa.Supervisor]
     Supervisor.start_link(children, opts)
   end
 

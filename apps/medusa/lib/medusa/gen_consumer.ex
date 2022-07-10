@@ -38,25 +38,11 @@ defmodule Medusa.GenConsumer do
   @impl true
   def handle_events(server_ids, _from, state = %__MODULE__{setup: true, port_pid: pid}) do
     server_ids
-    |> Enum.map(fn server_id -> medusa_etl(server_id, pid) end)
-    |> then(fn results -> send(Medusa.GenProducer, results) end)
+    |> Enum.map(fn server_id -> {server_id, medusa_etl(server_id, pid)} end)
+    |> then(fn results -> send(Medusa.GenProducer, {:medusa_etl_results, results}) end)
 
     {:noreply, [], state}
   end
-
-  @impl true
-  def handle_subscribe(:producer, opts, _from, state = %__MODULE__{subs_tag: tag, setup: false, model_dir: model_dir}) do
-    case {:subscription_tag, tag} in opts do
-      false ->
-	Logger.error(%{msg: "Unable to setup the associated port", reason: tag, args: model_dir, opts: opts})
-	{:stop, :normal, state}
-      true ->
-	new_state = state
-	|> Map.put(:setup, true)
-	{:automatic, new_state}
-    end
-  end
-
 
   @impl true
   def handle_info(:init_port, state = %__MODULE__{sup: sup, model_dir: md, setup: false}) do
@@ -70,6 +56,7 @@ defmodule Medusa.GenConsumer do
 	new_state = state
 	|> Map.put(:port_pid, pid)
 	|> Map.put(:subs_tag, subs_tag)
+	|> Map.put(:setup, true)
 
 	{:noreply, [], new_state}
     end
@@ -87,13 +74,15 @@ defmodule Medusa.GenConsumer do
       enriched_predictions = enrich_preds(predictions, processed, recent),
       :ok <- Satellite.send_medusa_predictions(enriched_predictions)
     ) do
+      Logger.info(%{msg: "Medusa ETL success", args: {server_id, state}})
       :ok
     else
       {:error, reason} ->
-	Logger.warning(%{msg: "Medusa ETL error", reason: reason, args: state})
-      {:error, reason}
+	Logger.warning(%{msg: "Medusa ETL error", reason: reason, args: {server_id, state}})
+        {:error, reason}
     end
   end
+
 
 
   @spec enrich_preds(pridictions :: [Medusa.Port.t()], processed :: [Medusa.Pipeline.Step2.t()], recent :: [TTypes.enriched_row()]) :: [map()]
