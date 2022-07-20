@@ -1,34 +1,46 @@
 defmodule Medusa.ConsumerSup do
   use Supervisor
 
-  @spec start_link(model_dir :: String.t()) :: Supervisor.on_start()
-  def start_link(model_dir) do
-    Supervisor.start_link(__MODULE__, model_dir)
+  @spec start_link(model_dir :: String.t(), root_folder :: String.t()) :: Supervisor.on_start()
+  def start_link(model_dir, root_folder) do
+    Supervisor.start_link(__MODULE__, [model_dir, root_folder])
   end
 
   @impl true
-  def init(model_dir) do
+  def init([model_dir, root_folder]) do
+
     consumer = %{
       :id => "consumer",
-      :start => {Medusa.Consumer, :start_link, [self(), model_dir]},
-      :restart => :permanent,
+      :start => {Medusa.GenConsumer, :start_link, [self(), root_folder]},
+      :restart => :temporary,
       :shutdown => 5_000,
+      :significant => true,
       :type => :worker
     }
-    children = [consumer]
-    Supervisor.init(children, strategy: :one_for_all)
-  end
 
-  @spec start_model(sup :: pid(), model_dir :: String.t())
-  :: Supervisor.on_start_child()
-  def start_model(sup, model_dir) do
-    model_spec = %{
+    model = %{
       id: "python model",
       start: {Medusa.GenPort, :start_link, [model_dir]},
       restart: :temporary,
       shutdown: 5_000,
       type: :worker
     }
-    Supervisor.start_child(sup, model_spec)
+
+
+    children = [model, consumer]
+    sup_flags = %{
+      strategy: :one_for_all,
+      auto_shutdown: :any_significant,
+    }
+    {:ok, {sup_flags, children}}
+    # Supervisor.init(children, strategy: :one_for_all)
+  end
+
+  @spec get_model(sup :: pid()) :: pid()
+  def get_model(sup) do
+    [{_id, model_pid, _type, _modules}] =
+      Supervisor.which_children(sup)
+      |> Enum.filter(fn {id, _child, _type, _modules} -> id == "python model" end)
+    model_pid
   end
 end

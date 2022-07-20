@@ -25,6 +25,9 @@ defmodule Medusa.GenPort do
   @spec start_link(model_dir :: String.t()) :: GenServer.on_start()
   def start_link(model_dir), do: GenServer.start_link(__MODULE__, model_dir)
 
+  @spec stop(pid :: pid()) :: :ok
+  def stop(pid), do: GenServer.stop(pid)
+
 
   @impl true
   def init(model_dir) do

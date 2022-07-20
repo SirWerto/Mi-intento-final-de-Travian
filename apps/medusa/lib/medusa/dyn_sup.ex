@@ -10,12 +10,12 @@ defmodule Medusa.DynSup do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  @spec start_child(model_dir :: String.t()) :: DynamicSupervisor.on_start_child()
-  def start_child(model_dir) do
+  @spec start_consumer_sup(model_dir :: String.t(), root_folder :: String.t()) :: DynamicSupervisor.on_start_child()
+  def start_consumer_sup(model_dir, root_folder) do
     spec = %{
       id: "ConsumerSup",
-      start: {Medusa.ConsumerSup, :start_link, [model_dir]},
-      restart: :permanent,
+      start: {Medusa.ConsumerSup, :start_link, [model_dir, root_folder]},
+      restart: :temporary,
       type: :supervisor
     }
     DynamicSupervisor.start_child(__MODULE__, spec)

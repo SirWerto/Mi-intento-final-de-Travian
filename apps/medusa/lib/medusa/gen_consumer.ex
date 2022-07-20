@@ -3,40 +3,33 @@ defmodule Medusa.GenConsumer do
 
   require Logger
 
-  defstruct [:sup, :model_dir, :root_folder, port_pid: nil, setup: false, subs_tag: nil]
+  @enforce_keys [:sup, :root_folder]
+  defstruct [:sup, :root_folder, :port_pid]
 
 
   @type t :: %__MODULE__{
     sup: pid(),
-    model_dir: String.t(),
     root_folder: String.t(),
-    port_pid: pid() | nil,
-    setup: boolean(),
-    subs_tag: any()
+    port_pid: pid() | nil
   }
 
   @n_snapshots 5
 
-  @sub_options [
-    to: Medusa.GenProducer,
-    min_demand: 1,
-    max_demand: 5]
-
-  @spec start_link(sup :: pid(), model_dir :: String.t(), root_folder :: String.t())
+  @spec start_link(sup :: pid(), root_folder :: String.t())
   :: GenServer.on_start()
-  def start_link(sup, model_dir, root_folder) do
-    GenStage.start_link(__MODULE__, [sup, model_dir, root_folder])
+  def start_link(sup, root_folder) do
+    GenStage.start_link(__MODULE__, [sup, root_folder])
   end
 
   @impl true
-  def init([sup, model_dir, root_folder]) do
-    state = %__MODULE__{sup: sup, model_dir: model_dir, root_folder: root_folder}
-    send(self(), :init_port)
+  def init([sup, root_folder]) do
+    state = %__MODULE__{sup: sup, root_folder: root_folder}
+    send(self(), :init)
     {:consumer, state}
   end
 
   @impl true
-  def handle_events(server_ids, _from, state = %__MODULE__{setup: true, port_pid: pid}) do
+  def handle_events(server_ids, _from, state = %__MODULE__{port_pid: pid}) do
     server_ids
     |> Enum.map(fn server_id -> {server_id, medusa_etl(server_id, pid)} end)
     |> then(fn results -> send(Medusa.GenProducer, {:medusa_etl_results, results}) end)
@@ -45,21 +38,12 @@ defmodule Medusa.GenConsumer do
   end
 
   @impl true
-  def handle_info(:init_port, state = %__MODULE__{sup: sup, model_dir: md, setup: false}) do
-    case Medusa.ConsumerSup.start_model(sup, md) do
-      {:error, reason} -> 
-	Logger.error(%{msg: "Unable to setup the associated port", reason: reason, args: md})
-	{:stop, :normal, state}
-      {:ok, pid} ->
-	{:ok, subs_tag} = GenStage.sync_subscribe(self(), @sub_options)
-
-	new_state = state
-	|> Map.put(:port_pid, pid)
-	|> Map.put(:subs_tag, subs_tag)
-	|> Map.put(:setup, true)
-
-	{:noreply, [], new_state}
-    end
+  def handle_info(:init, state = %__MODULE__{sup: sup}) do
+    port_pid = Medusa.ConsumerSup.get_model(sup)
+    new_state = Map.put(state, :port_pid, port_pid)
+    :ok = Medusa.GenSetUp.notify_ready(self())
+    Logger.debug(%{msg: "Consumer ready", args: new_state})
+    {:noreply, [], new_state}
   end
   def handle_info(_, state), do: {:noreply, [], state}
 
