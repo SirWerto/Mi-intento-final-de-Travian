@@ -15,7 +15,6 @@ defmodule Medusa.Pipeline do
     today = Date.utc_today()
     step1_structs
     |> Medusa.Pipeline.Step2.remove_non_consecutive()
-    |> Enum.filter(fn [head | _] -> head.date == today end)
     |> Medusa.Pipeline.Step2.apply_FE()
   end
 

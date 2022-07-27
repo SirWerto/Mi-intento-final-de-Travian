@@ -2,7 +2,7 @@ import Config
 
 config :logger,
        :console,
-       level: System.get_env("MITRAVIAN__LOGGER_LEVEL", "info") |> String.to_atom(),
+       # level: System.get_env("MITRAVIAN__LOGGER_LEVEL", "info") |> String.to_atom(),
        format: "$node $date $time [$level] ($metadata) $message\n",
        metadata: [:mfa]
 

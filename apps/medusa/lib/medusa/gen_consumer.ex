@@ -30,9 +30,11 @@ defmodule Medusa.GenConsumer do
 
   @impl true
   def handle_events(server_ids, _from, state = %__MODULE__{port_pid: pid}) do
+    Logger.info(%{msg: "Medusa ETL start", args: {state}})
     server_ids
-    |> Enum.map(fn server_id -> {server_id, medusa_etl(server_id, pid)} end)
+    |> Enum.map(fn server_id -> {server_id, medusa_etl(server_id, state)} end)
     |> then(fn results -> send(Medusa.GenProducer, {:medusa_etl_results, results}) end)
+    Logger.error(%{msg: "Medusa ETL success", args: {state}})
 
     {:noreply, [], state}
   end
@@ -52,13 +54,19 @@ defmodule Medusa.GenConsumer do
   def medusa_etl(server_id, state) do
     with(
       {:ok, snapshots} <- Storage.fetch_last_n_snapshots(state.root_folder, server_id, @n_snapshots),
-      {_recent_date, recent} = hd(snapshots),
+      Logger.debug(%{msg: "Medusa ETL step 2", args: server_id}),
       processed = Medusa.Pipeline.apply(snapshots),
+      Logger.debug(%{msg: "Medusa ETL step 3", args: server_id}),
       {:ok, predictions} <- Medusa.GenPort.predict(state.port_pid, processed),
-      enriched_predictions = enrich_preds(predictions, processed, recent),
+      Logger.debug(%{msg: "Medusa ETL step 4", args: server_id}),
+      {:ok, s_snapshots} <- reduce_sort_snapshots(snapshots)
+      s_processed = processed.fe_struct |> Enum.sort(&(&1.player_id >= &2.player_id))
+      s_predictions = predictions |> Enum.sort(&(&1.player_id >= &2.player_id))
+      enriched_predictions = enrich_preds(predictions, processed, snapshots),
+      Logger.debug(%{msg: "Medusa ETL step 5", args: server_id}),
       :ok <- Satellite.send_medusa_predictions(enriched_predictions)
     ) do
-      Logger.info(%{msg: "Medusa ETL success", args: {server_id, state}})
+      Logger.error(%{msg: "Medusa ETL success", args: {server_id, state}})
       :ok
     else
       {:error, reason} ->
@@ -69,9 +77,14 @@ defmodule Medusa.GenConsumer do
 
 
 
-  @spec enrich_preds(pridictions :: [Medusa.Port.t()], processed :: [Medusa.Pipeline.Step2.t()], recent :: [TTypes.enriched_row()]) :: [map()]
+  @spec enrich_preds(predictions :: [Medusa.Port.t()], processed :: [Medusa.Pipeline.Step2.t()], snapshots :: [[TTypes.enriched_row()]]) :: [map()]
   defp enrich_preds(predictions, processed, recent) do
     recent_filtered = Enum.sort(recent, &(&1.player_id >= &2.player_id)) |> Enum.dedup_by(&(&1.player_id))
+
+    Logger.debug(%{msg: "len pred", args: length(predictions)})
+    Logger.debug(%{msg: "len proc", args: length(processed)})
+    Logger.debug(%{msg: "len rec", args: length(recent)})
+    Logger.debug(%{msg: "len rec_fill", args: length(recent_filtered)})
     for pred <- predictions, proc <- processed, raw <- recent_filtered, pred.player_id == proc.fe_struct.player_id == raw.player_id, do: enrich_map(pred, proc, raw)
   end
 

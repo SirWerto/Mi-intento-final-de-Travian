@@ -17,7 +17,7 @@ defmodule Medusa.GenSetUp do
   @sub_options [
     to: Medusa.GenProducer,
     min_demand: 1,
-    max_demand: 5
+    max_demand: 3
   ]
 
   @spec notify_ready(pid :: pid()) :: :ok
