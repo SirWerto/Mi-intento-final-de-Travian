@@ -7,6 +7,82 @@ defmodule Storage do
   @info_version "1.0.0"
   @format ".json.gzip"
 
+  @type open_options :: Date.t() | {Date.t(), Date.t()} | {Date.t(), Date.t(), :consecutive}
+
+
+
+  @spec store(root_folder :: String.t(), server_id :: TTypes.server_id(), flow :: String.t(), content :: binary(), extension :: String.t(), date :: Date.t()) :: :ok | {:error, any()}
+  def store(root_folder, server_id, flow, content, extension, date \\ Date.utc_today()) do
+    dir_path = gen_dir_path(root_folder, server_id, flow)
+    filename = gen_filename(dir_path, date, extension)
+    case File.mkdir_p(dir_path) do
+      {:error, reason} -> {:error, {"unable to create dir path", reason}}
+      :ok -> case File.write(filename, content, [:binary]) do
+	       {:error, reason} -> {:error, {"unable to write the content", reason}}
+	       :ok -> :ok
+	     end
+    end
+  end
+
+  @spec open(root_folder :: String.t(), server_id :: TTypes.server_id(), flow :: String.t(), extension :: String.t(), open_options) :: {:ok, {Date.t(), binary()}} | {:ok, [{Date.t(), binary()}]} | {:error, any()}
+  def open(root_folder, server_id, flow, extension, {start_date, end_date}) do
+  	    case Date.compare(start_date, end_date) do
+  	      :gt -> {:error, "end_date earlier than start_date"}
+  	      :eq -> {:error, "end_date and start_date can't be the same"}
+  	      :lt ->
+		IO.inspect(gen_date_range!(start_date, end_date))
+  		result = gen_date_range!(start_date, end_date)
+  		|> Enum.map(&(open(root_folder, server_id, flow, extension, &1)))
+  		|> Enum.filter(fn {atom, _} -> atom == :ok end)
+  		|> Enum.map(fn {_, content} -> content end)
+
+  		{:ok, result}
+  	    end
+  end
+  def open(root_folder, server_id, flow, extension, {start_date, end_date, :consecutive}) do
+      case Date.compare(start_date, end_date) do
+  	:gt -> {:error, "end_date earlier than start_date"}
+  	:eq -> open(root_folder, server_id, flow, extension, start_date)
+  	:lt ->
+  	  result = gen_date_range!(start_date, end_date)
+  	  |> open_rec([], root_folder, server_id, flow, extension)
+	  
+  	  {:ok, result}
+      end
+  end
+  def open(root_folder, server_id, flow, extension, date) do
+    dir_path = gen_dir_path(root_folder, server_id, flow)
+    filename = gen_filename(dir_path, date, extension)
+    case File.read(filename) do
+      {:ok, content} -> {:ok, {date, content}}
+      {:error, reason} -> {:error, {"unable to open the file", reason}}
+    end
+  end
+
+  defp open_rec([], contents, root_folder, server_id, flow, extension), do: contents
+  defp open_rec([date | dates], contents, root_folder, server_id, flow, extension) do
+    case open(root_folder, server_id, flow, extension, date) do 
+      {:error, reason} -> contents
+      {:ok, content} -> open_rec(dates, contents ++ [content], root_folder, server_id, flow, extension)
+    end
+  end
+
+  defp gen_dir_path(root_folder, server_id, flow), do: "#{root_folder}/#{format_server_id(server_id)}/#{flow}"
+  defp gen_filename(dir_path, date, extension), do: "#{dir_path}/date_#{Date.to_iso8601(date, :basic)}.#{extension}"
+
+
+
+  @spec format_server_id(server_id :: TTypes.server_id()) :: String.t()
+  def format_server_id(server_id), do: String.replace(server_id, "://", "@@")
+
+  def gen_date_range!(start_date, end_date) do
+    diff = Date.diff(end_date, start_date)
+    for i <- 0..diff, do: Date.add(start_date, i)
+  end
+
+
+
+
   @spec store_snapshot(
           root_folder :: String.t(),
           server_id :: TTypes.server_id(),

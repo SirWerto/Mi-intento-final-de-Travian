@@ -51,8 +51,9 @@ defmodule Medusa.GenConsumer do
 
 
   @spec medusa_etl(TTypes.server_id(), state :: t()) :: :ok | {:error, any()}
-  def medusa_etl(server_id, state) do
+  def medusa_etl(server_id, state, date_to_predict) do
     with(
+      Logger.debug(%{msg: "Medusa ETL step 1", args: server_id}),
       {:ok, snapshots} <- Storage.fetch_last_n_snapshots(state.root_folder, server_id, @n_snapshots),
       Logger.debug(%{msg: "Medusa ETL step 2", args: server_id}),
       processed = Medusa.Pipeline.apply(snapshots),
