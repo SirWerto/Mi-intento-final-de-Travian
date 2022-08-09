@@ -8,9 +8,9 @@ defmodule Medusa.ETL do
   def apply(root_folder, port, server_id, target_date) do
     with(
       Logger.debug(%{msg: "Medusa ETL step 1, open snapshots", args: server_id}),
-      {:ok, snapshots} <- Storage.fetch_last_n_snapshots(root_folder, server_id, @n_snapshots),
+      {:ok, snapshots = [lastest_snapshot | _]} <- Storage.fetch_last_n_snapshots(root_folder, server_id, @n_snapshots),
       Logger.debug(%{msg: "Medusa ETL step 2, prepare raw", args: server_id}),
-      {raw_players_id, prepared_raw} = prepare_raw(snapshots),
+      {raw_players_id, prepared_raw} = prepare_raw(lastest_snapshot),
       Logger.debug(%{msg: "Medusa ETL step 3, apply pipeline and process", args: server_id}),
       {processed_players_id, prepared_processed} = Medusa.Pipeline.apply(snapshots) |> prepare_processed(),
       Logger.debug(%{msg: "Medusa ETL step 4, health check raw vs processed", args: server_id}),
@@ -25,11 +25,11 @@ defmodule Medusa.ETL do
       Logger.debug(%{msg: "Medusa ETL step 8, send to Satellite", args: server_id})
       # :ok <- Satellite.send_medusa_predictions(enriched_predictions)
     ) do
-      Logger.error(%{msg: "Medusa ETL success", args: {server_id}})
+      Logger.info(%{msg: "Medusa ETL success", server_id: server_id})
       :ok
       enriched_predictions
     else
-      {:error, reason = {:unhealthy_data, in_reason}} ->
+      {:error, reason = {:unhealthy_data, _reason}} ->
 	Logger.alert(%{msg: "Medusa ETL health check error", reason: reason, args: {server_id}})
         {:error, reason}
       {:error, reason} ->
@@ -41,7 +41,10 @@ defmodule Medusa.ETL do
   @spec health_check_players(old :: [TTypes.player_id], new :: [TTypes.player_id], step :: atom()) :: :ok | {:error, {:unhealthy_data, any()}}
   defp health_check_players(old, new, step) do
     case old -- new do
-      [] -> :ok
+      [] -> case new -- old do
+	      [] -> :ok
+	      generated_players -> {:error, {:unhealthy_data, {"players number increased in #{step}", generated_players}}}
+	    end
       leaked_players -> {:error, {:unhealthy_data, {"players leaked in #{step}", leaked_players}}}
     end
   end
@@ -49,7 +52,8 @@ defmodule Medusa.ETL do
 
 
 
-  defp prepare_raw([{date, rows} | _rest]) do
+  @spec prepare_raw(lastest_snapshot :: {Date.t(), [TTypes.enriched_row()]}) :: {[TTypes.player_id], [TTypes.enriched_row()]}
+  defp prepare_raw({date, rows}) do
     rows
     |> Enum.sort_by(fn x -> x.player_id end)
     |> Enum.dedup_by(fn x -> x.player_id end)
