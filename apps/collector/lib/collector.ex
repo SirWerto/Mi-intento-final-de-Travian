@@ -35,21 +35,23 @@ defmodule Collector do
 
 
 
-  @spec snapshot_to_format(snapshot :: [TTypes.enriched_row()]) ::
-          {:ok, binary()} | {:error, any()}
-  def snapshot_to_format(snapshot) do
-    case Jason.encode(snapshot) do
-      {:error, reason} -> {:error, reason}
-      {:ok, json} -> {:ok, :zlib.gzip(json)}
-    end
-  end
+  @spec snapshot_to_format(snapshot :: [TTypes.enriched_row()]) :: binary()
+  def snapshot_to_format(snapshot), do: :erlang.term_to_binary(snapshot, [:compressed, :deterministic])
+
+  @spec snapshot_from_format(encoded_snapshot :: binary()) :: [TTypes.enriched_row()]
+  def snapshot_from_format(encoded_snapshot), do: :erlang.binary_to_term(encoded_snapshot)
 
 
-  @spec snapshot_from_format(encoded_info :: binary()) ::
-          {:ok, [TTypes.enriched_row()]} | {:error, any()}
-  def snapshot_from_format(snapshot) do
-    snapshot
-    |> :zlib.gunzip()
-    |> Jason.decode(keys: :atoms!)
-  end
+  @spec snapshot_errors_to_format(snapshot_errors :: [any()]) :: binary()
+  def snapshot_errors_to_format(snapshot_errors), do: :erlang.term_to_binary(snapshot_errors, [:compressed, :deterministic])
+
+  @spec snapshot_errors_from_format(encoded_snapshot_errors :: binary()) :: [any()]
+  def snapshot_errors_from_format(encoded_snapshot_errors), do: :erlang.binary_to_term(encoded_snapshot_errors)
+
+
+  @spec metadata_to_format(metadata :: map()) :: binary()
+  def metadata_to_format(metadata), do: :erlang.term_to_binary(metadata, [:deterministic])
+
+  @spec metadata_from_format(encoded_metadata :: binary()) :: map()
+  def metadata_from_format(encoded_metadata), do: :erlang.binary_to_term(encoded_metadata)
 end

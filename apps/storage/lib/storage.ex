@@ -36,7 +36,6 @@ defmodule Storage do
   	      :gt -> {:error, "end_date earlier than start_date"}
   	      :eq -> {:error, "end_date and start_date can't be the same"}
   	      :lt ->
-		IO.inspect(gen_date_range!(start_date, end_date))
   		result = gen_date_range!(start_date, end_date)
   		|> Enum.map(&(open(root_folder, identifier, flow_options, &1)))
   		|> Enum.filter(fn {atom, _} -> atom == :ok end)
