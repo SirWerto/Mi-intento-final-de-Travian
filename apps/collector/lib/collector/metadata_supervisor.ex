@@ -21,7 +21,7 @@ defmodule Collector.Supervisor.Metadata do
     child_spec = %{
       id: "Collector.GenWorker.Metadata",
       start: {Collector.GenWorker.Metadata, :start_link, [server_id, max_tries]},
-      restart: :temporary}
+      restart: :transient}
 
     case DynamicSupervisor.start_child(__MODULE__, child_spec) do
       {:ok, pid} ->

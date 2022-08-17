@@ -21,7 +21,7 @@ defmodule Collector.Supervisor.Snapshot do
     child_spec = %{
       id: "Collector.GenWorker.Snapshot",
       start: {Collector.GenWorker.Snapshot, :start_link, [server_id, max_tries]},
-      restart: :temporary}
+      restart: :transient}
 
     case DynamicSupervisor.start_child(__MODULE__, child_spec) do
       {:ok, pid} ->

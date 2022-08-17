@@ -1,5 +1,5 @@
 defmodule Collector.GenWorker.Metadata do
-  use GenServer, restart: :temporary
+  use GenServer
   require Logger
 
 
