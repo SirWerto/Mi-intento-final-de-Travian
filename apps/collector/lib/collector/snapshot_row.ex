@@ -1,10 +1,40 @@
 defmodule Collector.SnapshotRow do
+  @enforce_keys [
+    :grid_position,
+    :x,
+    :y,
+    :tribe,
+    :village_id,
+    :village_name,
+    :player_id,
+    :player_name,
+    :alliance_id,
+    :alliance_name,
+    :population,
+    :region,
+    :is_capital,
+    :is_city,
+    :victory_points
+  ]
 
+  defstruct [
+    :grid_position,
+    :x,
+    :y,
+    :tribe,
+    :village_id,
+    :village_name,
+    :player_id,
+    :player_name,
+    :alliance_id,
+    :alliance_name,
+    :population,
+    :region,
+    :is_capital,
+    :is_city,
+    :victory_points
+  ]
 
-  @enforce_keys [:grid_position, :x, :y, :tribe, :village_id, :village_name, :player_id, :player_name, :alliance_id, :alliance_name, :population, :region, :is_capital, :is_city, :victory_points]
-  
-  defstruct [:grid_position, :x, :y, :tribe, :village_id, :village_name, :player_id, :player_name, :alliance_id, :alliance_name, :population, :region, :is_capital, :is_city, :victory_points]
-  
   @type t :: %__MODULE__{
           grid_position: TTypes.grid_position(),
           x: TTypes.x(),
@@ -23,28 +53,31 @@ defmodule Collector.SnapshotRow do
           victory_points: TTypes.victory_points()
         }
 
-  @spec apply(server_id :: TTypes.server_id(), TTypes.enriched_row) :: t()
-  def apply(server_id, {grid_position, x_position, y_position, tribe, village_server_id, village_name,
-             player_server_id, player_name, alliance_server_id, alliance_name, population, region,
-             is_capital, is_city, victory_points}) do
-    %__MODULE__{grid_position: grid_position,
-		x: x_position,
-		y: y_position,
-		tribe: tribe,
-		village_id: make_village_id(server_id, village_server_id),
-		village_name: village_name,
-		player_id: make_player_id(server_id, player_server_id),
-		player_name: player_name,
-		alliance_id: make_alliance_id(server_id, alliance_server_id),
-		alliance_name: alliance_name,
-		population: population,
-		region: region,
-		is_capital: is_capital,
-		is_city: is_city,
-		victory_points: victory_points}
+  @spec apply(server_id :: TTypes.server_id(), TTypes.snapshot_row()) :: t()
+  def apply(
+        server_id,
+        {grid_position, x_position, y_position, tribe, village_server_id, village_name,
+         player_server_id, player_name, alliance_server_id, alliance_name, population, region,
+         is_capital, is_city, victory_points}
+      ) do
+    %__MODULE__{
+      grid_position: grid_position,
+      x: x_position,
+      y: y_position,
+      tribe: tribe,
+      village_id: make_village_id(server_id, village_server_id),
+      village_name: village_name,
+      player_id: make_player_id(server_id, player_server_id),
+      player_name: player_name,
+      alliance_id: make_alliance_id(server_id, alliance_server_id),
+      alliance_name: alliance_name,
+      population: population,
+      region: region,
+      is_capital: is_capital,
+      is_city: is_city,
+      victory_points: victory_points
+    }
   end
-
-
 
   @spec make_village_id(
           server_id :: TTypes.server_id(),
@@ -64,5 +97,4 @@ defmodule Collector.SnapshotRow do
         ) :: TTypes.alliance_id()
   defp make_alliance_id(server_id, a_server_id),
     do: server_id <> "--A--" <> Integer.to_string(a_server_id)
-
 end

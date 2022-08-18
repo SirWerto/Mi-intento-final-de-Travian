@@ -6,49 +6,69 @@ defmodule StorageTest do
     flow_name = "snapshot"
     flow_extension = ".json.gzip"
     flow_options = {flow_name, flow_extension}
-    %{server_id: "https://ts8.x1.europe.travian.com",
-      flow_options: flow_options}
+    %{server_id: "https://ts8.x1.europe.travian.com", flow_options: flow_options}
   end
 
   @tag :tmp_dir
-  test "file is stored in the right path as global if :global as identifier", %{tmp_dir: tmp_dir, flow_options: flow_options = {flow_name, flow_extension}} do
+  test "file is stored in the right path as global if :global as identifier", %{
+    tmp_dir: tmp_dir,
+    flow_options: flow_options = {flow_name, flow_extension}
+  } do
     root_folder = tmp_dir
     identifier = :global
     content = "alishdoifjasldjflk "
 
     :ok = Storage.store(root_folder, identifier, flow_options, content)
-    filename = "#{root_folder}/global/#{flow_name}/date_#{Date.to_iso8601(Date.utc_today(), :basic)}#{flow_extension}"
+
+    filename =
+      "#{root_folder}/global/#{flow_name}/date_#{Date.to_iso8601(Date.utc_today(), :basic)}#{flow_extension}"
+
     assert(File.read!(filename) == content)
   end
 
-
   @tag :tmp_dir
-  test "file is stored in the right path with the right name with server_id as identifier", %{tmp_dir: tmp_dir, flow_options: flow_options = {flow_name, flow_extension}, server_id: server_id} do
+  test "file is stored in the right path with the right name with server_id as identifier", %{
+    tmp_dir: tmp_dir,
+    flow_options: flow_options = {flow_name, flow_extension},
+    server_id: server_id
+  } do
     root_folder = tmp_dir
     identifier = server_id
     content = "alishdoifjasldjflk "
 
     :ok = Storage.store(root_folder, identifier, flow_options, content)
-    filename = "#{root_folder}/servers/#{Storage.format_server_id(server_id)}/#{flow_name}/date_#{Date.to_iso8601(Date.utc_today(), :basic)}#{flow_extension}"
+
+    filename =
+      "#{root_folder}/servers/#{Storage.format_server_id(server_id)}/#{flow_name}/date_#{Date.to_iso8601(Date.utc_today(), :basic)}#{flow_extension}"
+
     assert(File.read!(filename) == content)
   end
 
-
   @tag :tmp_dir
-  test "file is stored with a custom date", %{tmp_dir: tmp_dir, flow_options: flow_options = {flow_name, flow_extension}, server_id: server_id} do
+  test "file is stored with a custom date", %{
+    tmp_dir: tmp_dir,
+    flow_options: flow_options = {flow_name, flow_extension},
+    server_id: server_id
+  } do
     root_folder = tmp_dir
     identifier = server_id
     content = "alishdoifjasldjflk "
     date = Date.utc_today() |> Date.add(10)
 
     :ok = Storage.store(root_folder, identifier, flow_options, content, date)
-    filename = "#{root_folder}/servers/#{Storage.format_server_id(server_id)}/#{flow_name}/date_#{Date.to_iso8601(date, :basic)}#{flow_extension}"
+
+    filename =
+      "#{root_folder}/servers/#{Storage.format_server_id(server_id)}/#{flow_name}/date_#{Date.to_iso8601(date, :basic)}#{flow_extension}"
+
     assert(File.read!(filename) == content)
   end
 
-
   @tag :tmp_dir
-  test "store and open returns the same file", %{tmp_dir: tmp_dir, flow_options: flow_options, server_id: server_id} do
+  test "store and open returns the same file", %{
+    tmp_dir: tmp_dir,
+    flow_options: flow_options,
+    server_id: server_id
+  } do
     root_folder = tmp_dir
     identifier = server_id
     content = "alishdoifjasldjflk "
@@ -61,22 +81,27 @@ defmodule StorageTest do
     check_f(expected, output)
   end
 
-
   @tag :tmp_dir
-  test "store and open multiple files don't modify the contents or dates", %{tmp_dir: tmp_dir, flow_options: flow_options, server_id: server_id} do
+  test "store and open multiple files don't modify the contents or dates", %{
+    tmp_dir: tmp_dir,
+    flow_options: flow_options,
+    server_id: server_id
+  } do
     root_folder = tmp_dir
     identifier = server_id
 
     tups = %{
-      Date.utc_today() |> Date.add(10) => "alskdjflajsdlfj",
-      Date.utc_today() |> Date.add(9) => "aalsdkjflasjdflasj",
-      Date.utc_today() |> Date.add(8) => "lasdjfoapudoasdfa",
-      Date.utc_today() |> Date.add(7) => "9q28u3rljald",
-      Date.utc_today() |> Date.add(4) => "290j392",
-      Date.utc_today() |> Date.add(2) => "laksjdlfjasdf0q"
+      (Date.utc_today() |> Date.add(10)) => "alskdjflajsdlfj",
+      (Date.utc_today() |> Date.add(9)) => "aalsdkjflasjdflasj",
+      (Date.utc_today() |> Date.add(8)) => "lasdjfoapudoasdfa",
+      (Date.utc_today() |> Date.add(7)) => "9q28u3rljald",
+      (Date.utc_today() |> Date.add(4)) => "290j392",
+      (Date.utc_today() |> Date.add(2)) => "laksjdlfjasdf0q"
     }
 
-    Enum.each(tups, fn {date, content} -> Storage.store(root_folder, identifier, flow_options, content, date) end)
+    Enum.each(tups, fn {date, content} ->
+      Storage.store(root_folder, identifier, flow_options, content, date)
+    end)
 
     max = Date.utc_today() |> Date.add(9)
     min = Date.utc_today() |> Date.add(4)
@@ -88,9 +113,12 @@ defmodule StorageTest do
     for output = {date, _content} <- outputs, do: check_f({date, Map.get(tups, date)}, output)
   end
 
-
   @tag :tmp_dir
-  test "open a range of date with only one date returns one file", %{tmp_dir: tmp_dir, flow_options: flow_options, server_id: server_id} do
+  test "open a range of date with only one date returns one file", %{
+    tmp_dir: tmp_dir,
+    flow_options: flow_options,
+    server_id: server_id
+  } do
     root_folder = tmp_dir
     identifier = server_id
     date = Date.utc_today() |> Date.add(-8)
@@ -106,22 +134,27 @@ defmodule StorageTest do
     check_f(expected, output)
   end
 
-
   @tag :tmp_dir
-  test "use :consecutive to open only returns consecutive files", %{tmp_dir: tmp_dir, flow_options: flow_options, server_id: server_id} do
+  test "use :consecutive to open only returns consecutive files", %{
+    tmp_dir: tmp_dir,
+    flow_options: flow_options,
+    server_id: server_id
+  } do
     root_folder = tmp_dir
     identifier = server_id
 
     tups = %{
-      Date.utc_today() |> Date.add(-10) => "alskdjflajsdlfj",
-      Date.utc_today() |> Date.add(-9) => "aalsdkjflasjdflasj",
-      Date.utc_today() |> Date.add(-8) => "lasdjfoapudoasdfa",
-      Date.utc_today() |> Date.add(-4) => "9q28u3rljald",
-      Date.utc_today() |> Date.add(-3) => "290j392",
-      Date.utc_today() |> Date.add(-2) => "laksjdlfjasdf0q"
+      (Date.utc_today() |> Date.add(-10)) => "alskdjflajsdlfj",
+      (Date.utc_today() |> Date.add(-9)) => "aalsdkjflasjdflasj",
+      (Date.utc_today() |> Date.add(-8)) => "lasdjfoapudoasdfa",
+      (Date.utc_today() |> Date.add(-4)) => "9q28u3rljald",
+      (Date.utc_today() |> Date.add(-3)) => "290j392",
+      (Date.utc_today() |> Date.add(-2)) => "laksjdlfjasdf0q"
     }
 
-    Enum.each(tups, fn {date, content} -> Storage.store(root_folder, identifier, flow_options, content, date) end)
+    Enum.each(tups, fn {date, content} ->
+      Storage.store(root_folder, identifier, flow_options, content, date)
+    end)
 
     min = Date.utc_today() |> Date.add(-10)
     max = Date.utc_today() |> Date.add(-2)
@@ -130,12 +163,13 @@ defmodule StorageTest do
 
     assert(length(outputs) == 3)
 
-    expected_dates = [Date.utc_today() |> Date.add(-10),
-		     Date.utc_today() |> Date.add(-9),
-		     Date.utc_today() |> Date.add(-8)]
+    expected_dates = [
+      Date.utc_today() |> Date.add(-10),
+      Date.utc_today() |> Date.add(-9),
+      Date.utc_today() |> Date.add(-8)
+    ]
 
     assert(Enum.map(outputs, fn {date, _} -> date end) == expected_dates)
-
 
     for output = {date, _content} <- outputs, do: check_f({date, Map.get(tups, date)}, output)
   end
@@ -144,7 +178,6 @@ defmodule StorageTest do
     assert(Date.compare(date1, date2) == :eq)
     assert(content1 == content2)
   end
-
 
   @tag :tmp_dir
   test "if there is no info stored, fetch_last_info should return {:ok, :no_files}", %{
