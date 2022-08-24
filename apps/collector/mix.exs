@@ -27,7 +27,7 @@ defmodule Collector.MixProject do
   defp deps do
     [
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:travianmap, "~> 0.3.1"},
+      {:travianmap, "~> 0.4.0"},
       {:t_types, in_umbrella: true},
       {:storage, in_umbrella: true}
     ]

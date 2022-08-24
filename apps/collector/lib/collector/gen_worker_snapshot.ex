@@ -42,7 +42,7 @@ defmodule Collector.GenWorker.Snapshot do
       {:error, _} ->
         delay_max = Application.get_env(:collector, :delay_max, 300_000)
         delay_min = Application.get_env(:collector, :delay_min, 5_000)
-        {:noreply, {server_id, max_tries, n + 1}, compute_sleep(delay_max, delay_min)}
+        {:noreply, {server_id, max_tries, n + 1}, compute_sleep(delay_min, delay_max)}
     end
   end
 
@@ -129,7 +129,9 @@ defmodule Collector.GenWorker.Snapshot do
   defp store_errors(_root_folder, _server_id, [], _date), do: :ok
 
   defp store_errors(root_folder, server_id, snapshot_errors, date) do
-    encoded_snapshot_errors = Collector.snapshot_errors_to_format(snapshot_errors)
+    encoded_snapshot_errors = snapshot_errors
+    |> Enum.map(fn {:error, value} -> value end)
+    |> Collector.snapshot_errors_to_format()
 
     case Storage.store(
            root_folder,

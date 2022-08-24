@@ -81,7 +81,7 @@ defmodule Collector.GenCollector do
       when is_map_key(ap, pid) do
     {{type, _ref, server_id, _counter}, new_ap} = Map.pop!(ap, pid)
 
-    Logger.debug(%{
+    Logger.info(%{
       msg: "Collector.GenWorker finished",
       type_collection: type,
       server_id: server_id
@@ -99,14 +99,7 @@ defmodule Collector.GenCollector do
       when is_map_key(ap, pid) do
     {{type, _ref, server_id, counter}, new_ap} = Map.pop!(ap, pid)
 
-    Logger.error(%{
-      msg: "Collector.GenWorker down, tries: #{counter}",
-      type_collection: type,
-      reason: reason,
-      server_id: server_id
-    })
-
-    Logger.info(%{
+    Logger.warning(%{
       msg: "Collector.GenWorker down, tries: #{counter}",
       type_collection: type,
       reason: reason,

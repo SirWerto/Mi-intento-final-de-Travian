@@ -41,7 +41,7 @@ defmodule Collector.GenWorker.Metadata do
       {:error, _} ->
         delay_max = Application.get_env(:collector, :delay_max, 300_000)
         delay_min = Application.get_env(:collector, :delay_min, 5_000)
-        {:noreply, {server_id, max_tries, n + 1}, compute_sleep(delay_max, delay_min)}
+        {:noreply, {server_id, max_tries, n + 1}, compute_sleep(delay_min, delay_max)}
     end
   end
 
