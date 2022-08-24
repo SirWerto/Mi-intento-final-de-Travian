@@ -25,6 +25,9 @@ defmodule Medusa.GenPort do
   @spec start_link(model_dir :: String.t()) :: GenServer.on_start()
   def start_link(model_dir), do: GenServer.start_link(__MODULE__, model_dir)
 
+  @spec stop(pid :: pid()) :: :ok
+  def stop(pid), do: GenServer.stop(pid)
+
 
   @impl true
   def init(model_dir) do
@@ -35,6 +38,7 @@ defmodule Medusa.GenPort do
   @impl true
   def handle_continue(:load_model, state) do
     {port, ref} = Medusa.Port.open(state.model_dir)
+    Logger.debug(%{msg: "GenPort model loaded", args: state})
     new_state = state
     |> Map.put(:port, port)
     |> Map.put(:ref, ref)
@@ -44,7 +48,9 @@ defmodule Medusa.GenPort do
 
   @impl true
   def handle_call({:predict, data}, _, state = %{setup: true}) do
+    Logger.debug(%{msg: "GenPort start predictions"})
     predictions = Medusa.Port.predict!(state.port, data)
+    Logger.debug(%{msg: "GenPort end predictions"})
     {:reply, predictions, state}
   end
   def handle_call(_, _, state), do: {:noreply, state}

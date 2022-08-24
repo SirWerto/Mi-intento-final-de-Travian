@@ -1,9 +1,11 @@
 defmodule Medusa.Pipeline do
 
   @spec apply([{Date.t(), [TTypes.enriched_row]}]) :: [Medusa.Pipeline.Step2.t()]
-  def apply(snapshots) do
+  def apply(snapshots = [{_lastest_date, lastest_rows} | _]) do
+    players_ids_to_process = for row <- lastest_rows, uniq: true, do: row.player_id
     snapshots
     |> Enum.flat_map(&Medusa.Pipeline.Step1.process_snapshot/1)
+    |> Enum.filter(fn x -> x.player_id in players_ids_to_process end)
     |> Enum.group_by(fn x -> x.player_id end)
     |> Enum.map(fn {_key, value} -> remove_non_consecutive_and_apply_FE(value) end)
     |> Enum.filter(fn x -> x != nil end)
@@ -15,9 +17,9 @@ defmodule Medusa.Pipeline do
     today = Date.utc_today()
     step1_structs
     |> Medusa.Pipeline.Step2.remove_non_consecutive()
-    |> Enum.filter(fn [head | _] -> head.date == today end)
     |> Medusa.Pipeline.Step2.apply_FE()
   end
+
 
 
   ## It should use the whole sample, but for the moment just keep the consecutive days

@@ -1,15 +1,66 @@
-defmodule Collector.ProcessTravianMap do
-  @spec enriched_map(travian_tuple :: TTypes.snapshot_row(), server_id :: TTypes.server_id()) ::
-          TTypes.enriched_row()
-  def enriched_map(travian_tuple, server_id)
+defmodule Collector.SnapshotRow do
+  @enforce_keys [
+    :grid_position,
+    :x,
+    :y,
+    :tribe,
+    :village_id,
+    :village_name,
+    :player_id,
+    :player_name,
+    :alliance_id,
+    :alliance_name,
+    :population,
+    :region,
+    :is_capital,
+    :is_city,
+    :victory_points
+  ]
 
-  def enriched_map(
+  defstruct [
+    :grid_position,
+    :x,
+    :y,
+    :tribe,
+    :village_id,
+    :village_name,
+    :player_id,
+    :player_name,
+    :alliance_id,
+    :alliance_name,
+    :population,
+    :region,
+    :is_capital,
+    :is_city,
+    :victory_points
+  ]
+
+  @type t :: %__MODULE__{
+          grid_position: TTypes.grid_position(),
+          x: TTypes.x(),
+          y: TTypes.y(),
+          tribe: TTypes.tribe(),
+          village_id: TTypes.village_id(),
+          village_name: TTypes.village_name(),
+          player_id: TTypes.player_id(),
+          player_name: TTypes.player_name(),
+          alliance_id: TTypes.alliance_id(),
+          alliance_name: TTypes.alliance_name(),
+          population: TTypes.population(),
+          region: TTypes.region(),
+          is_capital: TTypes.is_capital(),
+          is_city: TTypes.is_city(),
+          victory_points: TTypes.victory_points()
+        }
+
+  @spec apply(server_id :: TTypes.server_id(), TTypes.snapshot_row()) :: t()
+  def apply(
+        server_id,
         {grid_position, x_position, y_position, tribe, village_server_id, village_name,
          player_server_id, player_name, alliance_server_id, alliance_name, population, region,
-         is_capital, is_city, victory_points},
-        server_id
+         is_capital, is_city, victory_points}
       ) do
-    %{
+    %__MODULE__{
       grid_position: grid_position,
       x: x_position,
       y: y_position,
@@ -27,12 +78,6 @@ defmodule Collector.ProcessTravianMap do
       victory_points: victory_points
     }
   end
-
-  @spec compare_server_info(old_info :: TTypes.server_info(), new_info :: TTypes.server_info()) ::
-          :not_necessary | TTypes.server_info()
-  def compare_server_info(old_info, new_info)
-  def compare_server_info(equal_info, equal_info), do: :not_necessary
-  def compare_server_info(old_info, new_info), do: Map.merge(old_info, new_info)
 
   @spec make_village_id(
           server_id :: TTypes.server_id(),

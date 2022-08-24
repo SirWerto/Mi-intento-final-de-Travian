@@ -3,13 +3,85 @@ defmodule GenWorkerTest do
 
   @moduletag :capture_log
 
-  test "stop and return normal when 3 attemps are reached" do
-    server_id = "https://ts1.x1.asia.travian.com"
-    max_tries = 3
-    type = :info
-    fake_timeref = ""
-    state = {server_id, type, max_tries, fake_timeref}
+  setup_all do
+    %{server_id: "https://ts5.x1.europe.travian.com"}
+  end
 
-    assert({:stop, :normal, state} == Collector.GenWorker.handle_info(:collect, state))
+  test "stop GenWorker.Snapshot after max_tries", %{server_id: server_id} do
+    max_tries = 3
+    state = {server_id, max_tries, max_tries}
+
+    assert(
+      {:stop, :normal, state} ==
+        Collector.GenWorker.Snapshot.handle_info(:timeout, {server_id, max_tries, max_tries})
+    )
+  end
+
+  test "raise when attempting to Snapshot.etl if no :root_folder is setup", %{
+    server_id: server_id
+  } do
+    max_tries = 3
+    Application.delete_env(:collector, :root_folder)
+
+    assert_raise(ArgumentError, fn ->
+      Collector.GenWorker.Snapshot.handle_info(:timeout, {server_id, max_tries, max_tries - 1})
+    end)
+  end
+
+  test "stop GenWorker.Metadata after max_tries", %{server_id: server_id} do
+    max_tries = 3
+    state = {server_id, max_tries, max_tries}
+
+    assert(
+      {:stop, :normal, state} ==
+        Collector.GenWorker.Metadata.handle_info(:timeout, {server_id, max_tries, max_tries})
+    )
+  end
+
+  test "raise when attempting to Metadata.etl if no :root_folder is setup", %{
+    server_id: server_id
+  } do
+    max_tries = 3
+    Application.delete_env(:collector, :root_folder)
+
+    assert_raise(ArgumentError, fn ->
+      Collector.GenWorker.Metadata.handle_info(:timeout, {server_id, max_tries, max_tries - 1})
+    end)
+  end
+
+  @tag :tmp_dir
+  test "etl from GenWorker.Snapshot create a file of [Collector.SnapshotRow] items", %{
+    server_id: server_id,
+    tmp_dir: root_folder
+  } do
+    today = Date.utc_today()
+    Application.put_env(:collector, :root_folder, root_folder)
+    assert(:ok == Collector.GenWorker.Snapshot.etl(root_folder, server_id))
+
+    {:ok, {^today, encoded_snapshot}} =
+      Storage.open(root_folder, server_id, {"snapshot", ".c6bert"}, today)
+
+    snapshot = Collector.snapshot_from_format(encoded_snapshot)
+
+    Enum.each(snapshot, fn row -> is_struct(row, Collector.SnapshotRow) end)
+  end
+
+  @tag :tmp_dir
+  test "etl from GenWorker.Metadata create a file with a map inside", %{
+    server_id: server_id,
+    tmp_dir: root_folder
+  } do
+    today = Date.utc_today()
+    Application.put_env(:collector, :root_folder, root_folder)
+    assert(:ok == Collector.GenWorker.Metadata.etl(root_folder, server_id))
+
+    {:ok, {^today, encoded_metadata}} =
+      Storage.open(root_folder, server_id, {"metadata", ".bert"}, today)
+
+    metadata = Collector.metadata_from_format(encoded_metadata)
+
+    assert(is_map(metadata))
+    assert(Map.has_key?(metadata, "server_id"))
+    assert(Map.get(metadata, "server_id") == server_id)
   end
 end

@@ -14,7 +14,7 @@ defmodule Medusa.Application do
 
     producer = %{
       :id => "producer",
-      :start => {Medusa.GenProducer, :start_link, [model_dir, root_folder, n_consumers]},
+      :start => {Medusa.GenProducer, :start_link, []},
       :restart => :permanent,
       :shutdown => 5_000,
       :type => :worker
@@ -29,10 +29,19 @@ defmodule Medusa.Application do
       :type => :supervisor
     }
 
-     children = [producer, dyn_sup]
+
+    setup = %{
+      :id => "gensetup",
+      :start => {Medusa.GenSetUp, :start_link, [n_consumers, model_dir, root_folder]},
+      :restart => :permanent,
+      :shutdown => 5_000,
+      :type => :worker
+    }
+
+     children = [producer, dyn_sup, setup]
     
 
-    opts = [strategy: :rest_for_one, name: Medusa.Supervisor]
+    opts = [strategy: :one_for_all, name: Medusa.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
