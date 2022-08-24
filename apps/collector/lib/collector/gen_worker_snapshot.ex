@@ -98,7 +98,8 @@ defmodule Collector.GenWorker.Snapshot do
           type_collection: :snapshot,
           server_id: server_id
         })
-	{:error, reason}
+
+        {:error, reason}
 
       {:step_3, {:error, reason}} ->
         Logger.warning(%{
@@ -107,7 +108,8 @@ defmodule Collector.GenWorker.Snapshot do
           type_collection: :snapshot,
           server_id: server_id
         })
-	{:error, reason}
+
+        {:error, reason}
 
       {:step_4, {:error, reason}} ->
         Logger.info(%{
@@ -116,7 +118,8 @@ defmodule Collector.GenWorker.Snapshot do
           type_collection: :snapshot,
           server_id: server_id
         })
-	{:error, reason}
+
+        {:error, reason}
     end
   end
 
@@ -129,9 +132,10 @@ defmodule Collector.GenWorker.Snapshot do
   defp store_errors(_root_folder, _server_id, [], _date), do: :ok
 
   defp store_errors(root_folder, server_id, snapshot_errors, date) do
-    encoded_snapshot_errors = snapshot_errors
-    |> Enum.map(fn {:error, value} -> value end)
-    |> Collector.snapshot_errors_to_format()
+    encoded_snapshot_errors =
+      snapshot_errors
+      |> Enum.map(fn {:error, value} -> value end)
+      |> Collector.snapshot_errors_to_format()
 
     case Storage.store(
            root_folder,

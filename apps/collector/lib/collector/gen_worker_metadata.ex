@@ -79,7 +79,8 @@ defmodule Collector.GenWorker.Metadata do
           type_collection: :metadata,
           server_id: server_id
         })
-	{:error, reason}
+
+        {:error, reason}
 
       {:step_2, {:error, reason}} ->
         Logger.warning(%{
@@ -88,7 +89,8 @@ defmodule Collector.GenWorker.Metadata do
           type_collection: :metadata,
           server_id: server_id
         })
-	{:error, reason}
+
+        {:error, reason}
     end
   end
 
