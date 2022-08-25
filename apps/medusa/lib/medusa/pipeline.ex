@@ -1,6 +1,6 @@
 defmodule Medusa.Pipeline do
 
-  @spec apply([{Date.t(), [TTypes.enriched_row]}]) :: [Medusa.Pipeline.Step2.t()]
+  @spec apply([{Date.t(), [Collector.SnapshotRow.t()]}]) :: [Medusa.Pipeline.Step2.t()]
   def apply(snapshots = [{_lastest_date, lastest_rows} | _]) do
     players_ids_to_process = for row <- lastest_rows, uniq: true, do: row.player_id
     snapshots

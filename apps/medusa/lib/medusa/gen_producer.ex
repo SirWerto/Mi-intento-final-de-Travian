@@ -32,10 +32,30 @@ defmodule Medusa.GenProducer do
   @impl true
   def handle_demand(_demand, state), do: {:noreply, [], state}
 
+
+  @impl true
+  def handle_cast({:medusa_etl_result, server_id, _result}, state = %__MODULE__{status: :active, collector_status: :inactive, pending_events: [server_id]}) do
+	Logger.info(%{msg: "Medusa.GenProducer inactive"})
+	new_state = state
+	|> Map.put(:pending_events, [])
+	|> Map.put(:status, :inactive)
+
+	{:noreply, [], new_state}
+  end
+  def handle_cast({:medusa_etl_result, server_id, _result}, state = %__MODULE__{status: :active}) do
+    new_pending_events  = state.pending_events -- [server_id]
+    new_state = Map.put(state, :pending_events, new_pending_events)
+    {:noreply, [], new_state}
+  end
+
+  def handle_cast(_msg, state), do: {:noreply, [], state}
+
+
   @impl true
   def handle_info(:init, state) do
     case Collector.subscribe() do
       {:ok, ref} ->
+	Logger.debug(%{msg: "Medusa.GenProducer subscribed to Collector"})
 	new_state = Map.put(state, :collector_ref, ref)
 	{:noreply, [], new_state}
       {:error, reason} ->
@@ -49,6 +69,7 @@ defmodule Medusa.GenProducer do
   end
   ######## COLLECTOR EVENTS START
   def handle_info({:collector_event, :collection_started}, state) do
+    Logger.info(%{msg: "Medusa.GenProducer active"})
     new_state = state
     |> Map.put(:collector_status, :active)
     |> Map.put(:status, :active)
@@ -57,23 +78,36 @@ defmodule Medusa.GenProducer do
   def handle_info({:collector_event, :collection_finished}, state) do
     new_state = state
     |> Map.put(:collector_status, :inactive)
-    |> Map.put(:status, :inactive)
     {:noreply, [], new_state}
   end
-  def handle_info({:collector_event, {:snapshot, server_id}}, state) when state.status == :active do
+
+  def handle_info({:collector_event, {:snapshot_collected, server_id}}, state) when state.status == :active do
+    Logger.debug(%{msg: "Medusa.GenProducer snapshot event received", server_id: server_id})
     new_pending_events = [server_id | state.pending_events]
     new_state = Map.put(state, :pending_events, new_pending_events)
     {:noreply, [server_id], new_state}
   end
-  def handle_info({:collector_event, {:info, _server_id}}, state), do: {:noreply, [], state}
-  ######## COLLECTOR EVENTS END
-  def handle_info({:medusa_etl_results, results}, state) do
-    servers_id = for {server_id, _result} <- results, do: server_id
-    new_pending_events = state.pending_events -- servers_id
-
-    new_state = Map.put(state, :pending_events, new_pending_events)
-    {:noreply, [], new_state}
+  def handle_info({:collector_event, {other_event, server_id}}, state) do
+    Logger.debug(%{msg: "Medusa.GenProducer other event received", server_id: server_id, event: other_event})
+    {:noreply, [], state}
   end
+  ######## COLLECTOR EVENTS END
+  # def handle_info({:medusa_etl_results, results}, state) do
+  #   servers_id = for {server_id, _result} <- results, do: server_id
+  #   case state.pending_events -- servers_id do
+  #     [] -> 
+  # 	Logger.info(%{msg: "Medusa.GenProducer inactive"})
+  # 	new_state = state
+  # 	|> Map.put(:pending_events, [])
+  # 	|> Map.put(:status, :inactive)
 
+  # 	{:noreply, [], new_state}
+
+  #     new_pending_events ->
+  # 	new_state = Map.put(state, :pending_events, new_pending_events)
+  # 	{:noreply, [], new_state}
+
+  #   end
+  # end
   def handle_info(_msg, state), do: {:noreply, [], state}
 end

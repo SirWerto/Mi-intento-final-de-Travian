@@ -3,15 +3,19 @@ defmodule Medusa.ETL do
   require Logger
 
   @n_snapshots 5
+  @snapshot_options {"snapshot", ".c6bert"}
 
   @spec apply(root_folder :: binary(), port :: pid(), server_id :: TTypes.server_id(), target_date :: Date.t()) :: :ok | {:error, any()}
   def apply(root_folder, port, server_id, target_date) do
+    date_options = {Date.add(target_date, 1-@n_snapshots), target_date, :consecutive}
     with(
       Logger.debug(%{msg: "Medusa ETL step 1, open snapshots", args: server_id}),
-      {:ok, snapshots = [lastest_snapshot | _]} <- Storage.fetch_last_n_snapshots(root_folder, server_id, @n_snapshots),
+      {:ok, encoded_snapshots = [{^target_date, encoded_lastest_snapshot} | _]} <- Storage.open(root_folder, server_id, @snapshot_options, date_options),
       Logger.debug(%{msg: "Medusa ETL step 2, prepare raw", args: server_id}),
+      lastest_snapshot = Collector.snapshot_from_format(encoded_lastest_snapshot),
       {raw_players_id, prepared_raw} = prepare_raw(lastest_snapshot),
       Logger.debug(%{msg: "Medusa ETL step 3, apply pipeline and process", args: server_id}),
+      snapshots =  Enum.map(encoded_snapshots, fn {d, v} -> {d, Collector.snapshot_from_format(v)} end), 
       {processed_players_id, prepared_processed} = Medusa.Pipeline.apply(snapshots) |> prepare_processed(),
       Logger.debug(%{msg: "Medusa ETL step 4, health check raw vs processed", args: server_id}),
       :ok <- health_check_players(raw_players_id, processed_players_id, :raw_vs_processed),
@@ -27,7 +31,6 @@ defmodule Medusa.ETL do
     ) do
       Logger.info(%{msg: "Medusa ETL success", server_id: server_id})
       :ok
-      enriched_predictions
     else
       {:error, reason = {:unhealthy_data, _reason}} ->
 	Logger.alert(%{msg: "Medusa ETL health check error", reason: reason, args: {server_id}})
@@ -52,9 +55,9 @@ defmodule Medusa.ETL do
 
 
 
-  @spec prepare_raw(lastest_snapshot :: {Date.t(), [TTypes.enriched_row()]}) :: {[TTypes.player_id], [TTypes.enriched_row()]}
-  defp prepare_raw({date, rows}) do
-    rows
+  @spec prepare_raw(lastest_snapshot :: [Collector.SnapshotRow.t()]) :: {[TTypes.player_id], [TTypes.enriched_row()]}
+  defp prepare_raw(snapshot_rows) do
+    snapshot_rows
     |> Enum.sort_by(fn x -> x.player_id end)
     |> Enum.dedup_by(fn x -> x.player_id end)
     |> Enum.map(fn x -> {x.player_id, x} end)
@@ -101,6 +104,7 @@ defmodule Medusa.ETL do
       inactive_in_future: pred.inactive_in_future,
       inactive_in_current: proc.fe_struct.inactive_in_current,
       total_population: proc.fe_struct.total_population,
+      model: pred.model,
       n_villages: proc.fe_struct.n_villages
     }
   end

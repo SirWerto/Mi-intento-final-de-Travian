@@ -129,7 +129,7 @@ defmodule Storage do
   @spec gen_date_range!(start_date :: Date.t(), end_date :: Date.t()) :: [Date.t()]
   def gen_date_range!(start_date, end_date) do
     diff = Date.diff(end_date, start_date)
-    for i <- 0..diff, do: Date.add(start_date, i)
+    for i <- diff..0, do: Date.add(start_date, i)
   end
 
   @spec store_snapshot(

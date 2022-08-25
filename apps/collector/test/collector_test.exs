@@ -21,7 +21,7 @@ defmodule CollectorTest do
     Application.put_env(:collector, :delay_min, 0)
 
     {:ok, _ref} = Collector.subscribe()
-    Collector.collect(server_id)
+    Collector.collect()
 
     assert_receive({:collector_event, {:snapshot_collected, ^server_id}}, 10_000)
     assert_receive({:collector_event, {:snapshot_errors_no_collected, ^server_id}}, 10_000)
