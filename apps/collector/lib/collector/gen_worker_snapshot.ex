@@ -36,7 +36,6 @@ defmodule Collector.GenWorker.Snapshot do
 
     case etl(root_folder, server_id) do
       :ok ->
-        GenServer.cast(Collector.GenCollector, {:collected, :snapshot, server_id, self()})
         {:stop, :normal, state}
 
       {:error, _} ->
@@ -75,7 +74,7 @@ defmodule Collector.GenWorker.Snapshot do
       encoded_snapshot = Collector.snapshot_to_format(snapshot_rows),
       {:step_3, :ok} <-
         {:step_3, Storage.store(root_folder, server_id, @flow_snapshot, encoded_snapshot, today)},
-      GenServer.cast(Medusa.GenCollector, {:snapshot_collected, server_id, self()}),
+      GenServer.cast(Collector.GenCollector, {:snapshot_collected, server_id, self()}),
       Logger.debug(%{
         msg: "Collector step 4, store snapshot_errors if there is",
         type_collection: :snapshot,
@@ -145,10 +144,10 @@ defmodule Collector.GenWorker.Snapshot do
            date
          ) do
       :ok ->
-        GenServer.cast(Medusa.GenCollector, {:snapshot_errors_collected, server_id, self()})
+        GenServer.cast(Collector.GenCollector, {:snapshot_errors_collected, server_id, self()})
 
       {:error, reason} ->
-        GenServer.cast(Medusa.GenCollector, {:snapshot_errors_no_collected, server_id, self()})
+        GenServer.cast(Collector.GenCollector, {:snapshot_errors_no_collected, server_id, self()})
         {:error, reason}
     end
   end

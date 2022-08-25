@@ -40,13 +40,15 @@ defmodule Medusa.GenConsumer do
 
 
   @impl true
-  def handle_events([server_id], _from, state = %__MODULE__{port_pid: pid}) do
+  def handle_events([server_id], _from, state) do
     Logger.info(%{msg: "Server_id received", args: {state, server_id}})
     case Medusa.etl(state.root_folder, state.port_pid, server_id) do
       :ok ->
 	Logger.info(%{msg: "Server_id processing ended successfuly", args: {state, server_id}})
+	GenStage.cast(Medusa.GenProducer, {:medusa_etl_result, server_id, :ok})
 	{:noreply, [], state}
       {:error, reason} ->
+	GenStage.cast(Medusa.GenProducer, {:medusa_etl_result, server_id, {:error, reason}})
 	Logger.warning(%{msg: "Server_id processing failed", args: {state, server_id}, reason: reason})
 	{:noreply, [], state}
     end
