@@ -4,8 +4,9 @@ defmodule Medusa.ETL do
 
   @n_snapshots 5
   @snapshot_options {"snapshot", ".c6bert"}
+  @predictions_options {"medusa_predictions", ".c6bert"}
 
-  @spec apply(root_folder :: binary(), port :: pid(), server_id :: TTypes.server_id(), target_date :: Date.t()) :: :ok | {:error, any()}
+  @spec apply(root_folder :: binary(), port :: pid(), server_id :: TTypes.server_id(), target_date :: Date.t()) :: {:ok, [map()]} | {:error, any()}
   def apply(root_folder, port, server_id, target_date) do
     date_options = {Date.add(target_date, 1-@n_snapshots), target_date, :consecutive}
     with(
@@ -26,12 +27,18 @@ defmodule Medusa.ETL do
       :ok <- health_check_players(processed_players_id, pred_players_id, :processed_vs_predictions),
       Logger.debug(%{msg: "Medusa ETL step 7, enrich", args: server_id}),
       enriched_predictions = enrich_preds(prepared_raw, prepared_processed, prepared_predictions),
-      Logger.debug(%{msg: "Medusa ETL step 8, send to Satellite", args: server_id})
+      Logger.debug(%{msg: "Medusa ETL step 8, store enrich", args: server_id}),
+      encoded_predictions = Medusa.predictions_to_format(enriched_predictions),
+      {:step_8, :ok} <- {:step_8, Storage.store(root_folder, server_id, @predictions_options, encoded_predictions, target_date)}
+
       # :ok <- Satellite.send_medusa_predictions(enriched_predictions)
     ) do
       Logger.info(%{msg: "Medusa ETL success", server_id: server_id})
-      :ok
+      {:ok, enriched_predictions}
     else
+      {:step_8, {:error, reason}} ->
+	Logger.warning(%{msg: "Medusa ETL error", step: 8, reason: reason, server_id: server_id})
+	{:error, reason}
       {:error, reason = {:unhealthy_data, _reason}} ->
 	Logger.alert(%{msg: "Medusa ETL health check error", reason: reason, args: {server_id}})
         {:error, reason}
