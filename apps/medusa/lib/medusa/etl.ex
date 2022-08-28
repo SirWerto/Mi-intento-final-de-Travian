@@ -26,7 +26,7 @@ defmodule Medusa.ETL do
       Logger.debug(%{msg: "Medusa ETL step 6, health check processed vs predictions", args: server_id}),
       :ok <- health_check_players(processed_players_id, pred_players_id, :processed_vs_predictions),
       Logger.debug(%{msg: "Medusa ETL step 7, enrich", args: server_id}),
-      enriched_predictions = enrich_preds(prepared_raw, prepared_processed, prepared_predictions, target_date),
+      enriched_predictions = enrich_preds(prepared_raw, prepared_processed, prepared_predictions, server_id, target_date),
       Logger.debug(%{msg: "Medusa ETL step 8, store enrich", args: server_id}),
       encoded_predictions = Medusa.predictions_to_format(enriched_predictions),
       {:step_8, :ok} <- {:step_8, Storage.store(root_folder, server_id, @predictions_options, encoded_predictions, target_date)}
@@ -94,15 +94,17 @@ defmodule Medusa.ETL do
 
 
 
-  @spec enrich_preds(prepared_raw :: [TTypes.enriched_row()], prepared_processed :: [Medusa.Pipeline.Step2.t()], prepared_predictions :: [Medusa.Port.t()], target_date :: Date.t()) :: [Satellite.MedusaTable.t()]
-  defp enrich_preds(prepared_raw, prepared_processed, prepared_predictions, target_date) do
+  @spec enrich_preds(prepared_raw :: [TTypes.enriched_row()], prepared_processed :: [Medusa.Pipeline.Step2.t()], prepared_predictions :: [Medusa.Port.t()], server_id :: TTypes.server_id(), target_date :: Date.t()) :: [Satellite.MedusaTable.t()]
+  defp enrich_preds(prepared_raw, prepared_processed, prepared_predictions, server_id, target_date) do
     creation_dt = DateTime.utc_now()
-    for {raw, proc, pred} <- Enum.zip([prepared_raw, prepared_processed, prepared_predictions]), do: enrich_map(raw, proc, pred, target_date, creation_dt)
+    for {raw, proc, pred} <- Enum.zip([prepared_raw, prepared_processed, prepared_predictions]), do: enrich_map(raw, proc, pred, server_id, target_date, creation_dt)
   end
 
-  @spec enrich_map(raw :: TTypes.enriched_row(), proc :: Medusa.Pipeline.Step2.t(), pred :: Medusa.Port.t(), target_date :: Date.t(), creation_dt :: DateTime.t()) :: Satellite.MedusaTable.t()
-  defp enrich_map(raw, proc, pred, target_date, creation_dt) do
+  @spec enrich_map(raw :: TTypes.enriched_row(), proc :: Medusa.Pipeline.Step2.t(), pred :: Medusa.Port.t(), server_id :: TTypes.server_id(), target_date :: Date.t(), creation_dt :: DateTime.t()) :: Satellite.MedusaTable.t()
+  defp enrich_map(raw, proc, pred, server_id, target_date, creation_dt) do
     %Satellite.MedusaTable{
+      server_id: server_id,
+      server_url: server_id,
       player_id: pred.player_id,
       player_name: raw.player_name,
       player_url: pred.player_id,
