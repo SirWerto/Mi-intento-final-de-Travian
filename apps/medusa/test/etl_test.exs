@@ -154,8 +154,9 @@ defmodule Medusa.ETLTest do
     :ok == Storage.store(root_folder, server_id, @snapshot_options, Collector.snapshot_to_format(snp_today), td)
     :ok == Storage.store(root_folder, server_id, @snapshot_options, Collector.snapshot_to_format(snp_yesterday), yes)
 
-    output = [
-    %{alliance_id: "https://czsk.x1.czsk.travian.com--A--18",
+
+    expected_output = [
+    %Satellite.MedusaTable{alliance_id: "https://czsk.x1.czsk.travian.com--A--18",
       alliance_name: "00A",
       alliance_url: "00A",
       inactive_in_current: true,
@@ -165,9 +166,12 @@ defmodule Medusa.ETLTest do
       player_id: "https://czsk.x1.czsk.travian.com--P--1009",
       player_name: "PalMer",
       player_url: "https://czsk.x1.czsk.travian.com--P--1009",
-      total_population: 207},
+			   total_population: 207,
+			     creation_dt: nil,
+			   target_date: td
+			  },
 
-      %{alliance_id: "https://czsk.x1.czsk.travian.com--A--26",
+      %Satellite.MedusaTable{alliance_id: "https://czsk.x1.czsk.travian.com--A--26",
 	alliance_name: "ZBL",
 	alliance_url: "ZBL",
 	inactive_in_current: false,
@@ -177,10 +181,14 @@ defmodule Medusa.ETLTest do
 	player_id: "https://czsk.x1.czsk.travian.com--P--815",
 	player_name: "Klobuk",
 	player_url: "https://czsk.x1.czsk.travian.com--P--815",
+
+			     target_date: td,
+			     creation_dt: nil,
 	total_population: 1620}]
 
 
-    assert({:ok, output} == Medusa.etl(root_folder, port, server_id))
+    {:ok, output} = Medusa.etl(root_folder, port, server_id)
+    assert(expected_output == set_creation_dt_to_nil(output))
 
     Medusa.GenPort.stop(port)
     {:ok, {^td, encoded_predictions}} = Storage.open(root_folder, server_id, @predictions_options, td)
@@ -194,7 +202,7 @@ defmodule Medusa.ETLTest do
 
     :ok == Storage.store(root_folder, server_id, @snapshot_options, Collector.snapshot_to_format(snp_yesterday), yes)
 
-    output = [%{alliance_id: "https://czsk.x1.czsk.travian.com--A--18",
+    expected_output = [%Satellite.MedusaTable{alliance_id: "https://czsk.x1.czsk.travian.com--A--18",
 		alliance_name: "00A",
 		alliance_url: "00A",
 		inactive_in_current: :undefined,
@@ -204,9 +212,11 @@ defmodule Medusa.ETLTest do
 		player_id: "https://czsk.x1.czsk.travian.com--P--1009",
 		player_name: "PalMer",
 		player_url: "https://czsk.x1.czsk.travian.com--P--1009",
+			     target_date: yes,
+			     creation_dt: nil,
 		total_population: 227},
 	      
-              %{alliance_id: "https://czsk.x1.czsk.travian.com--A--26",
+              %Satellite.MedusaTable{alliance_id: "https://czsk.x1.czsk.travian.com--A--26",
 		alliance_name: "ZBL",
 		alliance_url: "ZBL",
 		inactive_in_current: :undefined,
@@ -216,14 +226,24 @@ defmodule Medusa.ETLTest do
 		player_id: "https://czsk.x1.czsk.travian.com--P--815",
 		player_name: "Klobuk",
 		player_url: "https://czsk.x1.czsk.travian.com--P--815",
+			     target_date: yes,
+			     creation_dt: nil,
 		total_population: 1469}]
 
+    
 
-    assert({:ok, output} == Medusa.etl(root_folder, port, server_id, yes))
+
+    {:ok, output} = Medusa.etl(root_folder, port, server_id, yes)
+    assert(expected_output == set_creation_dt_to_nil(output))
 
     Medusa.GenPort.stop(port)
     {:ok, {^yes, encoded_predictions}} = Storage.open(root_folder, server_id, @predictions_options, yes)
     assert(output == Medusa.predictions_from_format(encoded_predictions))
+  end
+
+
+  defp set_creation_dt_to_nil(medusa_structs) do
+    for ms <- medusa_structs, do: Map.put(ms, :creation_dt, nil)
   end
   
 end

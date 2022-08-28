@@ -45,7 +45,7 @@ defmodule Medusa.GenConsumer do
     case Medusa.etl(state.root_folder, state.port_pid, server_id) do
       {:ok, enriched_predictions} ->
 	Logger.info(%{msg: "Server_id processing ended successfuly", args: {state, server_id}})
-	Satellite.send_medusa_predictions(enriched_predictions)
+	Satellite.MedusaTable.insert_predictions(enriched_predictions)
 	GenStage.cast(Medusa.GenProducer, {:medusa_etl_result, server_id, :ok})
 	{:noreply, [], state}
       {:error, reason} ->
