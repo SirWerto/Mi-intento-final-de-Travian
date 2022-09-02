@@ -66,9 +66,10 @@ defmodule Satellite.MedusaTable do
   def create_table(nodes) do
     options = [
       attributes: [
-	:player_id,
-	:server_id,
-	:struct],
+        :player_id,
+        :server_id,
+        :struct
+      ],
       type: :set,
       disc_copies: nodes,
       index: [:server_id]
@@ -79,11 +80,14 @@ defmodule Satellite.MedusaTable do
 
   @spec insert_predictions(medusa_structs :: [t()]) :: :ok | {:error, any()}
   def insert_predictions(medusa_structs) do
-    func = fn -> for x <- medusa_structs, do: :mnesia.write({@table_name, x.player_id, x.server_id, x}) end
+    func = fn ->
+      for x <- medusa_structs, do: :mnesia.write({@table_name, x.player_id, x.server_id, x})
+    end
+
     :mnesia.activity(:transaction, func)
   end
 
-  @spec get_predictions_by_server(server_id :: TTypes.server_id) :: :ok
+  @spec get_predictions_by_server(server_id :: TTypes.server_id()) :: :ok
   def get_predictions_by_server(server_id) do
     pattern = {@table_name, :_, server_id, :_}
 
@@ -91,13 +95,12 @@ defmodule Satellite.MedusaTable do
     for res <- :mnesia.activity(:transaction, func), do: elem(res, 3)
   end
 
- # @spec add_players([{binary(), binary(), binary(), binary(), integer(), integer()}])
- #  :: {:atomic, any()} | {:aborted, any()}
- #  def add_players(players) do
- #    func = fn -> for player <- players, do: :mnesia.write(make_record_from_player(player)) end
- #    :mnesia.activity(:transaction, func)
- #  end
-
+  # @spec add_players([{binary(), binary(), binary(), binary(), integer(), integer()}])
+  #  :: {:atomic, any()} | {:aborted, any()}
+  #  def add_players(players) do
+  #    func = fn -> for player <- players, do: :mnesia.write(make_record_from_player(player)) end
+  #    :mnesia.activity(:transaction, func)
+  #  end
 
   # @spec record_from_struct(x :: t()) :: tuple()
   # defp record_from_struct(x) do

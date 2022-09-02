@@ -39,7 +39,6 @@ defmodule MyTravian.MixProject do
         stdlib: :permanent,
         sasl: :permanent,
         elixir: :permanent,
-        # prediction_bank: :permanent,
         # medusa: :permanent,
         collector: :permanent
       ],
