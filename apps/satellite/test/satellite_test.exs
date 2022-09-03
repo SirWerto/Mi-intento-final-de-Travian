@@ -50,7 +50,24 @@ defmodule SatelliteTest do
     output = Satellite.MedusaTable.get_predictions_by_server(server_id)
 
     for x <- mr, do: assert(x in output)
+  end
 
+  @tag :tmp_dir
+  test "MedusaTable.get_unique_servers returns the unique servers in medusa_table", %{medusa_rows: mr = [one, two], server_id: server_id, tmp_dir: mnesia_dir} do
+    install(mnesia_dir)
+    new_server_id = "https://ts16.x1.asia.travian.com"
+    new_player_id = "#{new_server_id}--P--New" 
+    new_two = Map.put(two, :server_id, new_server_id) |> Map.put(:player_id, new_player_id)
+
+    assert([:ok, :ok] == Satellite.MedusaTable.insert_predictions(mr))
+    assert({:ok, [server_id]} == Satellite.MedusaTable.get_unique_servers())
+    assert([:ok] == Satellite.MedusaTable.insert_predictions([new_two]))
+
+
+    {:ok, output} = Satellite.MedusaTable.get_unique_servers()
+
+    expected = [new_server_id, server_id]
+    for x <- expected, do: assert(x in output)
   end
 
   defp install(mnesia_dir) do

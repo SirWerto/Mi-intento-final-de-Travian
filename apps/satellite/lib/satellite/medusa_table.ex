@@ -91,32 +91,23 @@ defmodule Satellite.MedusaTable do
     for res <- :mnesia.activity(:transaction, func), do: elem(res, 3)
   end
 
- # @spec add_players([{binary(), binary(), binary(), binary(), integer(), integer()}])
- #  :: {:atomic, any()} | {:aborted, any()}
- #  def add_players(players) do
- #    func = fn -> for player <- players, do: :mnesia.write(make_record_from_player(player)) end
- #    :mnesia.activity(:transaction, func)
- #  end
+  # QLC for the query?
+  @spec get_unique_servers() :: {:ok, [TTypes.server_id()]} | {:error, any()}
+  def get_unique_servers() do
+    pattern = {@table_name, :_, :_, :_}
+
+    func = fn -> :mnesia.match_object(pattern) end
+    result = for res <- :mnesia.activity(:transaction, func), uniq: true, do: elem(res, 2)
+    {:ok, result}
+  end
 
 
-  # @spec record_from_struct(x :: t()) :: tuple()
-  # defp record_from_struct(x) do
-  #   {@table_name,
-  #   x.player_id,
-  #   x.player_name,
-  #   x.player_url,
-  #   x.server_id,
-  #   x.server_url,
-  #   x.alliance_id,
-  #   x.alliance_name,
-  #   x.alliance_url,
-  #   x.inactive_in_future,
-  #   x.inactive_in_current,
-  #   x.total_population,
-  #   x.model,
-  #   x.n_villages,
-  #   x.target_date,
-  #   x.creation_dt
-  #   }
-  # end
+# -include_lib("stdlib/include/qlc.hrl").
+
+# select_distinct()->
+#     QH = qlc:q( [K || {_TName, K, _V} <- mnesia:table(test)], {unique, true}),
+#     F = fun() -> qlc:eval(QH) end,
+#     {atomic, Result} = mnesia:transaction(F),
+#     Result.
+
 end
