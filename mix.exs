@@ -28,7 +28,8 @@ defmodule MyTravian.MixProject do
   defp releases do
     [
       imperatoris: release_imperatoris(),
-      legati: release_legati()
+      legati: release_legati(),
+      monolith: release_monolith()
     ]
   end
 
@@ -39,8 +40,9 @@ defmodule MyTravian.MixProject do
         stdlib: :permanent,
         sasl: :permanent,
         elixir: :permanent,
-        # medusa: :permanent,
         collector: :permanent
+        # medusa: :permanent,
+        # satellite: :permanent
       ],
       include_executables_for: [:unix],
       steps: [:assemble, :tar]
@@ -53,7 +55,26 @@ defmodule MyTravian.MixProject do
         kernel: :permanent,
         stdlib: :permanent,
         sasl: :permanent,
-        elixir: :permanent
+        elixir: :permanent,
+        satellite: :permanent,
+        front: :permanent
+      ],
+      include_executables_for: [:unix],
+      steps: [:assemble, :tar]
+    ]
+  end
+
+  defp release_monolith do
+    [
+      applications: [
+        kernel: :permanent,
+        stdlib: :permanent,
+        sasl: :permanent,
+        elixir: :permanent,
+        collector: :permanent,
+        medusa: :permanent,
+        satellite: :permanent,
+        front: :permanent
       ],
       include_executables_for: [:unix],
       steps: [:assemble, :tar]
