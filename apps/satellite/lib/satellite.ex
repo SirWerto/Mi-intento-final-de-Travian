@@ -17,5 +17,4 @@ defmodule Satellite do
       reason -> {:error, reason}
     end
   end
-
 end

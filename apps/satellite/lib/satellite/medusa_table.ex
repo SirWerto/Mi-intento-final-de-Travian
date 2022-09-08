@@ -66,9 +66,10 @@ defmodule Satellite.MedusaTable do
   def create_table(nodes) do
     options = [
       attributes: [
-	:player_id,
-	:server_id,
-	:struct],
+        :player_id,
+        :server_id,
+        :struct
+      ],
       type: :set,
       disc_copies: nodes,
       index: [:server_id]
@@ -79,11 +80,14 @@ defmodule Satellite.MedusaTable do
 
   @spec insert_predictions(medusa_structs :: [t()]) :: :ok | {:error, any()}
   def insert_predictions(medusa_structs) do
-    func = fn -> for x <- medusa_structs, do: :mnesia.write({@table_name, x.player_id, x.server_id, x}) end
+    func = fn ->
+      for x <- medusa_structs, do: :mnesia.write({@table_name, x.player_id, x.server_id, x})
+    end
+
     :mnesia.activity(:transaction, func)
   end
 
-  @spec get_predictions_by_server(server_id :: TTypes.server_id) :: :ok
+  @spec get_predictions_by_server(server_id :: TTypes.server_id()) :: :ok
   def get_predictions_by_server(server_id) do
     pattern = {@table_name, :_, server_id, :_}
 
@@ -109,5 +113,4 @@ defmodule Satellite.MedusaTable do
 #     F = fun() -> qlc:eval(QH) end,
 #     {atomic, Result} = mnesia:transaction(F),
 #     Result.
-
 end

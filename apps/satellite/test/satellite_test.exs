@@ -2,49 +2,57 @@ defmodule SatelliteTest do
   use ExUnit.Case
   doctest Satellite
 
-
   setup do
     target_date = Date.utc_today()
     creation_dt = DateTime.utc_now()
     server_id = "https://czsk.x1.czsk.travian.com"
-    
-    medusa_rows = [%Satellite.MedusaTable{alliance_id: "https://czsk.x1.czsk.travian.com--A--18",
-					  server_id: server_id,
-					  server_url: server_id,
-					  alliance_name: "00A",
-					  alliance_url: "00A",
-					  inactive_in_current: :undefined,
-					  inactive_in_future: true,
-					  model: :player_1,
-					  n_villages: 1,
-					  player_id: "https://czsk.x1.czsk.travian.com--P--1009",
-					  player_name: "PalMer",
-					  player_url: "https://czsk.x1.czsk.travian.com--P--1009",
-					  target_date: target_date,
-					  creation_dt: creation_dt,
-					  total_population: 227},
-		   
-		   %Satellite.MedusaTable{alliance_id: "https://czsk.x1.czsk.travian.com--A--26",
-					  server_id: server_id,
-					  server_url: server_id,
-					  alliance_name: "ZBL",
-					  alliance_url: "ZBL",
-					  inactive_in_current: :undefined,
-					  inactive_in_future: true,
-					  model: :player_1,
-					  n_villages: 2,
-					  player_id: "https://czsk.x1.czsk.travian.com--P--815",
-					  player_name: "Klobuk",
-					  player_url: "https://czsk.x1.czsk.travian.com--P--815",
-					  target_date: target_date,
-					  creation_dt: creation_dt,
-					  total_population: 1469}]
+
+    medusa_rows = [
+      %Satellite.MedusaTable{
+        alliance_id: "https://czsk.x1.czsk.travian.com--A--18",
+        server_id: server_id,
+        server_url: server_id,
+        alliance_name: "00A",
+        alliance_url: "00A",
+        inactive_in_current: :undefined,
+        inactive_in_future: true,
+        model: :player_1,
+        n_villages: 1,
+        player_id: "https://czsk.x1.czsk.travian.com--P--1009",
+        player_name: "PalMer",
+        player_url: "https://czsk.x1.czsk.travian.com--P--1009",
+        target_date: target_date,
+        creation_dt: creation_dt,
+        total_population: 227
+      },
+      %Satellite.MedusaTable{
+        alliance_id: "https://czsk.x1.czsk.travian.com--A--26",
+        server_id: server_id,
+        server_url: server_id,
+        alliance_name: "ZBL",
+        alliance_url: "ZBL",
+        inactive_in_current: :undefined,
+        inactive_in_future: true,
+        model: :player_1,
+        n_villages: 2,
+        player_id: "https://czsk.x1.czsk.travian.com--P--815",
+        player_name: "Klobuk",
+        player_url: "https://czsk.x1.czsk.travian.com--P--815",
+        target_date: target_date,
+        creation_dt: creation_dt,
+        total_population: 1469
+      }
+    ]
+
     %{medusa_rows: medusa_rows, server_id: server_id}
   end
 
   @tag :tmp_dir
-  test "MedusaTable.insert_predictions inserts medusa_rows in medusa_table", %{medusa_rows: mr, server_id: server_id, tmp_dir: mnesia_dir} do
-
+  test "MedusaTable.insert_predictions inserts medusa_rows in medusa_table", %{
+    medusa_rows: mr,
+    server_id: server_id,
+    tmp_dir: mnesia_dir
+  } do
     install(mnesia_dir)
     assert([:ok, :ok] == Satellite.MedusaTable.insert_predictions(mr))
     output = Satellite.MedusaTable.get_predictions_by_server(server_id)

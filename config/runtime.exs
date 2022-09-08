@@ -17,12 +17,7 @@ config :medusa,
 
 config :collector,
   root_folder: System.get_env("MITRAVIAN_ROOTFOLDER", "/tmp/travian_folder"),
-  collection_hour:
-    Time.new!(
-      System.get_env("MITRAVIAN__COLLECTION_HOUR", "9") |> String.to_integer(),
-      System.get_env("MITRAVIAN__COLLECTION_MINUTE", "0") |> String.to_integer(),
-      System.get_env("MITRAVIAN__COLLECTION_SECOND", "0") |> String.to_integer()
-    )
+  collection_hour: Time.new!(3, 0, 0)
 
 if config_env() == :prod do
   # The secret key base is used to sign/encrypt cookies and other secrets.
