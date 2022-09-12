@@ -5,6 +5,8 @@ defmodule Medusa do
 
   @type player_status :: :active, :inactive, :future_inactive
 
+  @type model :: :player_n | :player_1
+
   @predictions_options {"medusa_predictions", ".c6bert"}
 
   @spec predictions_options() :: {binary(), binary()}
