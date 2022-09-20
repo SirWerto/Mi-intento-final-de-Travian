@@ -24,19 +24,17 @@ defmodule MedusaMetrics.Metrics do
     old_date: Date.t()
   }
 
+  @type model_dict :: %{Medusa.model() => MedusaMetrics.Models.t()}
 
-  # @spec merge(x :: t(), y :: t()) :: t()
-  # def merge(x, y) do
-  #   %__MODULE__{
-  #     total_players: x.total_players + y.total_players,
-  #     failed_players: x.failed_players + y.failed_players,
-  #     target_date: x.target_date,
-  #     old_date: x.old_date,
-  #     models: merge_models(x.models, y.models)
-  #   }
-  # end
 
-  # @spec merge_models(x :: %{MedusaMetrics.Models.t()}, y :: %{MedusaMetrics.Models.t()}) :: %{MedusaMetrics.Models.t()}
-  # defp merge_models(x, y) do
-  # end
+  @spec merge(x :: t(), y :: t()) :: t()
+  def merge(x, y) do
+    %__MODULE__{
+      total_players: x.total_players + y.total_players,
+      failed_players: x.failed_players + y.failed_players,
+      target_date: x.target_date,
+      old_date: x.old_date,
+      models: Map.merge(x, y, fn _k, m1, m2 -> MedusaMetrics.Models.merge(m1, m2) end)
+    }
+  end
 end
