@@ -30,3 +30,7 @@ erl_crash.dump
 
 # Ignore models folder
 /apps/medusa/priv/
+
+
+# Ignore assets folder
+/apps/front/priv/static/assets
