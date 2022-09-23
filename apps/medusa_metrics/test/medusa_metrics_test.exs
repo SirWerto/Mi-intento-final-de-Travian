@@ -162,9 +162,24 @@ defmodule MedusaMetricsTest do
     expected_metrics = %MedusaMetrics.Metrics{
       total_players: 3,
       failed_players: 2,
+      square: %MedusaMetrics.Square{
+      t_p: 1,
+      t_n: 0,
+      f_p: 2,
+      f_n: 0},
       models: %{
-	player_n: %MedusaMetrics.Models{failed_players: 1, model: :player_n, total_players: 1},
-	player_1: %MedusaMetrics.Models{model: :player_1, total_players: 2, failed_players: 1}
+	player_n: %MedusaMetrics.Models{failed_players: 1, model: :player_n, total_players: 1,
+      square: %MedusaMetrics.Square{
+      t_p: 0,
+      t_n: 0,
+      f_p: 1,
+      f_n: 0}},
+	player_1: %MedusaMetrics.Models{model: :player_1, total_players: 2, failed_players: 1,
+      square: %MedusaMetrics.Square{
+      t_p: 1,
+      t_n: 0,
+      f_p: 1,
+      f_n: 0}},
       },
       target_date: ~D[2022-08-28],
       old_date: ~D[2022-08-26]
@@ -205,7 +220,13 @@ end
     :ok = Storage.store(root_folder, si, Medusa.predictions_options(), Medusa.predictions_to_format(n), today)
     :ok = Storage.store(root_folder, si, Medusa.predictions_options(), Medusa.predictions_to_format(o), yesterday2)
 
-    assert({:ok, {em, ef}} == MedusaMetrics.et(root_folder, si, today, yesterday2))
+    #assert({:ok, {em, ef}} == MedusaMetrics.et(root_folder, si, today, yesterday2))
+    {:ok, {om, of}} = MedusaMetrics.et(root_folder, si, today, yesterday2)
+
+    assert(ef == of)
+    assert(em == om)
+
+
   end
 
 end

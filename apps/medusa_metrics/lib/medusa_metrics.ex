@@ -58,41 +58,95 @@ defmodule MedusaMetrics do
 	  old_date: old_date,
 	  total_players: 0,
 	  failed_players: 0,
-	  models: %{}},
+	  models: %{},
+	  square: %MedusaMetrics.Square{t_p: 0, t_n: 0, f_p: 0, f_n: 0}
+	},
 	target_date,
 	old_date
       }
       
       {failed, metrics, _target_date, _old_date} = Enum.reduce(common, init_acc, fn x, acc -> aggregation(x, acc) end)
-      {:ok, {metrics, failed}}
+      {:ok, {compute_players(metrics), failed}}
       else
 	{:step_1, error} -> {:error, {"failed while reading target_file", error}}
 	{:step_2, error} -> {:error, {"failed while reading old_file", error}}
     end
   end
 
-  defp aggregation({new, old}, {failed, metrics, target_date, old_date}) when new.inactive_in_current == old.inactive_in_future do
-    new_models = Map.update(metrics.models, old.model,
-      %MedusaMetrics.Models{model: old.model, total_players: 1, failed_players: 0},
-      fn x -> Map.put(x, :total_players, x.total_players + 1) end)
-    new_metrics = metrics
-    |> Map.put(:models, new_models)
-    |> Map.put(:total_players, metrics.total_players + 1)
-    {failed, new_metrics, target_date, old_date}
-  end
 
-  defp aggregation({new, old}, {failed, metrics, target_date, old_date}) when new.inactive_in_current != old.inactive_in_future do
+
+  defp aggregation({new, old}, {failed, metrics, target_date, old_date}) do
     new_models = Map.update(metrics.models, old.model,
-      %MedusaMetrics.Models{model: old.model, total_players: 1, failed_players: 1},
-      fn x -> %MedusaMetrics.Models{model: x.model, total_players: x.total_players + 1, failed_players: x.failed_players + 1} end)
+      %MedusaMetrics.Models{model: old.model,
+			    total_players: 0,
+			    failed_players: 0,
+			    square: %MedusaMetrics.Square{t_p: 0, t_n: 0, f_p: 0, f_n: 0}},
+      fn x -> Map.put(x, :square, MedusaMetrics.Square.update(x.square, new.inactive_in_current, old.inactive_in_future)) end)
+    new_square = MedusaMetrics.Square.update(metrics.square, new.inactive_in_current, old.inactive_in_future)
     new_metrics = metrics
     |> Map.put(:models, new_models)
-    |> Map.put(:total_players, metrics.total_players + 1)
-    |> Map.put(:failed_players, metrics.failed_players + 1)
-    new_failed = [
-      %MedusaMetrics.Failed{server_id: new.server_id, player_id: new.player_id, model: old.model, target_date: target_date, old_date: old_date, expected: old.inactive_in_future, result: new.inactive_in_current}
-      | failed]
+    |> Map.put(:square, new_square)
+
+
+    new_failed = compute_failed(failed, new, old, target_date, old_date)
+
     {new_failed, new_metrics, target_date, old_date}
   end
+
+  defp compute_players(metrics) do
+    new_models = for {k, v} <- metrics.models, into: %{}, do: {k, compute_v(v)}
+
+    metrics
+    |> Map.put(:models, new_models)
+    |> Map.put(:total_players, MedusaMetrics.Square.total_players(metrics.square))
+    |> Map.put(:failed_players, MedusaMetrics.Square.failed_players(metrics.square))
+  end
+
+  defp compute_v(x) do
+    x
+    |> Map.put(:total_players, MedusaMetrics.Square.total_players(x.square))
+    |> Map.put(:failed_players, MedusaMetrics.Square.failed_players(x.square))
+  end
+
+  defp compute_failed(failed, new, old, target_date, old_date) do
+    case {new.inactive_in_current, old.inactive_in_future} do
+      {x, x} -> failed
+      {_x, _y} -> 
+	new_failed = [
+	  %MedusaMetrics.Failed{server_id: new.server_id, player_id: new.player_id, model: old.model, target_date: target_date, old_date: old_date, expected: old.inactive_in_future, result: new.inactive_in_current}
+	  | failed]
+    end
+  end
+
+
+
+
+
+
+  # defp aggregation({new, old}, {failed, metrics, target_date, old_date}) when new.inactive_in_current == old.inactive_in_future do
+  #   new_models = Map.update(metrics.models, old.model,
+  #     %MedusaMetrics.Models{model: old.model, total_players: 1, failed_players: 0},
+  #     fn x -> Map.put(x, :total_players, x.total_players + 1) end)
+  #   new_metrics = metrics
+  #   |> Map.put(:models, new_models)
+  #   |> Map.put(:total_players, metrics.total_players + 1)
+  #   |> Map.put(:square, MedusaMetrics.Square.update(metrics.square, new.inactive_in_current, old.inactive_in_future))
+  #   {failed, new_metrics, target_date, old_date}
+  # end
+
+  # defp aggregation({new, old}, {failed, metrics, target_date, old_date}) when new.inactive_in_current != old.inactive_in_future do
+  #   new_models = Map.update(metrics.models, old.model,
+  #     %MedusaMetrics.Models{model: old.model, total_players: 1, failed_players: 1},
+  #     fn x -> %MedusaMetrics.Models{model: x.model, total_players: x.total_players + 1, failed_players: x.failed_players + 1} end)
+  #   new_metrics = metrics
+  #   |> Map.put(:models, new_models)
+  #   |> Map.put(:total_players, metrics.total_players + 1)
+  #   |> Map.put(:failed_players, metrics.failed_players + 1)
+  #   |> Map.put(:square, MedusaMetrics.Square.update(metrics.square, new.inactive_in_current, old.inactive_in_future))
+  #   new_failed = [
+  #     %MedusaMetrics.Failed{server_id: new.server_id, player_id: new.player_id, model: old.model, target_date: target_date, old_date: old_date, expected: old.inactive_in_future, result: new.inactive_in_current}
+  #     | failed]
+  #   {new_failed, new_metrics, target_date, old_date}
+  # end
 
 end
