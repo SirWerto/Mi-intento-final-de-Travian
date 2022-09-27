@@ -76,12 +76,13 @@ defmodule MedusaMetrics do
 
 
   defp aggregation({new, old}, {failed, metrics, target_date, old_date}) do
-    new_models = Map.update(metrics.models, old.model,
-      %MedusaMetrics.Models{model: old.model,
-			    total_players: 0,
-			    failed_players: 0,
-			    square: %MedusaMetrics.Square{t_p: 0, t_n: 0, f_p: 0, f_n: 0}},
-      fn x -> Map.put(x, :square, MedusaMetrics.Square.update(x.square, new.inactive_in_current, old.inactive_in_future)) end)
+    # new_models = Map.update(metrics.models, old.model,
+    #   %MedusaMetrics.Models{model: old.model,
+    # 			    total_players: 0,
+    # 			    failed_players: 0,
+    # 			    square: %MedusaMetrics.Square{t_p: 0, t_n: 0, f_p: 0, f_n: 0}},
+    #   fn x -> Map.put(x, :square, MedusaMetrics.Square.update(x.square, new.inactive_in_current, old.inactive_in_future)) end)
+    new_models = update_models(metrics.models, old.model, new.inactive_in_current, old.inactive_in_future)
     new_square = MedusaMetrics.Square.update(metrics.square, new.inactive_in_current, old.inactive_in_future)
     new_metrics = metrics
     |> Map.put(:models, new_models)
@@ -91,6 +92,18 @@ defmodule MedusaMetrics do
     new_failed = compute_failed(failed, new, old, target_date, old_date)
 
     {new_failed, new_metrics, target_date, old_date}
+  end
+
+  defp update_models(models, model_name, inactive_in_current, inactive_in_future) when is_map_key(models, model_name) do
+    Map.update!(models, model_name, fn x -> Map.put(x, :square, MedusaMetrics.Square.update(x.square, inactive_in_current, inactive_in_future)) end)
+  end
+  defp update_models(models, model_name, inactive_in_current, inactive_in_future) do
+    new_model = %MedusaMetrics.Models{model: model_name,
+				      total_players: 0,
+				      failed_players: 0,
+				      square: %MedusaMetrics.Square{t_p: 0, t_n: 0, f_p: 0, f_n: 0}}
+    new_model = Map.put(new_model, :square, MedusaMetrics.Square.update(new_model.square, inactive_in_current, inactive_in_future))
+    Map.put(models, model_name, new_model)
   end
 
   defp compute_players(metrics) do

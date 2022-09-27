@@ -24,7 +24,7 @@ defmodule MedusaMetrics.Square do
 
   @spec failed_players(square :: t()) :: non_neg_integer()
   def failed_players(square) when is_struct(square, __MODULE__) do
-    square.t_n + square.f_p
+    square.f_n + square.f_p
   end
 
   @spec total_players(square :: t()) :: non_neg_integer()
@@ -43,36 +43,8 @@ defmodule MedusaMetrics.Square do
   end
 
   @spec update(square :: t(), inactive_in_current :: bool(), inactive_in_future :: bool) :: t()
-  def update(square, false, false) when is_struct(square, __MODULE__) do
-    %__MODULE__{
-      t_p: square.t_p,
-      t_n: square.t_n,
-      f_p: square.f_p,
-      f_n: square.f_n + 1
-    }
-  end
-  def update(square, false, true) when is_struct(square, __MODULE__) do
-    %__MODULE__{
-      t_p: square.t_p,
-      t_n: square.t_n,
-      f_p: square.f_p + 1,
-      f_n: square.f_n
-    }
-  end
-  def update(square, true, false) when is_struct(square, __MODULE__) do
-    %__MODULE__{
-      t_p: square.t_p,
-      t_n: square.t_n + 1,
-      f_p: square.f_p,
-      f_n: square.f_n
-    }
-  end
-  def update(square, true, true) when is_struct(square, __MODULE__) do
-    %__MODULE__{
-      t_p: square.t_p + 1,
-      t_n: square.t_n,
-      f_p: square.f_p,
-      f_n: square.f_n
-    }
-  end
+  def update(square, false, false) when is_struct(square, __MODULE__), do: Map.update!(square, :t_n, &(&1 + 1))
+  def update(square, false, true) when is_struct(square, __MODULE__), do: Map.update!(square, :f_p, &(&1 + 1))
+  def update(square, true, false) when is_struct(square, __MODULE__), do: Map.update!(square, :f_n, &(&1 + 1))
+  def update(square, true, true) when is_struct(square, __MODULE__), do: Map.update!(square, :t_p, &(&1 + 1))
 end
