@@ -15,10 +15,10 @@ defmodule MedusaMetrics.Models do
   ]
 
   @type t :: %__MODULE__{
-          model: Medusa.models(),
+          model: Medusa.model(),
 	  total_players: non_neg_integer(),
 	  failed_players: non_neg_integer(),
-	  square: MedusaMetrics.t()
+	  square: MedusaMetrics.Square.t()
         }
 
   @spec merge(x :: t(), y :: t()) :: t()
