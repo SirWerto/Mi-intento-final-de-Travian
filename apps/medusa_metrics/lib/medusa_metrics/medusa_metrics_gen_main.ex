@@ -44,8 +44,6 @@ defmodule MedusaMetrics.GenMain do
     {:noreply, new_state, {:continue, :eval_finish}}
   end
   def handle_cast({:medusa_metrics_et_result, server_id, {failed, metrics}}, state) do
-    Logger.warning(%{obj: metrics})
-    Logger.warning(%{obj: failed})
     new_state = state
     |> Map.put(:metrics, MedusaMetrics.Metrics.merge(state.metrics, metrics))
     |> Map.put(:failed, failed ++ state.failed)
