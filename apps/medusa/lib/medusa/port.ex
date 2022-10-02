@@ -18,7 +18,7 @@ defmodule Medusa.Port do
   @type t :: %__MODULE__{
     player_id: TTypes.player_id(),
     inactive_in_future: boolean(),
-    model: :player_n | :player_1}
+    model: Medusa.model()}
 
   @spec open(model_dir :: String.t()) :: {port(), reference()}
   def open(model_dir) do

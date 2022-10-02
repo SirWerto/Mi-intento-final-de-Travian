@@ -19,6 +19,10 @@ config :collector,
   root_folder: System.get_env("MITRAVIAN_ROOTFOLDER", "/tmp/travian_folder"),
   collection_hour: Time.new!(3, 0, 0)
 
+
+config :medusa_metrics,
+  root_folder: System.get_env("MITRAVIAN_ROOTFOLDER", "/tmp/travian_folder")
+
 if config_env() == :prod do
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
@@ -69,6 +73,7 @@ if config_env() == :prod do
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 end
+
 
 # config :medusa,
 #   model_dir: System.fetch_env!("MITRAVIAN__MEDUSA_MODEL_DIR")
