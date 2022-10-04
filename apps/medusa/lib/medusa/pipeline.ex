@@ -55,6 +55,17 @@ defmodule Medusa.Pipeline do
     }
   end
 
+  @spec is_one_day_inactive?(today_struct :: Medusa.Pipeline.Step1.t(), yesterday_struct :: Medusa.Pipeline.Step1.t()) :: boolean()
+  def is_one_day_inactive?(today_struct, yesterday_struct)
+  when
+  is_struct(today_struct, Medusa.Pipeline.Step1) and
+  is_struct(today_struct, Medusa.Pipeline.Step1) do
+    case Date.diff(today_struct.date, yesterday_struct.date) do
+      1 -> !active_day?(yesterday_struct.village_pop, today_struct.village_pop)
+      _ -> raise("today_struct and yesterday_struct should be consecutive")
+    end
+  end
+
   @doc """
   A player is inactive if the last 3 days she/he has not increased the population in any of his/her villages.
   """

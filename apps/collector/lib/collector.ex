@@ -51,4 +51,8 @@ defmodule Collector do
 
   @spec metadata_from_format(encoded_metadata :: binary()) :: map()
   def metadata_from_format(encoded_metadata), do: :erlang.binary_to_term(encoded_metadata)
+
+
+  def snapshot_options(), do: {"snapshot", ".c6bert"}
+  def snapshot_errors_options(), do: {"snapshot_errors", ".c6bert"}
 end

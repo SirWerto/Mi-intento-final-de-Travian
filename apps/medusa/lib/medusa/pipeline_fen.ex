@@ -62,7 +62,8 @@ defmodule Medusa.Pipeline.FEN do
     %__MODULE__{
       player_id: struct_first.player_id,
       date: struct_first.date,
-      inactive_in_current: !Medusa.Pipeline.active_day?(struct_second.village_pop, struct_first.village_pop),
+      # inactive_in_current: !Medusa.Pipeline.active_day?(struct_second.village_pop, struct_first.village_pop),
+      inactive_in_current: Medusa.Pipeline.is_one_day_inactive?(struct_first, struct_second),
       n_days: n_days,
       dow: Date.day_of_week(struct_first.date),
       total_population: struct_first.total_population,
