@@ -1,0 +1,29 @@
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Alliance</th>
+            <th>Population</th>
+            <th>Villages</th>
+            <th>Current inactive?</th>
+            <th>Model</th>
+            <th>Future inactive?</th>
+            <th>Inactive probability</th>
+        </tr>
+    </thead>
+    <tbody>
+        <%= for row <-  @rows do %>
+        <tr>
+	      <td><%= link(row.player_name, to: URI.parse(row.player_url)) %></td>
+	      <td><%= link(row.alliance_name, to: URI.parse(row.alliance_url)) %></td>
+	      <td><%= row.total_population %></td>
+	      <td><%= row.n_villages %></td>
+	      <td><%= row.inactive_in_current %></td>
+	      <td><%= row.model %></td>
+	      <td><%= row.inactive_in_future %></td>
+	      <td style={"color:rgba(155, 40, 123, #{if row.total_population <= 0.3, do: 0.3, else: row.total_population})"}><%= row.total_population %></td>
+        </tr>
+	<% end %>
+    </tbody>
+</table>
+
