@@ -12,7 +12,6 @@ defmodule Front.ServersController do
     render(conn, "select.html", rows: rows)
   end
 
-
   def s_to_url(server_id) do
     String.replace(server_id, "://", "@@")
   end
@@ -20,6 +19,4 @@ defmodule Front.ServersController do
   defp s_from_url(server_id) do
     String.replace(server_id, "@@", "://")
   end
-
-
 end

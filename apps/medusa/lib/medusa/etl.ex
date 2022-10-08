@@ -107,10 +107,10 @@ defmodule Medusa.ETL do
       server_url: server_id,
       player_id: pred.player_id,
       player_name: raw.player_name,
-      player_url: pred.player_id,
+      player_url: create_player_url(server_id, raw.player_server_id),
       alliance_id: raw.alliance_id,
       alliance_name: raw.alliance_name,
-      alliance_url: raw.alliance_name,
+      alliance_url: create_alliance_url(server_id, raw.alliance_server_id),
       inactive_in_future: pred.inactive_in_future,
       inactive_in_current: proc.fe_struct.inactive_in_current,
       total_population: proc.fe_struct.total_population,
@@ -119,6 +119,9 @@ defmodule Medusa.ETL do
       target_date: target_date,
       creation_dt: creation_dt}
   end
+
+  defp create_player_url(server_url, player_server_id), do: "#{server_url}/profile/#{player_server_id}"
+  defp create_alliance_url(server_url, alliance_server_id), do: "#{server_url}/alliance/#{alliance_server_id}"
 
 
 

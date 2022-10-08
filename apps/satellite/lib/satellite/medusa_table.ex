@@ -105,12 +105,11 @@ defmodule Satellite.MedusaTable do
     {:ok, result}
   end
 
+  # -include_lib("stdlib/include/qlc.hrl").
 
-# -include_lib("stdlib/include/qlc.hrl").
-
-# select_distinct()->
-#     QH = qlc:q( [K || {_TName, K, _V} <- mnesia:table(test)], {unique, true}),
-#     F = fun() -> qlc:eval(QH) end,
-#     {atomic, Result} = mnesia:transaction(F),
-#     Result.
+  # select_distinct()->
+  #     QH = qlc:q( [K || {_TName, K, _V} <- mnesia:table(test)], {unique, true}),
+  #     F = fun() -> qlc:eval(QH) end,
+  #     {atomic, Result} = mnesia:transaction(F),
+  #     Result.
 end
