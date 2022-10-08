@@ -74,35 +74,35 @@ defmodule Medusa.Pipeline.Test do
     assert(Medusa.Pipeline.is_inactive(day_minus_two, day_minus_one, current_day) == false)
   end
 
-  defp gen_input_output_pipeline() do
-    date = DateTime.now!("Etc/UTC") |> DateTime.to_date()
-    case boolean() do
-      true -> gen_fe1_input_output(date)
-      false -> gen_fen_input_output(date)
-    end
-  end
+  # defp gen_input_output_pipeline() do
+  #   date = DateTime.now!("Etc/UTC") |> DateTime.to_date()
+  #   case boolean() do
+  #     true -> gen_fe1_input_output(date)
+  #     false -> gen_fen_input_output(date)
+  #   end
+  # end
 
-  defp gen_fe1_input_output(date) do
+  # defp gen_fe1_input_output(date) do
 
-    output = %Medusa.Pipeline.Step2{
-      fe_type: :ndays_1,
-      fe_struct: 
-      %Medusa.Pipeline.FE1{
-	player_id: bitstring(),
-	date: date,
-	inactive_in_current: :undefined,
-	total_population: integer(1, :inf),
-	n_villages: integer(1, :inf),
-	tribes_summary: %{},
-	center_mass_x: float(),
-	center_mass_y: float(),
-	distance_to_origin: float(0, :inf)}}
+  #   output = %Medusa.Pipeline.Step2{
+  #     fe_type: :ndays_1,
+  #     fe_struct: 
+  #     %Medusa.Pipeline.FE1{
+  # 	player_id: bitstring(),
+  # 	date: date,
+  # 	inactive_in_current: :undefined,
+  # 	total_population: integer(1, :inf),
+  # 	n_villages: integer(1, :inf),
+  # 	tribes_summary: %{},
+  # 	center_mass_x: float(),
+  # 	center_mass_y: float(),
+  # 	distance_to_origin: float(0, :inf)}}
 
-    input = 
+  #   input = 
 
-  end
+  # end
 
-  defp gen_fen_input_output(date)
+  # defp gen_fen_input_output(date)
 
 
 
