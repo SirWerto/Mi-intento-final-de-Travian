@@ -85,12 +85,13 @@ defmodule Satellite.MedusaTable do
     :mnesia.activity(:transaction, func)
   end
 
-  @spec get_predictions_by_server(server_id :: TTypes.server_id()) :: :ok
-  def get_predictions_by_server(server_id) do
+  @spec get_predictions_by_server(server_id :: TTypes.server_id(), target_date :: Date.t()) :: :ok
+  def get_predictions_by_server(server_id, target_date \\ Date.utc_today()) do
     pattern = {@table_name, :_, server_id, :_}
 
     func = fn -> :mnesia.match_object(pattern) end
-    for res <- :mnesia.activity(:transaction, func), do: elem(res, 3)
+    answer = :mnesia.activity(:transaction, func)
+    for {@table_name, _player_id, _server_id, row} <- answer, row.target_date == target_date, do: row
   end
 
   # QLC for the query?

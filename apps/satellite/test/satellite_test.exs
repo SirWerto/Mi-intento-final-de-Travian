@@ -16,6 +16,7 @@ defmodule SatelliteTest do
         alliance_url: "00A",
         inactive_in_current: :undefined,
         inactive_in_future: true,
+	inactive_probability: 0.8,
         model: :player_1,
         n_villages: 1,
         player_id: "https://czsk.x1.czsk.travian.com--P--1009",
@@ -33,6 +34,7 @@ defmodule SatelliteTest do
         alliance_url: "ZBL",
         inactive_in_current: :undefined,
         inactive_in_future: true,
+	inactive_probability: 0.3,
         model: :player_1,
         n_villages: 2,
         player_id: "https://czsk.x1.czsk.travian.com--P--815",
@@ -81,9 +83,29 @@ defmodule SatelliteTest do
     for x <- expected, do: assert(x in output)
   end
 
+
+  @tag :tmp_dir
+  test "MedusaTable.get_predictions_by_server fetch only rows based on target_date with Date.utc_today as default", %{
+    medusa_rows: mr = [one, two],
+    server_id: server_id,
+    tmp_dir: mnesia_dir
+  } do
+    install(mnesia_dir)
+    today = Date.utc_today()
+    yesterday = Date.add(today, -1)
+    yesterday_row = Map.put(two, :target_date, yesterday)
+
+    assert([:ok, :ok] == Satellite.MedusaTable.insert_predictions([one, yesterday_row]))
+    assert([one] == Satellite.MedusaTable.get_predictions_by_server(server_id))
+    assert([yesterday_row] == Satellite.MedusaTable.get_predictions_by_server(server_id, yesterday))
+  end
+
+
   defp install(mnesia_dir) do
     dir = File.mkdir_p!(mnesia_dir <> "/mnesia_dir")
     Application.put_env(:mnesia, :dir, dir)
     assert(:ok == Satellite.install([Node.self()]))
   end
+
+
 end
