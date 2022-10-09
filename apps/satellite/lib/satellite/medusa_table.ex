@@ -66,6 +66,7 @@ defmodule Satellite.MedusaTable do
       attributes: [
         :player_id,
         :server_id,
+	:target_date,
         :struct
       ],
       type: :set,
@@ -79,28 +80,42 @@ defmodule Satellite.MedusaTable do
   @spec insert_predictions(medusa_structs :: [t()]) :: :ok | {:error, any()}
   def insert_predictions(medusa_structs) do
     func = fn ->
-      for x <- medusa_structs, do: :mnesia.write({@table_name, x.player_id, x.server_id, x})
+      for x <- medusa_structs, do: :mnesia.write({@table_name, x.player_id, x.server_id, x.target_date, x})
     end
 
     :mnesia.activity(:transaction, func)
   end
 
+  def clear_table() do
+    :mnesia.clear_table(@table_name)
+  end
+
   @spec get_predictions_by_server(server_id :: TTypes.server_id(), target_date :: Date.t()) :: :ok
   def get_predictions_by_server(server_id, target_date \\ Date.utc_today()) do
-    pattern = {@table_name, :_, server_id, :_}
+    pattern = {@table_name, :_, server_id, :_, :_}
 
     func = fn -> :mnesia.match_object(pattern) end
     answer = :mnesia.activity(:transaction, func)
 
-    for {@table_name, _player_id, _server_id, row} <- answer,
-        row.target_date == target_date,
+    for {@table_name, _player_id, _server_id, target_date_row, row} <- answer,
+        target_date_row == target_date,
         do: row
   end
 
   # QLC for the query?
   @spec get_unique_servers() :: {:ok, [TTypes.server_id()]} | {:error, any()}
   def get_unique_servers() do
-    pattern = {@table_name, :_, :_, :_}
+    pattern = {@table_name, :_, :_, :_, :_}
+
+    func = fn -> :mnesia.match_object(pattern) end
+    result = for res <- :mnesia.activity(:transaction, func), uniq: true, do: elem(res, 2)
+    {:ok, result}
+  end
+
+
+  @spec get_unique_servers(target_date :: Date.t()) :: {:ok, [TTypes.server_id()]} | {:error, any()}
+  def get_unique_servers(target_date) do
+    pattern = {@table_name, :_, :_, target_date, :_}
 
     func = fn -> :mnesia.match_object(pattern) end
     result = for res <- :mnesia.activity(:transaction, func), uniq: true, do: elem(res, 2)
