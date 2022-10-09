@@ -46,7 +46,7 @@ defmodule Medusa.Port.Test do
   end
 
   setup do
-    {port, ref} = Medusa.Port.open(System.get_env("MITRAVIAN__MEDUSA_MODEL_DIR", "priv"))
+    {port, ref} = Medusa.Port.open(System.get_env("MITRAVIAN__MEDUSA_MODELDIR", "priv"))
     on_exit(fn -> Medusa.Port.close(port, ref) end)
     %{port: port, ref: ref}
   end
@@ -67,7 +67,7 @@ defmodule Medusa.Port.Test do
     assert(sorted_players_id == pred_players_id)
   end
 
-  test "Predictions should be model and bool", %{port: port, samples: samples} do
+  test "Predictions should be model, bool and probability", %{port: port, samples: samples} do
     predictions = Medusa.Port.predict!(port, samples)
     for pred <- predictions, do: assert_pred(pred)
   end
@@ -85,7 +85,14 @@ defmodule Medusa.Port.Test do
 
 
   defp assert_pred(pred) do
-    assert(is_boolean(pred.inactive_in_future))
+    assert(is_struct(pred, Medusa.Port))
     assert(pred.model == :player_n or pred.model == :player_1)
+    assert(is_boolean(pred.inactive_in_future))
+    assert(pred.inactive_probability >= 0 and pred.inactive_probability <= 1)
+    IO.inspect(pred)
+    case pred.inactive_probability do
+      x when x >= 0.5 -> assert(pred.inactive_in_future == true)
+      _x -> assert(pred.inactive_in_future == false)
+    end
   end
 end
