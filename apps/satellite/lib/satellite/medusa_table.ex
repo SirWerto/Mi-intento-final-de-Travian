@@ -3,11 +3,6 @@ defmodule Satellite.MedusaTable do
 
   @table_name :medusa_table
 
-  # @medusa_record {:medusa_row, :server_id, :server_url, :player_id, :player_name, :player_url,
-  #                 :alliance_id, :alliance_name, :alliance_url, :inactive_in_future,
-  #                 :inactive_in_current, :total_population, :model, :n_villages, :target_date,
-  #                 :creation_dt}
-
   @enforce_keys [
     :player_id,
     :player_name,
@@ -18,6 +13,7 @@ defmodule Satellite.MedusaTable do
     :alliance_name,
     :alliance_url,
     :inactive_in_future,
+    :inactive_probability,
     :inactive_in_current,
     :total_population,
     :model,
@@ -36,6 +32,7 @@ defmodule Satellite.MedusaTable do
     :alliance_name,
     :alliance_url,
     :inactive_in_future,
+    :inactive_probability,
     :inactive_in_current,
     :total_population,
     :model,
@@ -53,8 +50,9 @@ defmodule Satellite.MedusaTable do
           alliance_id: TTypes.alliance_id(),
           alliance_name: TTypes.alliance_name(),
           alliance_url: binary(),
-          inactive_in_future: boolean() | :undefined,
-          inactive_in_current: boolean(),
+          inactive_in_future: boolean(),
+          inactive_probability: float(),
+          inactive_in_current: boolean() | :undefined,
           total_population: pos_integer(),
           model: Medusa.Pipeline.Step2.fe_type(),
           n_villages: pos_integer(),

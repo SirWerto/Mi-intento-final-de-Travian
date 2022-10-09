@@ -62,7 +62,7 @@ defmodule Medusa.ETL do
 
 
 
-  @spec prepare_raw(lastest_snapshot :: [Collector.SnapshotRow.t()]) :: {[TTypes.player_id], [TTypes.enriched_row()]}
+  @spec prepare_raw(lastest_snapshot :: [Collector.SnapshotRow.t()]) :: {[TTypes.player_id], [Collector.SnapshotRow.t()]}
   defp prepare_raw(snapshot_rows) do
     snapshot_rows
     |> Enum.sort_by(fn x -> x.player_id end)
@@ -94,13 +94,13 @@ defmodule Medusa.ETL do
 
 
 
-  @spec enrich_preds(prepared_raw :: [TTypes.enriched_row()], prepared_processed :: [Medusa.Pipeline.Step2.t()], prepared_predictions :: [Medusa.Port.t()], server_id :: TTypes.server_id(), target_date :: Date.t()) :: [Satellite.MedusaTable.t()]
+  @spec enrich_preds(prepared_raw :: [Collector.SnapshotRow.t()], prepared_processed :: [Medusa.Pipeline.Step2.t()], prepared_predictions :: [Medusa.Port.t()], server_id :: TTypes.server_id(), target_date :: Date.t()) :: [Satellite.MedusaTable.t()]
   defp enrich_preds(prepared_raw, prepared_processed, prepared_predictions, server_id, target_date) do
     creation_dt = DateTime.utc_now()
     for {raw, proc, pred} <- Enum.zip([prepared_raw, prepared_processed, prepared_predictions]), do: enrich_map(raw, proc, pred, server_id, target_date, creation_dt)
   end
 
-  @spec enrich_map(raw :: TTypes.enriched_row(), proc :: Medusa.Pipeline.Step2.t(), pred :: Medusa.Port.t(), server_id :: TTypes.server_id(), target_date :: Date.t(), creation_dt :: DateTime.t()) :: Satellite.MedusaTable.t()
+  @spec enrich_map(raw :: Collector.SnapshotRow.t(), proc :: Medusa.Pipeline.Step2.t(), pred :: Medusa.Port.t(), server_id :: TTypes.server_id(), target_date :: Date.t(), creation_dt :: DateTime.t()) :: Satellite.MedusaTable.t()
   defp enrich_map(raw, proc, pred, server_id, target_date, creation_dt) do
     %Satellite.MedusaTable{
       server_id: server_id,
@@ -112,6 +112,7 @@ defmodule Medusa.ETL do
       alliance_name: raw.alliance_name,
       alliance_url: create_alliance_url(server_id, raw.alliance_server_id),
       inactive_in_future: pred.inactive_in_future,
+      inactive_probability: pred.inactive_probability,
       inactive_in_current: proc.fe_struct.inactive_in_current,
       total_population: proc.fe_struct.total_population,
       model: pred.model,

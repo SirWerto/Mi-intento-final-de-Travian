@@ -5,19 +5,20 @@ defmodule Medusa.Port do
 
   @python_version 3.7
 
-  @medusa_py "medusa_app.py"
+  @medusa_py "app.py"
   @medusa_py_env "medusa_env/lib/python#{@python_version}/site-packages"
-  @medusa_model_1 "medusa_model_1.pkl"
-  @medusa_model_n "medusa_model_n.pkl"
+  @medusa_model_1 "models/medusa_model_1.pkl"
+  @medusa_model_n "models/medusa_model_n.pkl"
 
 
-  @enforce_keys [:player_id, :inactive_in_future, :model]
-  defstruct [:player_id, :inactive_in_future, :model]
+  @enforce_keys [:player_id, :inactive_in_future, :inactive_probability, :model]
+  defstruct [:player_id, :inactive_in_future, :inactive_probability, :model]
 
 
   @type t :: %__MODULE__{
     player_id: TTypes.player_id(),
     inactive_in_future: boolean(),
+    inactive_probability: float(),
     model: Medusa.model()}
 
   @spec open(model_dir :: String.t()) :: {port(), reference()}
@@ -35,7 +36,7 @@ defmodule Medusa.Port do
       {:packet, 4},
       {:env, env}
     ]
-    
+
     port = Port.open({:spawn, "python#{@python_version} #{medusa_py} #{medusa_model_1} #{medusa_model_n}"}, options)
     ref = Port.monitor(port)
     
@@ -59,24 +60,21 @@ defmodule Medusa.Port do
     Port.command(port, cmd)
     receive do
       {^port, {:data, data}} ->
-	for [model, player, pred] <- Jason.decode!(data), do: map_port_to_struct(model, player, pred)
+	for [model, player, pred, prob] <- Jason.decode!(data), do: map_port_to_struct(model, player, pred, prob)
     end
   end
 
-  @spec map_port_to_struct(model :: String.t(), player :: TTypes.player_id(), pred :: String.t()) :: t()
-  defp map_port_to_struct(model, player, pred) do
+  @spec map_port_to_struct(model :: String.t(), player :: TTypes.player_id(), pred :: String.t(), prob :: float()) :: t()
+  defp map_port_to_struct(model, player, pred, prob) do
     %__MODULE__{
       player_id: player,
-      inactive_in_future: future_to_bool!(pred),
+      inactive_in_future: pred,
+      inactive_probability: prob,
       model: model_to_atom!(model)
     }
   end
 
-  @spec future_to_bool!(String.t()) :: boolean()
-  defp future_to_bool!("Active"), do: true
-  defp future_to_bool!("Inactive"), do: false
-
   @spec model_to_atom!(String.t()) :: :player_1 | :player_n
-  defp model_to_atom!("player_1"), do: :player_1
-  defp model_to_atom!("player_n"), do: :player_n
+  defp model_to_atom!("model_1"), do: :player_1
+  defp model_to_atom!("model_n"), do: :player_n
 end
