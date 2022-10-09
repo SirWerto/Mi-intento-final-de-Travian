@@ -7,7 +7,6 @@ defmodule Satellite.Application do
 
   @impl true
   def start(_type, _args) do
-
     gen_cleaner = %{
       :id => "gen_cleaner",
       :start => {Satellite.MedusaTable.GenCleaner, :start_link, []},

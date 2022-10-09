@@ -66,7 +66,7 @@ defmodule Satellite.MedusaTable do
       attributes: [
         :player_id,
         :server_id,
-	:target_date,
+        :target_date,
         :struct
       ],
       type: :set,
@@ -80,7 +80,8 @@ defmodule Satellite.MedusaTable do
   @spec insert_predictions(medusa_structs :: [t()]) :: :ok | {:error, any()}
   def insert_predictions(medusa_structs) do
     func = fn ->
-      for x <- medusa_structs, do: :mnesia.write({@table_name, x.player_id, x.server_id, x.target_date, x})
+      for x <- medusa_structs,
+          do: :mnesia.write({@table_name, x.player_id, x.server_id, x.target_date, x})
     end
 
     :mnesia.activity(:transaction, func)
@@ -112,8 +113,8 @@ defmodule Satellite.MedusaTable do
     {:ok, result}
   end
 
-
-  @spec get_unique_servers(target_date :: Date.t()) :: {:ok, [TTypes.server_id()]} | {:error, any()}
+  @spec get_unique_servers(target_date :: Date.t()) ::
+          {:ok, [TTypes.server_id()]} | {:error, any()}
   def get_unique_servers(target_date) do
     pattern = {@table_name, :_, :_, target_date, :_}
 

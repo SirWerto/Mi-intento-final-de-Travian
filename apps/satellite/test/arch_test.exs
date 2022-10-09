@@ -15,8 +15,8 @@ defmodule SatelliteArchTest do
   end
 
   @tag :tmp_dir
-  test "MedusaTable.GenCleaner cleans outdated MedusaTable rows while Collector emits the starter event", %{tmp_dir: mnesia_dir} do
-
+  test "MedusaTable.GenCleaner cleans outdated MedusaTable rows while Collector emits the starter event",
+       %{tmp_dir: mnesia_dir} do
     install(mnesia_dir)
 
     target_date = Date.utc_today()
@@ -43,6 +43,7 @@ defmodule SatelliteArchTest do
       creation_dt: creation_dt,
       total_population: 227
     }
+
     two = %Satellite.MedusaTable{
       alliance_id: "https://czsk.x1.czsk.travian.com--A--26",
       server_id: server_id,
@@ -61,11 +62,9 @@ defmodule SatelliteArchTest do
       creation_dt: creation_dt,
       total_population: 1469
     }
-    
 
     input = [one, two]
     # expected = [one]
-
 
     assert([:ok, :ok] == Satellite.MedusaTable.insert_predictions(input))
     Collector.collect()
@@ -74,8 +73,6 @@ defmodule SatelliteArchTest do
     assert([] == Satellite.MedusaTable.get_predictions_by_server(server_id))
     assert([] == Satellite.MedusaTable.get_predictions_by_server(server_id, yesterday))
   end
-
-
 
   defp install(mnesia_dir) do
     dir = File.mkdir_p!(mnesia_dir <> "/mnesia_dir")
