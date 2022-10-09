@@ -64,7 +64,7 @@ defmodule SatelliteTest do
 
   @tag :tmp_dir
   test "MedusaTable.get_unique_servers returns the unique servers in medusa_table", %{
-    medusa_rows: mr = [one, two],
+    medusa_rows: mr = [_one, two],
     server_id: server_id,
     tmp_dir: mnesia_dir
   } do
@@ -86,7 +86,7 @@ defmodule SatelliteTest do
   @tag :tmp_dir
   test "MedusaTable.get_predictions_by_server fetch only rows based on target_date with Date.utc_today as default",
        %{
-         medusa_rows: mr = [one, two],
+         medusa_rows: [one, two],
          server_id: server_id,
          tmp_dir: mnesia_dir
        } do
