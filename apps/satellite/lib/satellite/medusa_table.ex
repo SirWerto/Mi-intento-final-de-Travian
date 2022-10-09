@@ -91,7 +91,10 @@ defmodule Satellite.MedusaTable do
 
     func = fn -> :mnesia.match_object(pattern) end
     answer = :mnesia.activity(:transaction, func)
-    for {@table_name, _player_id, _server_id, row} <- answer, row.target_date == target_date, do: row
+
+    for {@table_name, _player_id, _server_id, row} <- answer,
+        row.target_date == target_date,
+        do: row
   end
 
   # QLC for the query?
