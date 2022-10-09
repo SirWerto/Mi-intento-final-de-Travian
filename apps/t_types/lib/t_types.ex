@@ -34,27 +34,10 @@ defmodule TTypes do
   @type alliance_name :: String.t()
 
   @type villages_attrs_inmutable :: x() | y() | grid_position() | region()
-  @type villages_attrs_mutable :: tribe() | population()
+  @type villages_attrs_mutable :: tribe_integer() | population()
 
   @typedoc "Attribute related to the `village`"
   @type villages_attrs :: villages_attrs_inmutable() | villages_attrs_mutable()
-
-  @typedoc "It's the tribe of the village. It can change if the village is conquered by another player with diffrent tribe. 
-  \nIts values are: 
-  \n1 => Romans
-  \n2 => Teutons
-  \n3 => Gauls
-  \n4 => Nature
-  \n5 => Natars
-  \n6 => Huns
-  \n7 => Egyptians"
-  @type tribe :: pos_integer()
-
-  @typedoc "Name of the different tribes."
-  @type tribe_name :: :romans | :teutons | :gauls | :nature | :natars | :huns | :egyptians
-
-  @typedoc "A map to used to store the village tribes of each player."
-  @type tribes_map :: %{tribe_name() => non_neg_integer()}
 
   @typedoc "Number of inhabitans who lives in the villages. It can grow if the player makes buildings and it can descend if the buildings are destroy or donwgrade. The minimun population is 1."
   @type population :: pos_integer()
@@ -85,7 +68,7 @@ defmodule TTypes do
           grid_position(),
           x(),
           y(),
-          tribe(),
+          tribe_integer(),
           village_server_id(),
           village_name(),
           player_server_id(),
@@ -103,7 +86,7 @@ defmodule TTypes do
           grid_position: grid_position(),
           x: x(),
           y: y(),
-          tribe: tribe(),
+          tribe: tribe_integer(),
           village_id: village_server_id(),
           village_name: village_name(),
           player_id: player_server_id(),
@@ -119,4 +102,41 @@ defmodule TTypes do
 
   @typedoc "Information of the server, for example, speed."
   @type server_info :: %{String.t() => any()}
+
+
+
+  @type tribe_atom :: :romans | :teutons | :gauls | :nature | :natars | :huns | :egyptians
+  @typedoc "It's the tribe of the player/village. It can change if the village is conquered by another player with diffrent tribe. You can check the map with `tribe_integer()` in `encode_tribe` or `decode_tribe` implementations."
+
+
+  @type tribe_integer :: pos_integer()
+  @typedoc "It's the encoding of the tribe value. You can check the map with `tribe_atom()` in `encode_tribe` or `decode_tribe` implementations."
+
+  @spec encode_tribe(tribe_atom :: tribe_atom()) :: tribe_integer()
+  def encode_tribe(tribe_atom) do
+    case tribe_atom do
+      :romans -> 1
+      :teutons -> 2
+      :gauls -> 3
+      :nature -> 4 
+      :natars -> 5
+      :egyptians -> 6
+      :huns -> 7
+      :spartans -> 8
+    end
+  end
+
+  @spec decode_tribe(tribe_int :: tribe_integer()) :: tribe_atom()
+  def decode_tribe(tribe_int) do
+    case tribe_int do
+      1 -> :romans
+      2 -> :teutons
+      3 -> :gauls
+      4 -> :nature
+      5 -> :natars
+      6 -> :egyptians
+      7 -> :huns
+      8 -> :spartans
+    end
+  end
 end
