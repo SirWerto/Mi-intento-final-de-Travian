@@ -100,7 +100,7 @@ defmodule Medusa.ETL do
     for {raw, proc, pred} <- Enum.zip([prepared_raw, prepared_processed, prepared_predictions]), do: enrich_map(raw, proc, pred, server_id, target_date, creation_dt)
   end
 
-  @spec enrich_map(raw :: TTypes.enriched_row(), proc :: Medusa.Pipeline.Step2.t(), pred :: Medusa.Port.t(), server_id :: TTypes.server_id(), target_date :: Date.t(), creation_dt :: DateTime.t()) :: Satellite.MedusaTable.t()
+  @spec enrich_map(raw :: Collector.SnapshotRow.t(), proc :: Medusa.Pipeline.Step2.t(), pred :: Medusa.Port.t(), server_id :: TTypes.server_id(), target_date :: Date.t(), creation_dt :: DateTime.t()) :: Satellite.MedusaTable.t()
   defp enrich_map(raw, proc, pred, server_id, target_date, creation_dt) do
     %Satellite.MedusaTable{
       server_id: server_id,

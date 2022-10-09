@@ -3,11 +3,6 @@ defmodule Satellite.MedusaTable do
 
   @table_name :medusa_table
 
-  # @medusa_record {:medusa_row, :server_id, :server_url, :player_id, :player_name, :player_url,
-  #                 :alliance_id, :alliance_name, :alliance_url, :inactive_in_future,
-  #                 :inactive_in_current, :total_population, :model, :n_villages, :target_date,
-  #                 :creation_dt}
-
   @enforce_keys [
     :player_id,
     :player_name,
