@@ -21,7 +21,7 @@
 	      <td><%= row.inactive_in_current %></td>
 	      <td><%= row.model %></td>
 	      <td><%= row.inactive_in_future %></td>
-	      <td style={"color:rgba(155, 40, 123, #{if row.total_population <= 0.3, do: 0.3, else: row.total_population})"}><%= row.total_population %></td>
+	      <td style={"color:rgba(155, 40, 123, #{if row.inactive_probability <= 0.3, do: 0.3, else: row.inactive_probability})"}><%= row.inactive_probability %></td>
         </tr>
 	<% end %>
     </tbody>
