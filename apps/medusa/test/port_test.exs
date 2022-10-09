@@ -89,7 +89,6 @@ defmodule Medusa.Port.Test do
     assert(pred.model == :player_n or pred.model == :player_1)
     assert(is_boolean(pred.inactive_in_future))
     assert(pred.inactive_probability >= 0 and pred.inactive_probability <= 1)
-    IO.inspect(pred)
     case pred.inactive_probability do
       x when x >= 0.5 -> assert(pred.inactive_in_future == true)
       _x -> assert(pred.inactive_in_future == false)
