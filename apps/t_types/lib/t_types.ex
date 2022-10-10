@@ -105,12 +105,18 @@ defmodule TTypes do
 
 
 
-  @type tribe_atom :: :romans | :teutons | :gauls | :nature | :natars | :huns | :egyptians
   @typedoc "It's the tribe of the player/village. It can change if the village is conquered by another player with diffrent tribe. You can check the map with `tribe_integer()` in `encode_tribe` or `decode_tribe` implementations."
+  @type tribe_atom :: :romans | :teutons | :gauls | :nature | :natars | :huns | :egyptians
 
 
-  @type tribe_integer :: pos_integer()
   @typedoc "It's the encoding of the tribe value. You can check the map with `tribe_atom()` in `encode_tribe` or `decode_tribe` implementations."
+  @type tribe_integer :: pos_integer()
+
+
+
+  @typedoc "Modification of the server_id to be used as a path."
+  @type server_id_path :: binary()
+
 
   @spec encode_tribe(tribe_atom :: tribe_atom()) :: tribe_integer()
   def encode_tribe(tribe_atom) do
@@ -139,4 +145,12 @@ defmodule TTypes do
       8 -> :spartans
     end
   end
+
+
+
+
+  @spec server_id_to_path(server_id :: server_id()) :: server_id_path()
+  def server_id_to_path(server_id), do: String.replace(server_id, "://", "@@")
+  @spec server_id_from_path(server_id_path :: server_id_path()) :: server_id()
+  def server_id_from_path(server_id_path), do: String.replace(server_id_path, "@@", "://")
 end

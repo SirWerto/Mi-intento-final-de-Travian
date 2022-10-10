@@ -21,4 +21,9 @@ defmodule TTypesTest do
     assert_raise(CaseClauseError, fn -> TTypes.decode_tribe(20) end)
   end
 
+  test "From/to server_id path" do
+    server_id = "https://ts4.x1.asia.travian.com"
+    assert(server_id == TTypes.server_id_from_path(TTypes.server_id_to_path(server_id)))
+  end
+
 end

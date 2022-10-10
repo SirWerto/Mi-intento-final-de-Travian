@@ -116,15 +116,12 @@ defmodule Storage do
   defp gen_dir_path(root_folder, :global, flow_name), do: "#{root_folder}/global/#{flow_name}"
 
   defp gen_dir_path(root_folder, server_id, flow_name),
-    do: "#{root_folder}/servers/#{format_server_id(server_id)}/#{flow_name}"
+    do: "#{root_folder}/servers/#{TTypes.server_id_to_path(server_id)}/#{flow_name}"
 
   @spec gen_filename(dir_path :: binary(), date :: Date.t(), flow_extension :: flow_extension()) ::
           binary()
   defp gen_filename(dir_path, date, flow_extension),
     do: "#{dir_path}/date_#{Date.to_iso8601(date, :basic)}#{flow_extension}"
-
-  @spec format_server_id(server_id :: TTypes.server_id()) :: String.t()
-  def format_server_id(server_id), do: String.replace(server_id, "://", "@@")
 
   @spec gen_date_range!(start_date :: Date.t(), end_date :: Date.t()) :: [Date.t()]
   def gen_date_range!(start_date, end_date) do
