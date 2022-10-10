@@ -1,6 +1,6 @@
 <section class="phx-hero">
   <h2>Hello World, from Phoenix!</h2>
   <%= for server <-  @servers do %>
-    <p><%= button(server, to: "/servers/#{Front.ServersController.s_to_url(server)}", method: :get) %></p>
+    <p><%= button(server, to: "/servers/#{TTypes.server_id_to_path(server)}", method: :get) %></p>
   <% end %>
 </section>

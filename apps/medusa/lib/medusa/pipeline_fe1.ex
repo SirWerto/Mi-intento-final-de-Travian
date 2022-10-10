@@ -11,7 +11,7 @@ defmodule Medusa.Pipeline.FE1 do
     inactive_in_current: :undefined,
     total_population: pos_integer(),
     n_villages: pos_integer(),
-    tribes_summary: TTypes.tribes_map(),
+    tribes_summary: Medusa.Pipeline.Step1.tribes_map(),
     center_mass_x: float(),
     center_mass_y: float(),
     distance_to_origin: float()}

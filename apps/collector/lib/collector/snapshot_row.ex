@@ -45,7 +45,7 @@ defmodule Collector.SnapshotRow do
           grid_position: TTypes.grid_position(),
           x: TTypes.x(),
           y: TTypes.y(),
-          tribe: TTypes.tribe(),
+          tribe: TTypes.tribe_integer(),
           village_id: TTypes.village_id(),
           village_server_id: TTypes.village_server_id(),
           village_name: TTypes.village_name(),

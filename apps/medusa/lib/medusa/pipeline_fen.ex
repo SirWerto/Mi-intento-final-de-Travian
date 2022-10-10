@@ -37,7 +37,7 @@ defmodule Medusa.Pipeline.FEN do
     n_villages: pos_integer(),
     n_village_increase: non_neg_integer(),
     n_village_decrease: non_neg_integer(),
-    tribes_summary: TTypes.tribes_map(),
+    tribes_summary: Medusa.Pipeline.Step1.tribes_map(),
     center_mass_x: float(),
     center_mass_y: float(),
     distance_to_origin: float(),

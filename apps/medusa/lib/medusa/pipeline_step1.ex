@@ -2,6 +2,8 @@ defmodule Medusa.Pipeline.Step1 do
   
   @enforce_keys [:player_id, :date, :total_population, :n_villages, :village_pop, :tribes_summary, :center_mass_x, :center_mass_y, :distance_to_origin]
   defstruct [:player_id, :date, :total_population, :n_villages, :village_pop, :tribes_summary, :center_mass_x, :center_mass_y, :distance_to_origin]
+
+  @type tribes_map :: %{TTypes.tribe_atom() => non_neg_integer()}
   
   @type t :: %__MODULE__{
     player_id: TTypes.player_id(),
@@ -9,21 +11,10 @@ defmodule Medusa.Pipeline.Step1 do
     total_population: pos_integer(),
     n_villages: pos_integer(),
     village_pop: %{TTypes.village_id() => pos_integer()},
-    tribes_summary: TTypes.tribes_map(),
+    tribes_summary: tribes_map(),
     center_mass_x: float(),
     center_mass_y: float(),
     distance_to_origin: float()}
-  
-  
-  @tribe_map %{
-    1 => :romans,
-    2 => :teutons,
-    3 => :gauls,
-    4 => :nature,
-    5 => :natars,
-    6 => :huns,
-    7 => :egyptians
-  }
   
   @spec process_snapshot({Date.t(), [Collector.SnapshotRow.t()]}) :: [t()]
   def process_snapshot({date, enriched_rows}) do
@@ -53,7 +44,7 @@ defmodule Medusa.Pipeline.Step1 do
     f = fn row -> row.tribe end
     row
     |> Enum.group_by(f, f)
-    |> Enum.map(fn {tribe, v} -> {@tribe_map[tribe], length(v)} end)
+    |> Enum.map(fn {tribe_integer, v} -> {TTypes.decode_tribe(tribe_integer), length(v)} end)
     |> Enum.into(%{})
   end
   
