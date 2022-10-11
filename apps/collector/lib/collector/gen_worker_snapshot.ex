@@ -2,9 +2,6 @@ defmodule Collector.GenWorker.Snapshot do
   use GenServer
   require Logger
 
-  @flow_snapshot {"snapshot", ".c6bert"}
-  @flow_snapshot_errors {"snapshot_errors", ".c6bert"}
-
   @max_tries 3
 
   @spec start_link(server_id :: TTypes.server_id(), max_tries :: pos_integer()) ::
@@ -57,7 +54,13 @@ defmodule Collector.GenWorker.Snapshot do
       }),
       {:step_1, {:ok, raw_snapshot}} <- {:step_1, :travianmap.get_map(server_id)},
       Logger.debug(%{
-        msg: "Collector step 2, process snapshot",
+        msg: "Collector step 2, store raw_snapshot",
+        type_collection: :snapshot,
+        server_id: server_id
+      }),
+      {:step_2, :ok} <- {:step_2, Storage.store(root_folder, server_id, Collector.raw_snapshot_options(), Collector.raw_snapshot_to_format(raw_snapshot), today)},
+      Logger.debug(%{
+        msg: "Collector step 3, process snapshot",
         type_collection: :snapshot,
         server_id: server_id
       }),
@@ -67,20 +70,20 @@ defmodule Collector.GenWorker.Snapshot do
       snapshot_rows =
         Enum.map(raw_rows, fn {:ok, row} -> Collector.SnapshotRow.apply(server_id, row) end),
       Logger.debug(%{
-        msg: "Collector step 3, store snapshot_rows",
+        msg: "Collector step 4, store snapshot_rows",
         type_collection: :snapshot,
         server_id: server_id
       }),
       encoded_snapshot = Collector.snapshot_to_format(snapshot_rows),
-      {:step_3, :ok} <-
-        {:step_3, Storage.store(root_folder, server_id, @flow_snapshot, encoded_snapshot, today)},
+      {:step_4, :ok} <-
+        {:step_4, Storage.store(root_folder, server_id, Collector.snapshot_options(), encoded_snapshot, today)},
       GenServer.cast(Collector.GenCollector, {:snapshot_collected, server_id, self()}),
       Logger.debug(%{
-        msg: "Collector step 4, store snapshot_errors if there is",
+        msg: "Collector step 5, store snapshot_errors if there is",
         type_collection: :snapshot,
         server_id: server_id
       }),
-      {:step_4, :ok} <- {:step_4, store_errors(root_folder, server_id, snapshot_errors, today)}
+      {:step_5, :ok} <- {:step_5, store_errors(root_folder, server_id, snapshot_errors, today)}
     ) do
       Logger.info(%{
         msg: "Collector snapshot success",
@@ -100,7 +103,17 @@ defmodule Collector.GenWorker.Snapshot do
 
         {:error, reason}
 
-      {:step_3, {:error, reason}} ->
+      {:step_2, {:error, reason}} ->
+        Logger.warning(%{
+          msg: "Collector unable to store raw_snapshot",
+          reason: reason,
+          type_collection: :snapshot,
+          server_id: server_id
+        })
+
+        {:error, reason}
+
+      {:step_4, {:error, reason}} ->
         Logger.warning(%{
           msg: "Collector unable to store snapshot",
           reason: reason,
@@ -110,7 +123,7 @@ defmodule Collector.GenWorker.Snapshot do
 
         {:error, reason}
 
-      {:step_4, {:error, reason}} ->
+      {:step_5, {:error, reason}} ->
         Logger.info(%{
           msg: "Collector unable to store snapshot_errors",
           reason: reason,
@@ -139,7 +152,7 @@ defmodule Collector.GenWorker.Snapshot do
     case Storage.store(
            root_folder,
            server_id,
-           @flow_snapshot_errors,
+           Collector.snapshot_errors_options(),
            encoded_snapshot_errors,
            date
          ) do
