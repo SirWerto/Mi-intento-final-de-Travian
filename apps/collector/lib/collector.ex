@@ -46,6 +46,15 @@ defmodule Collector do
   def snapshot_errors_from_format(encoded_snapshot_errors),
     do: :erlang.binary_to_term(encoded_snapshot_errors)
 
+
+  @spec raw_snapshot_to_format(snapshot_errors :: [any()]) :: binary()
+  def raw_snapshot_to_format(raw_snapshot),
+    do: :erlang.term_to_binary(raw_snapshot, [:compressed, :deterministic])
+
+  @spec snapshot_errors_from_format(encoded_snapshot_errors :: binary()) :: [any()]
+  def raw_snapshot_from_format(encoded_raw_snapshot),
+    do: :erlang.binary_to_term(encoded_raw_snapshot)
+
   @spec metadata_to_format(metadata :: map()) :: binary()
   def metadata_to_format(metadata), do: :erlang.term_to_binary(metadata, [:deterministic])
 
@@ -54,4 +63,5 @@ defmodule Collector do
 
   def snapshot_options(), do: {"snapshot", ".c6bert"}
   def snapshot_errors_options(), do: {"snapshot_errors", ".c6bert"}
+  def raw_snapshot_options(), do: {"raw_snapshot", ".c6bert"}
 end

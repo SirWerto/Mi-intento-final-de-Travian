@@ -50,7 +50,7 @@ defmodule GenWorkerTest do
   end
 
   @tag :tmp_dir
-  test "etl from GenWorker.Snapshot create a file of [Collector.SnapshotRow] items", %{
+  test "etl from GenWorker.Snapshot creates a file of Collector.SnapshotRow items and store it with the raw.sql file", %{
     server_id: server_id,
     tmp_dir: root_folder
   } do
@@ -58,12 +58,18 @@ defmodule GenWorkerTest do
     Application.put_env(:collector, :root_folder, root_folder)
     assert(:ok == Collector.GenWorker.Snapshot.etl(root_folder, server_id))
 
+    {:ok, {^today, encoded_raw_snapshot}} =
+      Storage.open(root_folder, server_id, Collector.raw_snapshot_options(), today)
+
     {:ok, {^today, encoded_snapshot}} =
       Storage.open(root_folder, server_id, {"snapshot", ".c6bert"}, today)
 
+    raw_snapshot = Collector.snapshot_from_format(encoded_raw_snapshot)
+    assert(is_binary(raw_snapshot))
+
     snapshot = Collector.snapshot_from_format(encoded_snapshot)
 
-    Enum.each(snapshot, fn row -> is_struct(row, Collector.SnapshotRow) end)
+    Enum.each(snapshot, fn row -> assert(is_struct(row, Collector.SnapshotRow)) end)
   end
 
   @tag :tmp_dir
