@@ -2,9 +2,6 @@ defmodule Collector.GenWorker.Snapshot do
   use GenServer
   require Logger
 
-  @flow_snapshot {"snapshot", ".c6bert"}
-  @flow_snapshot_errors {"snapshot_errors", ".c6bert"}
-
   @max_tries 3
 
   @spec start_link(server_id :: TTypes.server_id(), max_tries :: pos_integer()) ::
@@ -79,7 +76,7 @@ defmodule Collector.GenWorker.Snapshot do
       }),
       encoded_snapshot = Collector.snapshot_to_format(snapshot_rows),
       {:step_4, :ok} <-
-        {:step_4, Storage.store(root_folder, server_id, @flow_snapshot, encoded_snapshot, today)},
+        {:step_4, Storage.store(root_folder, server_id, Collector.snapshot_options(), encoded_snapshot, today)},
       GenServer.cast(Collector.GenCollector, {:snapshot_collected, server_id, self()}),
       Logger.debug(%{
         msg: "Collector step 5, store snapshot_errors if there is",
@@ -155,7 +152,7 @@ defmodule Collector.GenWorker.Snapshot do
     case Storage.store(
            root_folder,
            server_id,
-           @flow_snapshot_errors,
+           Collector.snapshot_errors_options(),
            encoded_snapshot_errors,
            date
          ) do

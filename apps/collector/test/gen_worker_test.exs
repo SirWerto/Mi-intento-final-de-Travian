@@ -62,7 +62,7 @@ defmodule GenWorkerTest do
       Storage.open(root_folder, server_id, Collector.raw_snapshot_options(), today)
 
     {:ok, {^today, encoded_snapshot}} =
-      Storage.open(root_folder, server_id, {"snapshot", ".c6bert"}, today)
+      Storage.open(root_folder, server_id, Collector.snapshot_options(), today)
 
     raw_snapshot = Collector.snapshot_from_format(encoded_raw_snapshot)
     assert(is_binary(raw_snapshot))
@@ -82,7 +82,7 @@ defmodule GenWorkerTest do
     assert(:ok == Collector.GenWorker.Metadata.etl(root_folder, server_id))
 
     {:ok, {^today, encoded_metadata}} =
-      Storage.open(root_folder, server_id, {"metadata", ".bert"}, today)
+      Storage.open(root_folder, server_id, Collector.metadata_options(), today)
 
     metadata = Collector.metadata_from_format(encoded_metadata)
 

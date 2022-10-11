@@ -64,4 +64,5 @@ defmodule Collector do
   def snapshot_options(), do: {"snapshot", ".c6bert"}
   def snapshot_errors_options(), do: {"snapshot_errors", ".c6bert"}
   def raw_snapshot_options(), do: {"raw_snapshot", ".c6bert"}
+  def metadata_options(), do: {"metadata", ".bert"}
 end
