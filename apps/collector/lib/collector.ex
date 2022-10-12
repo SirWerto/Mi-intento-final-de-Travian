@@ -18,7 +18,7 @@ defmodule Collector do
   Subscribe the process to the `Collector`. When a server is collected, the subscriber
   will receive {:collected, type, server_id}. It also monitors the `Collector`.
   """
-  @spec subscribe() :: {:ok, reference()} | {:error, :no_timer}
+  @spec subscribe() :: reference()
   def subscribe(), do: Collector.GenCollector.subscribe()
 
   @spec etl_snapshot(root_folder :: binary(), server_id :: TTypes.server_id()) ::

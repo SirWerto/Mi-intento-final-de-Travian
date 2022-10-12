@@ -13,15 +13,11 @@ defmodule Collector.GenCollector do
     :ok
   end
 
-  @spec subscribe() :: {:ok, reference()} | {:error, any()}
+  @spec subscribe() :: reference()
   def subscribe() do
-    try do
       :ok = GenServer.call(__MODULE__, :subscribe)
       ref = Process.monitor(Collector.GenCollector)
-      {:ok, ref}
-    rescue
-      e in RuntimeError -> {:error, e}
-    end
+      ref
   end
 
   @impl true

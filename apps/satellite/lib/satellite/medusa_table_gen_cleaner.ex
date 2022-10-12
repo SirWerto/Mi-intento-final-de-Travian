@@ -12,16 +12,10 @@ defmodule Satellite.MedusaTable.GenCleaner do
 
   @impl true
   def handle_continue(_continue, {}) do
-    case Collector.subscribe() do
-      {:ok, ref} ->
-        collector = Process.whereis(Collector.GenCollector)
-        Logger.info(%{msg: "Subscribed to Collector"})
-        {:noreply, {collector, ref}}
-
-      {:error, reason} ->
-        Logger.warning(%{msg: "Unable to subscribe to Collector", reason: reason})
-        {:stop, :normal}
-    end
+    ref = Collector.subscribe()
+    collector = Process.whereis(Collector.GenCollector)
+    Logger.info(%{msg: "Subscribed to Collector"})
+    {:noreply, {collector, ref}}
   end
 
   @impl true

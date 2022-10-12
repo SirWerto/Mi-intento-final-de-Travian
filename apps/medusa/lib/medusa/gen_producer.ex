@@ -73,15 +73,10 @@ defmodule Medusa.GenProducer do
 
   @impl true
   def handle_info(:init, state) do
-    case Collector.subscribe() do
-      {:ok, ref} ->
-	Logger.debug(%{msg: "Medusa.GenProducer subscribed to Collector"})
-	new_state = Map.put(state, :collector_ref, ref)
-	{:noreply, [], new_state}
-      {:error, reason} ->
-	Logger.warning(%{msg: "Medusa.GenProducer unable to subscribe to Collector", reason: reason, args: state})
-	{:stop, :normal, state}
-    end
+    ref = Collector.subscribe()
+    Logger.debug(%{msg: "Medusa.GenProducer subscribed to Collector"})
+    new_state = Map.put(state, :collector_ref, ref)
+    {:noreply, [], new_state}
   end
   def handle_info({:DOWN, ref, :process, _pid, reason}, state = %{collector_ref: ref}) do
     Logger.warning(%{msg: "Collector down, relaunching Medusa, events running will be lost", reason: reason, args: state})
