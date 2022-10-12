@@ -91,7 +91,7 @@ defmodule Satellite.MedusaTable do
     :mnesia.clear_table(@table_name)
   end
 
-  @spec get_predictions_by_server(server_id :: TTypes.server_id(), target_date :: Date.t()) :: :ok
+  @spec get_predictions_by_server(server_id :: TTypes.server_id(), target_date :: Date.t()) :: [t()]
   def get_predictions_by_server(server_id, target_date \\ Date.utc_today()) do
     pattern = {@table_name, :_, server_id, :_, :_}
 
