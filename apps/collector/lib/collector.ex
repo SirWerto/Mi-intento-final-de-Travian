@@ -46,12 +46,11 @@ defmodule Collector do
   def snapshot_errors_from_format(encoded_snapshot_errors),
     do: :erlang.binary_to_term(encoded_snapshot_errors)
 
-
-  @spec raw_snapshot_to_format(snapshot_errors :: [any()]) :: binary()
+  @spec raw_snapshot_to_format(raw_snapshot :: binary()) :: binary()
   def raw_snapshot_to_format(raw_snapshot),
     do: :erlang.term_to_binary(raw_snapshot, [:compressed, :deterministic])
 
-  @spec snapshot_errors_from_format(encoded_snapshot_errors :: binary()) :: [any()]
+  @spec raw_snapshot_from_format(encoded_raw_snapshot :: binary()) :: binary()
   def raw_snapshot_from_format(encoded_raw_snapshot),
     do: :erlang.binary_to_term(encoded_raw_snapshot)
 
