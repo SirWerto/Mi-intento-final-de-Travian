@@ -1,0 +1,13 @@
+<input type="text" id="server_search" name="Server" placeholder="Search for a server"/>
+  <table>
+    <thead>
+    <tr><th>Url</th></tr>
+    </thead>
+    <tbody>
+  <%= for server <-  @servers do %>
+    <tr>
+      <td> <%= link(server, to: "/medusa/#{TTypes.server_id_to_path(server)}", method: :get) %> </td>
+    </tr>
+  <% end %>
+    </tbody>
+  </table>

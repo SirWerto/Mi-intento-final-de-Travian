@@ -1,3 +1,6 @@
+<input type="text" id="player_filter" name="player_filter" placeholder="Filter players which include the substring"/>
+<input type="text" id="alliance_filter" name="alliance_filter" placeholder="Filter alliance which include the substring"/>
+<input type="text" id="reference_point" name="reference_point" placeholder="Order the list following this point -> (0|0)"/>
 <table>
     <thead>
         <tr>
@@ -5,6 +8,8 @@
             <th>Alliance</th>
             <th>Population</th>
             <th>Villages</th>
+            <th>Center of mass (x|y)</th>
+            <th>Distance</th>
             <th>Current inactive?</th>
             <th>Model</th>
             <th>Future inactive?</th>
@@ -18,6 +23,8 @@
 	      <td><%= link(row.alliance_name, to: URI.parse(row.alliance_url)) %></td>
 	      <td><%= row.total_population %></td>
 	      <td><%= row.n_villages %></td>
+	      <td><%= mass_center_to_str(row) %></td>
+	      <td><%= distance_to_COM(0.0, 0.0, row) %></td>
 	      <td><%= row.inactive_in_current %></td>
 	      <td><%= row.model %></td>
 	      <td><%= row.inactive_in_future %></td>
