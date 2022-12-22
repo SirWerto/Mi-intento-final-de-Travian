@@ -68,3 +68,7 @@ import_config "#{config_env()}.exs"
 #       format: "$date $time [$level] $metadata$message\n",
 #       metadata: [:user_id]
 #
+
+
+config :medusa,
+  python_version: System.get_env("MITRAVIAN__MEDUSA_PY_VERSION", "3.7")

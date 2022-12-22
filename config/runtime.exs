@@ -11,7 +11,7 @@ config :mnesia,
 
 config :medusa,
   root_folder: System.get_env("MITRAVIAN_ROOTFOLDER", "/tmp/travian_folder"),
-  model_dir: System.get_env("MITRAVIAN__MEDUSA_MODELDIR", "~/Proyectos/MedusaPY"),
+  model_dir: System.get_env("MITRAVIAN__MEDUSA_MODELDIR", "/home/jorge/Proyectos/MedusaPY"),
   n_consumers: System.get_env("MITRAVIAN__MEDUSA_NCONSUMERS", "2") |> String.to_integer()
 
 config :collector,
