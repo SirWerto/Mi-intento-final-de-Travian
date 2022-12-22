@@ -153,4 +153,19 @@ defmodule TTypes do
   def server_id_to_path(server_id), do: String.replace(server_id, "://", "@@")
   @spec server_id_from_path(server_id_path :: server_id_path()) :: server_id()
   def server_id_from_path(server_id_path), do: String.replace(server_id_path, "@@", "://")
+
+
+  @spec distance(width :: integer(), height :: integer(), x1 :: float(), y1 :: float(), x2 :: float(), y2 :: float()) :: float()
+  def distance(width, height, x1, y1, x2, y2) do
+    diff_x = abs(x1 - x2)
+    diff_y = abs(y1 - y2)
+    Float.pow(Float.pow(min(diff_x, width - diff_x), 2) + Float.pow(min(diff_y, height - diff_y), 2), 0.5)
+  end
+
+  @spec distance401(x1 :: float(), y1 :: float(), x2 :: float(), y2 :: float()) :: float()
+  def distance401(x1, y1, x2, y2), do: distance(401, 401, x1, y1, x2, y2)
+  
+
+
+
 end
