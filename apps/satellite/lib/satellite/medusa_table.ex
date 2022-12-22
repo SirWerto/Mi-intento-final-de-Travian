@@ -18,6 +18,8 @@ defmodule Satellite.MedusaTable do
     :total_population,
     :model,
     :n_villages,
+    :center_mass_x,
+    :center_mass_y,
     :target_date,
     :creation_dt
   ]
@@ -37,6 +39,8 @@ defmodule Satellite.MedusaTable do
     :total_population,
     :model,
     :n_villages,
+    :center_mass_x,
+    :center_mass_y,
     :target_date,
     :creation_dt
   ]
@@ -56,6 +60,8 @@ defmodule Satellite.MedusaTable do
           total_population: pos_integer(),
           model: Medusa.Pipeline.Step2.fe_type(),
           n_villages: pos_integer(),
+	  center_mass_x: float(),
+	  center_mass_y: float(),
           target_date: Date.t(),
           creation_dt: DateTime.t()
         }

@@ -117,6 +117,8 @@ defmodule Medusa.ETL do
       total_population: proc.fe_struct.total_population,
       model: pred.model,
       n_villages: proc.fe_struct.n_villages,
+      center_mass_x: proc.fe_struct.center_mass_x,
+      center_mass_y: proc.fe_struct.center_mass_y,
       target_date: target_date,
       creation_dt: creation_dt}
   end
