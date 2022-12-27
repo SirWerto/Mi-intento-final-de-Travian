@@ -9,9 +9,22 @@ defmodule Front.MedusaView do
    |> Float.round(1)
    |> Float.to_string()
   end
+
   def mass_center_to_str(row) do
     x = Float.round(row.center_mass_x, @round)
     y = Float.round(row.center_mass_y, @round)
     "(#{x}|#{y})"
   end
+
+  @spec max_attr(rows :: [Satellite.MedusaTable.t()], attr :: atom()) :: String.t()
+  def max_attr(rows, attr) do
+    Enum.max(rows, &(Map.fetch!(&1, attr)  >= Map.fetch!(&2, attr))) |> Map.fetch!(attr)
+  end
+
+  def yesterday_to_string(:undefined), do: "undefined"
+  def yesterday_to_string(true), do: "yes"
+  def yesterday_to_string(false), do: "no"
+
+  def today_to_string(true), do: "no"
+  def today_to_string(false), do: "yes"
 end

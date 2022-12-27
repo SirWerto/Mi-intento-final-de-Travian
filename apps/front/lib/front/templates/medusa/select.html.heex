@@ -1,6 +1,21 @@
+<button type="button">Before</button>
+<p> </p>
+<button type="button">Next</button>
+<details id="details_filters">
+<summary>Filters and sorting</summary>
+<button type="button" id="apply_filters_top">Apply filters</button>
 <input type="text" id="player_filter" name="player_filter" placeholder="Filter players which include the substring"/>
 <input type="text" id="alliance_filter" name="alliance_filter" placeholder="Filter alliance which include the substring"/>
-<input type="text" id="reference_point" name="reference_point" placeholder="Order the list following this point -> (0|0)"/>
+<input type="number" id="population_min_filter" name="population_min_filter" step="10" min="0" max={max_attr(@rows, :total_population)} value="0"/>
+<input type="number" id="population_max_filter" name="population_max_filter" step="10" min="1" max={max_attr(@rows, :total_population)} value={max_attr(@rows, :total_population)}/>
+<input type="number" id="village_min_filter" name="village_min_filter" min="1" max={max_attr(@rows, :n_villages)} value="1"/>
+<input type="number" id="village_max_filter" name="village_max_filter" min="1" max={max_attr(@rows, :n_villages)} value={max_attr(@rows, :n_villages)}/>
+<input type="text" id="position_filter" name="position_filter" value="(0|0)"/>
+<input type="number" id="max_distance_filter" name="max_distance_filter" min="1" value="20"/>
+<input type="number" id="min_confidence_filter" name="min_confidence_filter" step="0.05" min="0" max="0.5" value="0.0"/>
+<input type="number" id="max_confidence_filter" name="max_confidence_filter" step="0.05" min="0" max="0.5" value="0.5"/>
+<button type="button" id="apply_filters">Apply filters</button>
+</details>
 <table>
     <thead>
         <tr>
@@ -10,14 +25,14 @@
             <th>Villages</th>
             <th>Center of mass (x|y)</th>
             <th>Distance</th>
-            <th>Current inactive?</th>
-            <th>Model</th>
-            <th>Future inactive?</th>
+            <th>Was inactive yesterday?</th>
+            <th>Will play today?</th>
             <th>Inactive probability</th>
+            <th>Model</th>
         </tr>
     </thead>
-    <tbody>
-        <%= for row <-  @rows do %>
+    <tbody id="medusa_player_body">
+        <%= for row <-  Enum.take(@rows, 50) do %>
         <tr>
 	      <td><%= link(row.player_name, to: URI.parse(row.player_url)) %></td>
 	      <td><%= link(row.alliance_name, to: URI.parse(row.alliance_url)) %></td>
@@ -25,12 +40,29 @@
 	      <td><%= row.n_villages %></td>
 	      <td><%= mass_center_to_str(row) %></td>
 	      <td><%= distance_to_COM(0.0, 0.0, row) %></td>
-	      <td><%= row.inactive_in_current %></td>
-	      <td><%= row.model %></td>
-	      <td><%= row.inactive_in_future %></td>
+	      <td><%= yesterday_to_string(row.inactive_in_current) %></td>
+	      <td><%= today_to_string(row.inactive_in_future) %></td>
 	      <td style={"color:rgba(155, 40, 123, #{if row.inactive_probability <= 0.3, do: 0.3, else: row.inactive_probability})"}><%= row.inactive_probability %></td>
+	      <td><%= row.model %></td>
+        </tr>
+	<% end %>
+
+        <%= for row <-  Enum.drop(@rows, 50) do %>
+        <tr hidden>
+	      <td><%= link(row.player_name, to: URI.parse(row.player_url)) %></td>
+	      <td><%= link(row.alliance_name, to: URI.parse(row.alliance_url)) %></td>
+	      <td><%= row.total_population %></td>
+	      <td><%= row.n_villages %></td>
+	      <td><%= mass_center_to_str(row) %></td>
+	      <td><%= distance_to_COM(0.0, 0.0, row) %></td>
+	      <td><%= yesterday_to_string(row.inactive_in_current) %></td>
+	      <td><%= today_to_string(row.inactive_in_future) %></td>
+	      <td style={"color:rgba(155, 40, 123, #{if row.inactive_probability <= 0.3, do: 0.3, else: row.inactive_probability})"}><%= row.inactive_probability %></td>
+	      <td><%= row.model %></td>
         </tr>
 	<% end %>
     </tbody>
 </table>
+<button type="button">Before</button>
+<button type="button">Next</button>
 
