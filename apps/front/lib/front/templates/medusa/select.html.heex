@@ -1,20 +1,54 @@
-<button type="button">Before</button>
-<p> </p>
-<button type="button">Next</button>
+<div>
+<button id="before1" type="button">Before</button>
+<p id="index_rows">0</p>
+<p id="total_rows"><%= length(@rows)%></p>
+<button id="next1" type="button">Next</button>
+</div>
 <details id="details_filters">
 <summary>Filters and sorting</summary>
-<button type="button" id="apply_filters_top">Apply filters</button>
+<button type="button" id="apply_filters1">Apply filters</button>
+<div>
+<label for="player_filter">Search substring on players</label>
 <input type="text" id="player_filter" name="player_filter" placeholder="Filter players which include the substring"/>
+</div>
+<div>
+<label for="alliance_filter">Search substring on alliances</label>
 <input type="text" id="alliance_filter" name="alliance_filter" placeholder="Filter alliance which include the substring"/>
+</div>
+<div>
+<label>Population</label>
 <input type="number" id="population_min_filter" name="population_min_filter" step="10" min="0" max={max_attr(@rows, :total_population)} value="0"/>
 <input type="number" id="population_max_filter" name="population_max_filter" step="10" min="1" max={max_attr(@rows, :total_population)} value={max_attr(@rows, :total_population)}/>
+</div>
+<div>
+<label>Villages</label>
 <input type="number" id="village_min_filter" name="village_min_filter" min="1" max={max_attr(@rows, :n_villages)} value="1"/>
 <input type="number" id="village_max_filter" name="village_max_filter" min="1" max={max_attr(@rows, :n_villages)} value={max_attr(@rows, :n_villages)}/>
-<input type="text" id="position_filter" name="position_filter" value="(0|0)"/>
-<input type="number" id="max_distance_filter" name="max_distance_filter" min="1" value="20"/>
+</div>
+<div>
+<label for="position_filter">Distance to a point (it can be expensive)</label>
+<input type="text" id="position_filter" name="position_filter" placeholder="(3|-4)" pattern="(-?\d+|-?\d+)"/>
+<input type="number" id="max_distance_filter" name="max_distance_filter" min="1" placeholder="Maximun distance"/>
+</div>
+<div>
+<label>Model confidence</label>
 <input type="number" id="min_confidence_filter" name="min_confidence_filter" step="0.05" min="0" max="0.5" value="0.0"/>
 <input type="number" id="max_confidence_filter" name="max_confidence_filter" step="0.05" min="0" max="0.5" value="0.5"/>
-<button type="button" id="apply_filters">Apply filters</button>
+</div>
+<div>
+<label for="yesterday_inactive">Yesterday's player behaviour</label>
+<select id="yesterday_inactive" name="yesterday_inactive" multiple size="3">
+  <option selected value="no">no</option>
+  <option selected value="yes">yes</option>
+  <option selected value="undefined">undefined</option>
+</select>
+<label for="today_inactive">Today's player behaviour</label>
+<select id="today_inactive" name="today_inactive" multiple size="2">
+  <option selected value="no">no</option>
+  <option selected value="yes">yes</option>
+</select>
+</div>
+<button type="button" id="apply_filters2">Apply filters</button>
 </details>
 <table>
     <thead>
@@ -63,6 +97,6 @@
 	<% end %>
     </tbody>
 </table>
-<button type="button">Before</button>
-<button type="button">Next</button>
+<button id="before2" type="button">Before</button>
+<button id="next2" type="button">Next</button>
 
