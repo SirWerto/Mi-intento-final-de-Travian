@@ -1,6 +1,7 @@
-<input type="text" id="server_search" name="Server" placeholder="Search for a server"/>
+<label class="custom-input">SEARCH FOR A SERVER: <input type="text" id="server_search" placeholder="ts8.x1.asia.travian.com"/></label>
+
   <table class="medusa_index">
-    <tbody>
+    <tbody id="medusa_tbody">
   <%= for s <-  @servers do %>
     <tr>
       <td> <%= link(String.slice(s, 8, String.length(s)), to: "/medusa/#{TTypes.server_id_to_path(s)}", method: :get) %> </td>

@@ -19,10 +19,6 @@ next2.addEventListener('click', nextPage);
 before1.addEventListener('click', prevPage);
 before2.addEventListener('click', prevPage);
 
-function updateValue(e) {
-  log.textContent = e.target.value;
-}
-
 function applyFilters(e) {
     const newRows = Array.from(document.getElementById('medusa_player_body').rows)
 	  .map(rowHidden)

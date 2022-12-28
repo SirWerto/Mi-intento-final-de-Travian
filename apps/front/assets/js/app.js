@@ -26,6 +26,7 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 // Own
+import "./medusa_table.js"
 import "./medusa_players_table.js"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
