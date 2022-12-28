@@ -27,4 +27,14 @@ defmodule Front.MedusaView do
 
   def today_to_string(true), do: "no"
   def today_to_string(false), do: "yes"
+
+
+  @spec transparent_probability(probability :: float()) :: float()
+  def transparent_probability(probability) do
+    case probability do
+      x when x < 0.3 -> 0.3
+      x -> x
+    end
+  end
+
 end

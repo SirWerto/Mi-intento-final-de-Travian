@@ -1,12 +1,9 @@
 <input type="text" id="server_search" name="Server" placeholder="Search for a server"/>
-  <table>
-    <thead>
-    <tr><th>Url</th></tr>
-    </thead>
+  <table class="medusa_index">
     <tbody>
-  <%= for server <-  @servers do %>
+  <%= for s <-  @servers do %>
     <tr>
-      <td> <%= link(server, to: "/medusa/#{TTypes.server_id_to_path(server)}", method: :get) %> </td>
+      <td> <%= link(String.slice(s, 8, String.length(s)), to: "/medusa/#{TTypes.server_id_to_path(s)}", method: :get) %> </td>
     </tr>
   <% end %>
     </tbody>

@@ -5,7 +5,7 @@
 <button id="next1" type="button">Next</button>
 </div>
 <details id="details_filters">
-<summary>Filters and sorting</summary>
+<summary>FILTERS</summary>
 <button type="button" id="apply_filters1">Apply filters</button>
 <div>
 <label for="player_filter">Search substring on players</label>
@@ -50,7 +50,7 @@
 </div>
 <button type="button" id="apply_filters2">Apply filters</button>
 </details>
-<table>
+<table class="medusa">
     <thead>
         <tr>
             <th>Name</th>
@@ -76,7 +76,7 @@
 	      <td><%= distance_to_COM(0.0, 0.0, row) %></td>
 	      <td><%= yesterday_to_string(row.inactive_in_current) %></td>
 	      <td><%= today_to_string(row.inactive_in_future) %></td>
-	      <td style={"color:rgba(155, 40, 123, #{if row.inactive_probability <= 0.3, do: 0.3, else: row.inactive_probability})"}><%= row.inactive_probability %></td>
+	      <td style={"color:rgba(178, 13, 48, #{transparent_probability(row.inactive_probability)})"}><%= row.inactive_probability %></td>
 	      <td><%= row.model %></td>
         </tr>
 	<% end %>
@@ -91,7 +91,7 @@
 	      <td><%= distance_to_COM(0.0, 0.0, row) %></td>
 	      <td><%= yesterday_to_string(row.inactive_in_current) %></td>
 	      <td><%= today_to_string(row.inactive_in_future) %></td>
-	      <td style={"color:rgba(155, 40, 123, #{if row.inactive_probability <= 0.3, do: 0.3, else: row.inactive_probability})"}><%= row.inactive_probability %></td>
+	      <td style={"color:rgba(178, 13, 48, #{transparent_probability(row.inactive_probability)})"}><%= row.inactive_probability %></td>
 	      <td><%= row.model %></td>
         </tr>
 	<% end %>
