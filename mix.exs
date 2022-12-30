@@ -40,9 +40,9 @@ defmodule MyTravian.MixProject do
         stdlib: :permanent,
         sasl: :permanent,
         elixir: :permanent,
-        collector: :permanent
-        # medusa: :permanent,
-        # satellite: :permanent
+        collector: :permanent,
+        medusa: :permanent,
+        satellite: :permanent
       ],
       include_executables_for: [:unix],
       steps: [:assemble, :tar]
