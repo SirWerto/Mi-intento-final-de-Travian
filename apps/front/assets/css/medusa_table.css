@@ -1,3 +1,8 @@
+div.medusa_index_wrapper {
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
+
 table.medusa_index {
   table-layout: fixed;
   border-collapse: collapse;
@@ -23,12 +28,6 @@ table.medusa_index a:hover {
 table.medusa_index a:active {
   background-color: black;
 }
-
-table.medusa_index a:visited {
-  background-color: #ccc;
-}
-
-
 
 table.medusa a {
   text-decoration: none;
@@ -64,8 +63,9 @@ table.medusa thead {
   border-collapse: collapse;
 }
 
-table.medusa thead th {
+table.medusa thead tr th {
   padding: 5px 20px;
+  position: sticky;
 }
 
 table.medusa tbody td {
@@ -74,7 +74,7 @@ table.medusa tbody td {
 
 
 table.medusa tbody tr:hover td {
-  background-color: #f5f0f1;
+  background-color: #CCCCCC;
 }
 
 table.medusa thead th:nth-child(1) {

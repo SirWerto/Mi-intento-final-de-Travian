@@ -1,5 +1,11 @@
-<label class="custom-input">SEARCH FOR A SERVER: <input type="text" id="server_search" placeholder="ts8.x1.asia.travian.com"/></label>
+<script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/medusa_table.js")}></script>
+<div class="medusa_index_wrapper">
+<div style="grid-column:1/2;margin:30%">
+<label class="custom-input" for="server_search" style="font-size:200%;">SEARCH FOR A SERVER</label>
+<input type="text" id="server_search" placeholder="ts8.x1.asia.travian.com"/>
+</div>
 
+<div style="grid-column:2/2;">
   <table class="medusa_index">
     <tbody id="medusa_tbody">
   <%= for s <-  @servers do %>
@@ -9,3 +15,5 @@
   <% end %>
     </tbody>
   </table>
+</div>
+</div>

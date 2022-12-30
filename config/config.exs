@@ -25,31 +25,31 @@ config :esbuild,
   version: "0.14.29",
   default: [
     args:
-      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+      ~w(js/app.js js/medusa_table.js js/medusa_players_table.js  --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../apps/front/assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
-config :front,
-  ecto_repos: [Front.Repo],
-  generators: [context_app: false]
+# config :front,
+#   ecto_repos: [Front.Repo],
+#   generators: [context_app: false]
 
-# Configures the endpoint
-config :front, Front.Endpoint,
-  url: [host: "localhost"],
-  render_errors: [view: Front.ErrorView, accepts: ~w(html json), layout: false],
-  pubsub_server: Front.PubSub,
-  live_view: [signing_salt: "c6bMNyBc"]
+# # Configures the endpoint
+# config :front, Front.Endpoint,
+#   url: [host: "localhost"],
+#   render_errors: [view: Front.ErrorView, accepts: ~w(html json), layout: false],
+#   pubsub_server: Front.PubSub,
+#   live_view: [signing_salt: "c6bMNyBc"]
 
-# Configure esbuild (the version is required)
-config :esbuild,
-  version: "0.14.29",
-  default: [
-    args:
-      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
-    cd: Path.expand("../apps/front/assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
-  ]
+# # Configure esbuild (the version is required)
+# config :esbuild,
+#   version: "0.14.29",
+#   default: [
+#     args:
+#       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+#     cd: Path.expand("../apps/front/assets", __DIR__),
+#     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+#   ]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason

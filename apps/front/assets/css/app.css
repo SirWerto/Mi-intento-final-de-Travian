@@ -120,4 +120,33 @@
   100% { opacity: 0; }
 }
 
-/**/
+/*Mine*/
+
+body {
+    /*background-image: url(/images/white-paper-texture-background.jpg);*/
+    background-color: #F2F2F2;
+}
+
+/* input { */
+/*   font-family: 'Open Sans',sans-serif; */
+/* } */
+
+/* input:focus { */
+/*   outline: 3px solid transparent; */
+/* } */
+
+label.custom-input{
+  font-family: 'Open Sans',sans-serif;
+  color: #B20D30;
+}
+
+input {
+  font-family: 'Open Sans',sans-serif;
+  border: 2px solid #B20D30;
+  background-color: rgb(255,255,255,0.3);
+}
+
+
+label.custom-input input::placeholder{
+  font-family: 'Open Sans',sans-serif;
+}

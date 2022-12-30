@@ -1,5 +1,7 @@
 const server_search = document.getElementById("server_search");
 
+
+
 server_search.addEventListener('input', searchServers);
 
 function searchServers(e) {
@@ -19,12 +21,9 @@ function searchServers(e) {
      	  .map(f)
      	  .sort((tuple1, tuple2) => tuple1[1] > tuple2[1])
 
-    console.log(newRows)
-
     const newTBody = document.createElement('tbody')
     newTBody.id = "medusa_tbody"
     newRows.forEach((x) => newTBody.appendChild(x[0]))
-    console.log(newTBody)
     document.getElementById('medusa_tbody').replaceWith(newTBody)
 }
 
