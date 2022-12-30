@@ -103,20 +103,14 @@ defmodule TTypes do
   @typedoc "Information of the server, for example, speed."
   @type server_info :: %{String.t() => any()}
 
-
-
   @typedoc "It's the tribe of the player/village. It can change if the village is conquered by another player with diffrent tribe. You can check the map with `tribe_integer()` in `encode_tribe` or `decode_tribe` implementations."
   @type tribe_atom :: :romans | :teutons | :gauls | :nature | :natars | :huns | :egyptians
-
 
   @typedoc "It's the encoding of the tribe value. You can check the map with `tribe_atom()` in `encode_tribe` or `decode_tribe` implementations."
   @type tribe_integer :: pos_integer()
 
-
-
   @typedoc "Modification of the server_id to be used as a path."
   @type server_id_path :: binary()
-
 
   @spec encode_tribe(tribe_atom :: tribe_atom()) :: tribe_integer()
   def encode_tribe(tribe_atom) do
@@ -124,7 +118,7 @@ defmodule TTypes do
       :romans -> 1
       :teutons -> 2
       :gauls -> 3
-      :nature -> 4 
+      :nature -> 4
       :natars -> 5
       :egyptians -> 6
       :huns -> 7
@@ -146,26 +140,29 @@ defmodule TTypes do
     end
   end
 
-
-
-
   @spec server_id_to_path(server_id :: server_id()) :: server_id_path()
   def server_id_to_path(server_id), do: String.replace(server_id, "://", "@@")
   @spec server_id_from_path(server_id_path :: server_id_path()) :: server_id()
   def server_id_from_path(server_id_path), do: String.replace(server_id_path, "@@", "://")
 
-
-  @spec distance(width :: integer(), height :: integer(), x1 :: float(), y1 :: float(), x2 :: float(), y2 :: float()) :: float()
+  @spec distance(
+          width :: integer(),
+          height :: integer(),
+          x1 :: float(),
+          y1 :: float(),
+          x2 :: float(),
+          y2 :: float()
+        ) :: float()
   def distance(width, height, x1, y1, x2, y2) do
     diff_x = abs(x1 - x2)
     diff_y = abs(y1 - y2)
-    Float.pow(Float.pow(min(diff_x, width - diff_x), 2) + Float.pow(min(diff_y, height - diff_y), 2), 0.5)
+
+    Float.pow(
+      Float.pow(min(diff_x, width - diff_x), 2) + Float.pow(min(diff_y, height - diff_y), 2),
+      0.5
+    )
   end
 
   @spec distance401(x1 :: float(), y1 :: float(), x2 :: float(), y2 :: float()) :: float()
   def distance401(x1, y1, x2, y2), do: distance(401, 401, x1, y1, x2, y2)
-  
-
-
-
 end

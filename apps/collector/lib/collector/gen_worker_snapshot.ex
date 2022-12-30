@@ -58,7 +58,15 @@ defmodule Collector.GenWorker.Snapshot do
         type_collection: :snapshot,
         server_id: server_id
       }),
-      {:step_2, :ok} <- {:step_2, Storage.store(root_folder, server_id, Collector.raw_snapshot_options(), Collector.raw_snapshot_to_format(raw_snapshot), today)},
+      {:step_2, :ok} <-
+        {:step_2,
+         Storage.store(
+           root_folder,
+           server_id,
+           Collector.raw_snapshot_options(),
+           Collector.raw_snapshot_to_format(raw_snapshot),
+           today
+         )},
       Logger.debug(%{
         msg: "Collector step 3, process snapshot",
         type_collection: :snapshot,
@@ -76,7 +84,14 @@ defmodule Collector.GenWorker.Snapshot do
       }),
       encoded_snapshot = Collector.snapshot_to_format(snapshot_rows),
       {:step_4, :ok} <-
-        {:step_4, Storage.store(root_folder, server_id, Collector.snapshot_options(), encoded_snapshot, today)},
+        {:step_4,
+         Storage.store(
+           root_folder,
+           server_id,
+           Collector.snapshot_options(),
+           encoded_snapshot,
+           today
+         )},
       GenServer.cast(Collector.GenCollector, {:snapshot_collected, server_id, self()}),
       Logger.debug(%{
         msg: "Collector step 5, store snapshot_errors if there is",

@@ -22,8 +22,8 @@ defmodule SatelliteTest do
         player_id: "https://czsk.x1.czsk.travian.com--P--1009",
         player_name: "PalMer",
         player_url: "https://czsk.x1.czsk.travian.com--P--1009",
-	center_mass_x: 4,
-	center_mass_y: -10,
+        center_mass_x: 4,
+        center_mass_y: -10,
         target_date: target_date,
         creation_dt: creation_dt,
         total_population: 227
@@ -42,8 +42,8 @@ defmodule SatelliteTest do
         player_id: "https://czsk.x1.czsk.travian.com--P--815",
         player_name: "Klobuk",
         player_url: "https://czsk.x1.czsk.travian.com--P--815",
-	center_mass_x: 29,
-	center_mass_y: 80,
+        center_mass_x: 29,
+        center_mass_y: 80,
         target_date: target_date,
         creation_dt: creation_dt,
         total_population: 1469

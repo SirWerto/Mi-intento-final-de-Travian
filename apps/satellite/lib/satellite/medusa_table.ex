@@ -60,8 +60,8 @@ defmodule Satellite.MedusaTable do
           total_population: pos_integer(),
           model: Medusa.Pipeline.Step2.fe_type(),
           n_villages: pos_integer(),
-	  center_mass_x: float(),
-	  center_mass_y: float(),
+          center_mass_x: float(),
+          center_mass_y: float(),
           target_date: Date.t(),
           creation_dt: DateTime.t()
         }
@@ -97,7 +97,9 @@ defmodule Satellite.MedusaTable do
     :mnesia.clear_table(@table_name)
   end
 
-  @spec get_predictions_by_server(server_id :: TTypes.server_id(), target_date :: Date.t()) :: [t()]
+  @spec get_predictions_by_server(server_id :: TTypes.server_id(), target_date :: Date.t()) :: [
+          t()
+        ]
   def get_predictions_by_server(server_id, target_date \\ Date.utc_today()) do
     pattern = {@table_name, :_, server_id, :_, :_}
 

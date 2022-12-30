@@ -15,9 +15,9 @@ defmodule Collector.GenCollector do
 
   @spec subscribe() :: reference()
   def subscribe() do
-      :ok = GenServer.call(__MODULE__, :subscribe)
-      ref = Process.monitor(Collector.GenCollector)
-      ref
+    :ok = GenServer.call(__MODULE__, :subscribe)
+    ref = Process.monitor(Collector.GenCollector)
+    ref
   end
 
   @impl true

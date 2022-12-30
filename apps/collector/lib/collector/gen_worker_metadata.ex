@@ -60,7 +60,8 @@ defmodule Collector.GenWorker.Metadata do
       }),
       encoded_metadata = Collector.metadata_to_format(metadata),
       {:step_2, :ok} <-
-        {:step_2, Storage.store(root_folder, server_id, Collector.metadata_options(), encoded_metadata)}
+        {:step_2,
+         Storage.store(root_folder, server_id, Collector.metadata_options(), encoded_metadata)}
     ) do
       Logger.info(%{
         msg: "Collector metadata success",

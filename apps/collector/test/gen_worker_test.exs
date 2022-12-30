@@ -50,10 +50,11 @@ defmodule GenWorkerTest do
   end
 
   @tag :tmp_dir
-  test "etl from GenWorker.Snapshot creates a file of Collector.SnapshotRow items and store it with the raw.sql file", %{
-    server_id: server_id,
-    tmp_dir: root_folder
-  } do
+  test "etl from GenWorker.Snapshot creates a file of Collector.SnapshotRow items and store it with the raw.sql file",
+       %{
+         server_id: server_id,
+         tmp_dir: root_folder
+       } do
     today = Date.utc_today()
     Application.put_env(:collector, :root_folder, root_folder)
     assert(:ok == Collector.GenWorker.Snapshot.etl(root_folder, server_id))

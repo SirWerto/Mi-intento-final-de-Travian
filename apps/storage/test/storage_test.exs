@@ -178,5 +178,4 @@ defmodule StorageTest do
     assert(Date.compare(date1, date2) == :eq)
     assert(content1 == content2)
   end
-
 end
