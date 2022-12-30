@@ -3,7 +3,7 @@ defmodule Medusa.Port do
   Documentation for `Medusa.Port`.
   """
 
-  @python_version 3.7
+  @python_version Application.compile_env!(:medusa, :python_version)
 
   @medusa_py "app.py"
   @medusa_py_env "medusa_env/lib/python#{@python_version}/site-packages"

@@ -39,6 +39,8 @@ defmodule SatelliteArchTest do
       player_id: "https://czsk.x1.czsk.travian.com--P--1009",
       player_name: "PalMer",
       player_url: "https://czsk.x1.czsk.travian.com--P--1009",
+      center_mass_x: 4,
+      center_mass_y: -10,
       target_date: target_date,
       creation_dt: creation_dt,
       total_population: 227
@@ -59,6 +61,8 @@ defmodule SatelliteArchTest do
       player_name: "Klobuk",
       player_url: "https://czsk.x1.czsk.travian.com--P--815",
       target_date: yesterday,
+      center_mass_x: 3,
+      center_mass_y: -1,
       creation_dt: creation_dt,
       total_population: 1469
     }

@@ -17,8 +17,8 @@ defmodule Front.Router do
   scope "/", Front do
     pipe_through :browser
     get "/", PageController, :index
-    get "/servers", ServersController, :index
-    get "/servers/:server_id", ServersController, :select
+    get "/medusa", MedusaController, :index
+    get "/medusa/:server_id", MedusaController, :select
   end
 
   # Other scopes may use custom stacks.

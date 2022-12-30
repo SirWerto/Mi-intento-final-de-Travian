@@ -1,0 +1,103 @@
+<script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/medusa_players_table.js")}></script>
+<div>
+<button id="before1" type="button">Before</button>
+<p id="index_rows">0</p>
+<p id="total_rows"><%= length(@rows)%></p>
+<button id="next1" type="button">Next</button>
+</div>
+<details id="details_filters">
+<summary>FILTERS</summary>
+<button type="button" id="apply_filters1">Apply filters</button>
+<div>
+<label for="player_filter">Search substring on players</label>
+<input type="text" id="player_filter" name="player_filter" placeholder="Filter players which include the substring"/>
+</div>
+<div>
+<label for="alliance_filter">Search substring on alliances</label>
+<input type="text" id="alliance_filter" name="alliance_filter" placeholder="Filter alliance which include the substring"/>
+</div>
+<div>
+<label>Population</label>
+<input type="number" id="population_min_filter" name="population_min_filter" step="10" min="0" max={max_attr(@rows, :total_population)} value="0"/>
+<input type="number" id="population_max_filter" name="population_max_filter" step="10" min="1" max={max_attr(@rows, :total_population)} value={max_attr(@rows, :total_population)}/>
+</div>
+<div>
+<label>Villages</label>
+<input type="number" id="village_min_filter" name="village_min_filter" min="1" max={max_attr(@rows, :n_villages)} value="1"/>
+<input type="number" id="village_max_filter" name="village_max_filter" min="1" max={max_attr(@rows, :n_villages)} value={max_attr(@rows, :n_villages)}/>
+</div>
+<div>
+<label for="position_filter">Distance to a point (it can be expensive)</label>
+<input type="text" id="position_filter" name="position_filter" placeholder="(3|-4)" pattern="(-?\d+|-?\d+)"/>
+<input type="number" id="max_distance_filter" name="max_distance_filter" min="1" placeholder="Maximun distance"/>
+</div>
+<div>
+<label>Model confidence</label>
+<input type="number" id="min_confidence_filter" name="min_confidence_filter" step="0.05" min="0" max="0.5" value="0.0"/>
+<input type="number" id="max_confidence_filter" name="max_confidence_filter" step="0.05" min="0" max="0.5" value="0.5"/>
+</div>
+<div>
+<label for="yesterday_inactive">Yesterday's player behaviour</label>
+<select id="yesterday_inactive" name="yesterday_inactive" multiple size="3">
+  <option selected value="no">no</option>
+  <option selected value="yes">yes</option>
+  <option selected value="undefined">undefined</option>
+</select>
+<label for="today_inactive">Today's player behaviour</label>
+<select id="today_inactive" name="today_inactive" multiple size="2">
+  <option selected value="no">no</option>
+  <option selected value="yes">yes</option>
+</select>
+</div>
+<button type="button" id="apply_filters2">Apply filters</button>
+</details>
+<table class="medusa">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Alliance</th>
+            <th>Population</th>
+            <th>Villages</th>
+            <th>Center of mass (x|y)</th>
+            <th>Distance</th>
+            <th>Was inactive yesterday?</th>
+            <th>Will play today?</th>
+            <th>Inactive probability</th>
+            <th>Model</th>
+        </tr>
+    </thead>
+    <tbody id="medusa_player_body">
+        <%= for row <-  Enum.take(@rows, 50) do %>
+        <tr>
+	      <td><%= link(row.player_name, to: URI.parse(row.player_url)) %></td>
+	      <td><%= link(row.alliance_name, to: URI.parse(row.alliance_url)) %></td>
+	      <td><%= row.total_population %></td>
+	      <td><%= row.n_villages %></td>
+	      <td><%= mass_center_to_str(row) %></td>
+	      <td><%= distance_to_COM(0.0, 0.0, row) %></td>
+	      <td><%= yesterday_to_string(row.inactive_in_current) %></td>
+	      <td><%= today_to_string(row.inactive_in_future) %></td>
+	      <td style={"color:rgba(178, 13, 48, #{transparent_probability(row.inactive_probability)})"}><%= row.inactive_probability %></td>
+	      <td><%= row.model %></td>
+        </tr>
+	<% end %>
+
+        <%= for row <-  Enum.drop(@rows, 50) do %>
+        <tr hidden>
+	      <td><%= link(row.player_name, to: URI.parse(row.player_url)) %></td>
+	      <td><%= link(row.alliance_name, to: URI.parse(row.alliance_url)) %></td>
+	      <td><%= row.total_population %></td>
+	      <td><%= row.n_villages %></td>
+	      <td><%= mass_center_to_str(row) %></td>
+	      <td><%= distance_to_COM(0.0, 0.0, row) %></td>
+	      <td><%= yesterday_to_string(row.inactive_in_current) %></td>
+	      <td><%= today_to_string(row.inactive_in_future) %></td>
+	      <td style={"color:rgba(178, 13, 48, #{transparent_probability(row.inactive_probability)})"}><%= row.inactive_probability %></td>
+	      <td><%= row.model %></td>
+        </tr>
+	<% end %>
+    </tbody>
+</table>
+<button id="before2" type="button">Before</button>
+<button id="next2" type="button">Next</button>
+

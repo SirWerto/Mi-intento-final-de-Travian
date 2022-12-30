@@ -1,4 +1,4 @@
-defmodule Front.ServersController do
+defmodule Front.MedusaController do
   use Front, :controller
 
   def index(conn, _params) do
@@ -10,9 +10,5 @@ defmodule Front.ServersController do
     s = TTypes.server_id_from_path(server_id_path)
     rows = Satellite.MedusaTable.get_predictions_by_server(s)
     render(conn, "select.html", rows: rows)
-  end
-
-  def s_to_url(server_id) do
-    String.replace(server_id, "://", "@@")
   end
 end
