@@ -174,6 +174,62 @@ defmodule StorageTest do
     for output = {date, _content} <- outputs, do: check_f({date, Map.get(tups, date)}, output)
   end
 
+  @tag :tmp_dir
+  test "use :unique store the file under /server_id/unique/", %{
+    tmp_dir: tmp_dir,
+    flow_options: flow_options = {flow_name, flow_extension},
+    server_id: server_id
+  } do
+    root_folder = tmp_dir
+    identifier = server_id
+    full_name = flow_name <> flow_extension
+    content = "alishdoifjasldjflk "
+
+    :ok = Storage.store(root_folder, identifier, flow_options, content, :unique)
+
+    filename = "#{root_folder}/servers/#{TTypes.server_id_to_path(server_id)}/unique/#{full_name}"
+
+    assert(File.read!(filename) == content)
+  end
+
+  @tag :tmp_dir
+  test ":unique override if there is already a file", %{
+    tmp_dir: tmp_dir,
+    flow_options: flow_options = {flow_name, flow_extension},
+    server_id: server_id
+  } do
+    root_folder = tmp_dir
+    identifier = server_id
+    full_name = flow_name <> flow_extension
+    content1 = "alishdoifjasldjflk "
+    content2 = "overrided content"
+
+    :ok = Storage.store(root_folder, identifier, flow_options, content1, :unique)
+    :ok = Storage.store(root_folder, identifier, flow_options, content2, :unique)
+
+    filename = "#{root_folder}/servers/#{TTypes.server_id_to_path(server_id)}/unique/#{full_name}"
+
+    assert(File.read!(filename) == content2)
+  end
+
+  @tag :tmp_dir
+  test "open :unique retrieves the right file", %{
+    tmp_dir: tmp_dir,
+    flow_options: flow_options,
+    server_id: server_id
+  } do
+    root_folder = tmp_dir
+    identifier = server_id
+    content = "alishdoifjasldjflk "
+
+    :ok = Storage.store(root_folder, identifier, flow_options, content, :unique)
+
+    {:ok, {:unique, stored_content}} =
+      Storage.open(root_folder, identifier, flow_options, :unique)
+
+    assert(content == stored_content)
+  end
+
   defp check_f({date1, content1}, {date2, content2}) do
     assert(Date.compare(date1, date2) == :eq)
     assert(content1 == content2)

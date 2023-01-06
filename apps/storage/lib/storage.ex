@@ -3,9 +3,11 @@ defmodule Storage do
   Documentation for `Storage`.
   """
 
-  @type open_options :: Date.t() | {Date.t(), Date.t()} | {Date.t(), Date.t(), :consecutive}
+  @type open_options ::
+          Date.t() | {Date.t(), Date.t()} | {Date.t(), Date.t(), :consecutive} | :unique
 
   @type dest_identifier :: :global | TTypes.server_id()
+  @type date_options :: :unique | Date.t()
 
   @type flow_name :: binary()
   @type flow_extension :: binary()
@@ -16,7 +18,7 @@ defmodule Storage do
           identifier :: dest_identifier(),
           flow_options :: flow_options(),
           content :: binary(),
-          date :: Date.t()
+          date :: date_options()
         ) :: :ok | {:error, any()}
   def store(
         root_folder,
@@ -25,10 +27,10 @@ defmodule Storage do
         content,
         date \\ Date.utc_today()
       ) do
-    dir_path = gen_dir_path(root_folder, identifier, flow_name)
-    filename = gen_filename(dir_path, date, flow_extension)
+    server_path = gen_server_path(root_folder, identifier)
+    {flow_path, filename} = gen_flow_filename(server_path, date, flow_name, flow_extension)
 
-    case File.mkdir_p(dir_path) do
+    case File.mkdir_p(flow_path) do
       {:error, reason} ->
         {:error, {"unable to create dir path", reason}}
 
@@ -44,7 +46,7 @@ defmodule Storage do
           root_folder :: String.t(),
           identifier :: dest_identifier(),
           flow_options :: flow_options(),
-          open_options
+          open_options :: open_options()
         ) :: {:ok, {Date.t(), binary()}} | {:ok, [{Date.t(), binary()}]} | {:error, any()}
   def open(root_folder, identifier, flow_options, {start_date, end_date}) do
     case Date.compare(start_date, end_date) do
@@ -83,8 +85,8 @@ defmodule Storage do
   end
 
   def open(root_folder, identifier, {flow_name, flow_extension}, date) do
-    dir_path = gen_dir_path(root_folder, identifier, flow_name)
-    filename = gen_filename(dir_path, date, flow_extension)
+    server_path = gen_server_path(root_folder, identifier)
+    {_flow_path, filename} = gen_flow_filename(server_path, date, flow_name, flow_extension)
 
     case File.read(filename) do
       {:ok, content} -> {:ok, {date, content}}
@@ -104,20 +106,32 @@ defmodule Storage do
     end
   end
 
-  @spec gen_dir_path(
+  @spec gen_server_path(
           root_folder :: binary(),
-          identifier :: dest_identifier(),
-          flow_name :: flow_name()
+          identifier :: dest_identifier()
         ) :: binary()
-  defp gen_dir_path(root_folder, :global, flow_name), do: "#{root_folder}/global/#{flow_name}"
+  defp gen_server_path(root_folder, :global), do: "#{root_folder}/global"
 
-  defp gen_dir_path(root_folder, server_id, flow_name),
-    do: "#{root_folder}/servers/#{TTypes.server_id_to_path(server_id)}/#{flow_name}"
+  defp gen_server_path(root_folder, server_id),
+    do: "#{root_folder}/servers/#{TTypes.server_id_to_path(server_id)}"
 
-  @spec gen_filename(dir_path :: binary(), date :: Date.t(), flow_extension :: flow_extension()) ::
-          binary()
-  defp gen_filename(dir_path, date, flow_extension),
-    do: "#{dir_path}/date_#{Date.to_iso8601(date, :basic)}#{flow_extension}"
+  @spec gen_flow_filename(
+          dir_path :: binary(),
+          date :: date_options(),
+          flow_name :: flow_name(),
+          flow_extension :: flow_extension()
+        ) :: {String.t(), String.t()}
+  defp gen_flow_filename(dir_path, :unique, flow_name, flow_extension) do
+    flow_path = "#{dir_path}/unique"
+    filename = "#{flow_path}/#{flow_name}#{flow_extension}"
+    {flow_path, filename}
+  end
+
+  defp gen_flow_filename(dir_path, date, flow_name, flow_extension) do
+    flow_path = "#{dir_path}/#{flow_name}"
+    filename = "#{flow_path}/date_#{Date.to_iso8601(date, :basic)}#{flow_extension}"
+    {flow_path, filename}
+  end
 
   @spec gen_date_range!(start_date :: Date.t(), end_date :: Date.t()) :: [Date.t()]
   def gen_date_range!(start_date, end_date) do
