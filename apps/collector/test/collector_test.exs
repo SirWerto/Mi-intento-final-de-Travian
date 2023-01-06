@@ -15,7 +15,7 @@ defmodule CollectorTest do
     assert_receive({:DOWN, ^ref, :process, _, _})
   end
 
-  #@tag :tmp_dir
+  # @tag :tmp_dir
   @tag :skip
   test "Being subscribed makes you receive events", %{server_id: server_id, tmp_dir: root_folder} do
     Application.put_env(:collector, :root_folder, root_folder)
@@ -30,7 +30,7 @@ defmodule CollectorTest do
     assert_receive({:collector_event, {:metadata_collected, ^server_id}}, 10_000)
   end
 
-  #@tag :tmp_dir
+  # @tag :tmp_dir
   @tag :skip
   test "Collector.collect() launch the starter event", %{tmp_dir: root_folder} do
     Application.put_env(:collector, :root_folder, root_folder)
