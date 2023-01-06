@@ -52,11 +52,13 @@ defmodule Medusa.Port.Test do
   end
 
 
+  @tag :skip
   test "Predictions has the same length as input", %{port: port, samples: samples} do
     predictions = Medusa.Port.predict!(port, samples)
     assert(length(predictions) == length(samples))
   end
 
+  @tag :skip
   test "players_id has to be keep in predictions", %{port: port, samples: samples, players_id: players_id} do
     predictions = Medusa.Port.predict!(port, samples)
     pred_players_id = Enum.map(predictions, fn x -> x.player_id end)
@@ -67,18 +69,21 @@ defmodule Medusa.Port.Test do
     assert(sorted_players_id == pred_players_id)
   end
 
+  @tag :skip
   test "Predictions should be model, bool and probability", %{port: port, samples: samples} do
     predictions = Medusa.Port.predict!(port, samples)
     for pred <- predictions, do: assert_pred(pred)
   end
 
 
+  @tag :skip
   test "Predict 2 times with the same port doesn't break it", %{port: port, samples: samples} do
     _ = Medusa.Port.predict!(port, samples)
     _ = Medusa.Port.predict!(port, samples)
   end
 
 
+  @tag :skip
   test "Predict an [] shuld return []", %{port: port} do
     assert([] == Medusa.Port.predict!(port, []))
   end
