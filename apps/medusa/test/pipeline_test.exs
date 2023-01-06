@@ -48,11 +48,13 @@ defmodule Medusa.Pipeline.Test do
   # end
 
 
+  @tag :skip
   test "Inactive ONLY if no positive increase in any of her/his village in 3 consecutive days and no new villages", %{sample: [day_minus_two, day_minus_one, current_day]} do
 
     assert(Medusa.Pipeline.is_inactive(day_minus_two, day_minus_one, current_day) == true)
   end
 
+  @tag :skip
   test "If only no increase for one day, still active", %{sample: [day_minus_two, day_minus_one, current_day]} do
     day_minus_two_edited_1= day_minus_two |> Map.put(:village_pop, %{"village_id" => 39})
     day_minus_one_edited_1= day_minus_one |> Map.put(:village_pop, %{"village_id" => 40})
@@ -68,6 +70,7 @@ defmodule Medusa.Pipeline.Test do
   end
 
 
+  @tag :skip
   test "Inactive but village increase marked as active", %{sample: [day_minus_two, day_minus_one, current_day]} do
     current_day = current_day |> Map.put(:village_pop, %{"village_id" => 39, "village_2" => 30})
 

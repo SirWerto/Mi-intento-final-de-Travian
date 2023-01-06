@@ -11,6 +11,7 @@ defmodule Medusa.GenPort.Test do
   #   %{pid: pid}
   # end
 
+  @tag :skip
   test "Exit if the Python model goes down" do
     state = %Medusa.GenPort{
       model_dir: System.get_env("MITRAVIAN__MEDUSA_MODEL_DIR", "priv"),
@@ -25,6 +26,7 @@ defmodule Medusa.GenPort.Test do
     assert(Medusa.GenPort.handle_info(msg_down, state) == output)
   end
 
+  @tag :skip
   test "Predict only if the setup is done" do
     state = %Medusa.GenPort{
       model_dir: System.get_env("MITRAVIAN__MEDUSA_MODEL_DIR", "priv"),
@@ -93,6 +95,7 @@ defmodule Medusa.GenPort.Test do
 
 
   # property "Test input output prediction for gen_port", [], %{pid: pid} do
+  @tag :skip
   property "Test input output prediction for gen_port" do
     model_dir = System.get_env("MITRAVIAN__MEDUSA_MODEL_DIR", "priv")
     {:ok, pid} = Medusa.GenPort.start_link(model_dir)

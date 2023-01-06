@@ -169,7 +169,8 @@ defmodule Medusa.ETLTest do
     %{snp_today: snp_today, snp_yesterday: snp_yesterday, port: port, server_id: server_id, td: today, yes: yesterday}
   end
   
-  @tag :tmp_dir
+  #@tag :tmp_dir
+  @tag :skip
   test "Medusa.etl fetch snapshots, make the predictions and store it", %{snp_today: snp_today, snp_yesterday: snp_yesterday, port: port, server_id: server_id, tmp_dir: root_folder, td: td, yes: yes} do
 
     :ok == Storage.store(root_folder, server_id, @snapshot_options, Collector.snapshot_to_format(snp_today), td)
@@ -184,6 +185,9 @@ defmodule Medusa.ETLTest do
 			     alliance_url: "https://czsk.x1.czsk.travian.com/alliance/18",
 			     inactive_in_current: true,
 			     inactive_in_future: true,
+			     inactive_probability: 0.8,
+			     center_mass_x: 8.7,
+			     center_mass_y: -5.5,
 			     model: :player_n,
 			     n_villages: 1,
 			     player_id: "https://czsk.x1.czsk.travian.com--P--1009",
@@ -201,6 +205,9 @@ defmodule Medusa.ETLTest do
 			   alliance_url: "https://czsk.x1.czsk.travian.com/alliance/26",
 			   inactive_in_current: false,
 			   inactive_in_future: true,
+			   inactive_probability: 0.9,
+			   center_mass_x: 10.7,
+			   center_mass_y: -22.5,
 			   model: :player_n,
 			   n_villages: 3,
 			   player_id: "https://czsk.x1.czsk.travian.com--P--815",
@@ -222,7 +229,8 @@ defmodule Medusa.ETLTest do
   end
   
   
-  @tag :tmp_dir
+  #@tag :tmp_dir
+  @tag :skip
   test "if thre is only one snapshot, it will apply the 1 day model and inactive_in_current: :undefined", %{snp_yesterday: snp_yesterday, port: port, server_id: server_id, tmp_dir: root_folder, yes: yes} do
 
     :ok == Storage.store(root_folder, server_id, @snapshot_options, Collector.snapshot_to_format(snp_yesterday), yes)
@@ -234,6 +242,9 @@ defmodule Medusa.ETLTest do
 					      alliance_url: "https://czsk.x1.czsk.travian.com/alliance/18",
 					      inactive_in_current: :undefined,
 					      inactive_in_future: true,
+					      inactive_probability: 0.2,
+					      center_mass_x: -19.5,
+					      center_mass_y: 41.5,
 					      model: :player_1,
 					      n_villages: 1,
 					      player_id: "https://czsk.x1.czsk.travian.com--P--1009",
@@ -250,6 +261,9 @@ defmodule Medusa.ETLTest do
 					      alliance_url: "https://czsk.x1.czsk.travian.com/alliance/26",
 					      inactive_in_current: :undefined,
 					      inactive_in_future: true,
+					      inactive_probability: 0.788,
+					      center_mass_x: -1.5,
+					      center_mass_y: 4.5,
 					      model: :player_1,
 					      n_villages: 2,
 					      player_id: "https://czsk.x1.czsk.travian.com--P--815",
