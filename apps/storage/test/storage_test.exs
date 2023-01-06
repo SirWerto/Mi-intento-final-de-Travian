@@ -187,12 +187,10 @@ defmodule StorageTest do
 
     :ok = Storage.store(root_folder, identifier, flow_options, content, :unique)
 
-    filename =
-      "#{root_folder}/servers/#{TTypes.server_id_to_path(server_id)}/unique/#{full_name}"
+    filename = "#{root_folder}/servers/#{TTypes.server_id_to_path(server_id)}/unique/#{full_name}"
 
     assert(File.read!(filename) == content)
   end
-
 
   @tag :tmp_dir
   test ":unique override if there is already a file", %{
@@ -209,12 +207,10 @@ defmodule StorageTest do
     :ok = Storage.store(root_folder, identifier, flow_options, content1, :unique)
     :ok = Storage.store(root_folder, identifier, flow_options, content2, :unique)
 
-    filename =
-      "#{root_folder}/servers/#{TTypes.server_id_to_path(server_id)}/unique/#{full_name}"
+    filename = "#{root_folder}/servers/#{TTypes.server_id_to_path(server_id)}/unique/#{full_name}"
 
     assert(File.read!(filename) == content2)
   end
-
 
   @tag :tmp_dir
   test "open :unique retrieves the right file", %{
@@ -227,7 +223,9 @@ defmodule StorageTest do
     content = "alishdoifjasldjflk "
 
     :ok = Storage.store(root_folder, identifier, flow_options, content, :unique)
-    {:ok, {:unique, stored_content}} = Storage.open(root_folder, identifier, flow_options, :unique)
+
+    {:ok, {:unique, stored_content}} =
+      Storage.open(root_folder, identifier, flow_options, :unique)
 
     assert(content == stored_content)
   end

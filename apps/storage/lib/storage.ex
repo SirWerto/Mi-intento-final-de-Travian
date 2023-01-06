@@ -3,7 +3,8 @@ defmodule Storage do
   Documentation for `Storage`.
   """
 
-  @type open_options :: Date.t() | {Date.t(), Date.t()} | {Date.t(), Date.t(), :consecutive} | :unique
+  @type open_options ::
+          Date.t() | {Date.t(), Date.t()} | {Date.t(), Date.t(), :consecutive} | :unique
 
   @type dest_identifier :: :global | TTypes.server_id()
   @type date_options :: :unique | Date.t()
@@ -48,7 +49,6 @@ defmodule Storage do
           open_options :: open_options()
         ) :: {:ok, {Date.t(), binary()}} | {:ok, [{Date.t(), binary()}]} | {:error, any()}
   def open(root_folder, identifier, flow_options, {start_date, end_date}) do
-
     case Date.compare(start_date, end_date) do
       :gt ->
         {:error, "end_date earlier than start_date"}
@@ -115,18 +115,23 @@ defmodule Storage do
   defp gen_server_path(root_folder, server_id),
     do: "#{root_folder}/servers/#{TTypes.server_id_to_path(server_id)}"
 
-  @spec gen_flow_filename(dir_path :: binary(), date :: Date.t(), flow_name :: flow_name(), flow_extension :: flow_extension()) ::
-          binary()
+  @spec gen_flow_filename(
+          dir_path :: binary(),
+          date :: date_options(),
+          flow_name :: flow_name(),
+          flow_extension :: flow_extension()
+        ) :: {String.t(), String.t()}
   defp gen_flow_filename(dir_path, :unique, flow_name, flow_extension) do
-	    flow_path = "#{dir_path}/unique"
-	    filename = "#{flow_path}/#{flow_name}#{flow_extension}"
-	    {flow_path, filename}
-	  end
+    flow_path = "#{dir_path}/unique"
+    filename = "#{flow_path}/#{flow_name}#{flow_extension}"
+    {flow_path, filename}
+  end
+
   defp gen_flow_filename(dir_path, date, flow_name, flow_extension) do
-	    flow_path = "#{dir_path}/#{flow_name}"
-	    filename = "#{flow_path}/date_#{Date.to_iso8601(date, :basic)}#{flow_extension}"
-	    {flow_path, filename}
-	    end
+    flow_path = "#{dir_path}/#{flow_name}"
+    filename = "#{flow_path}/date_#{Date.to_iso8601(date, :basic)}#{flow_extension}"
+    {flow_path, filename}
+  end
 
   @spec gen_date_range!(start_date :: Date.t(), end_date :: Date.t()) :: [Date.t()]
   def gen_date_range!(start_date, end_date) do
