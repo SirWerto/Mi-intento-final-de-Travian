@@ -72,11 +72,13 @@ defmodule Collector do
     do: :erlang.binary_to_term(encoded_players_snapshot)
 
   @spec server_metadata_to_format(server_metadata :: Collector.ServerMetadata.t()) :: binary()
-  def server_metadata_to_format(server_metadata), do: :erlang.term_to_binary(server_metadata, [:deterministic])
+  def server_metadata_to_format(server_metadata),
+    do: :erlang.term_to_binary(server_metadata, [:deterministic])
 
-  @spec server_metadata_from_format(encoded_server_metadata :: binary()) :: Collector.ServerMetadata.t()
-  def server_metadata_from_format(encoded_server_metadata), do: :erlang.binary_to_term(encoded_server_metadata)
-
+  @spec server_metadata_from_format(encoded_server_metadata :: binary()) ::
+          Collector.ServerMetadata.t()
+  def server_metadata_from_format(encoded_server_metadata),
+    do: :erlang.binary_to_term(encoded_server_metadata)
 
   def snapshot_options(), do: {"snapshot", ".c6bert"}
   def snapshot_errors_options(), do: {"snapshot_errors", ".c6bert"}

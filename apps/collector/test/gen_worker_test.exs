@@ -101,25 +101,31 @@ defmodule GenWorkerTest do
     assert(server_metadata.server_id == server_id)
   end
 
-
   @tag :tmp_dir
   test "if there is a server_metadata flow, do nothing",
        %{
          server_id: server_id,
          tmp_dir: root_folder
        } do
-
     today = Date.utc_today()
     Application.put_env(:collector, :root_folder, root_folder)
 
-    encoded_server_metadata = %Collector.ServerMetadata{
-      estimated_starting_date: today,
-      url: "old_url",
-      server_id: "old_server_id"} 
-    |> Collector.server_metadata_to_format()
+    encoded_server_metadata =
+      %Collector.ServerMetadata{
+        estimated_starting_date: today,
+        url: "old_url",
+        server_id: "old_server_id"
+      }
+      |> Collector.server_metadata_to_format()
 
-    :ok = Storage.store(root_folder, server_id, Collector.server_metadata_options(), encoded_server_metadata, :unique)
-
+    :ok =
+      Storage.store(
+        root_folder,
+        server_id,
+        Collector.server_metadata_options(),
+        encoded_server_metadata,
+        :unique
+      )
 
     assert(:ok == Collector.GenWorker.Snapshot.etl(root_folder, server_id))
 

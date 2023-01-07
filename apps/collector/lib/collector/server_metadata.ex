@@ -16,5 +16,4 @@ defmodule Collector.ServerMetadata do
           estimated_starting_date: Date.t(),
           url: String.t()
         }
-
-  end
+end

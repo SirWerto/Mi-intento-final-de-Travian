@@ -230,7 +230,6 @@ defmodule StorageTest do
     assert(content == stored_content)
   end
 
-
   @tag :tmp_dir
   test "exist? is true if the file exists else false", %{
     tmp_dir: tmp_dir,
