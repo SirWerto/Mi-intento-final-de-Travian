@@ -230,6 +230,29 @@ defmodule StorageTest do
     assert(content == stored_content)
   end
 
+
+  @tag :tmp_dir
+  test "exist? is true if the file exists else false", %{
+    tmp_dir: tmp_dir,
+    flow_options: flow_options,
+    server_id: server_id
+  } do
+    root_folder = tmp_dir
+    identifier = server_id
+    content = "alishdoifjasldjflk "
+
+    date = Date.utc_today()
+
+    assert(false == Storage.exist?(root_folder, identifier, flow_options, :unique))
+    assert(false == Storage.exist?(root_folder, identifier, flow_options, date))
+
+    :ok = Storage.store(root_folder, identifier, flow_options, content, :unique)
+    :ok = Storage.store(root_folder, identifier, flow_options, content, date)
+
+    assert(true == Storage.exist?(root_folder, identifier, flow_options, :unique))
+    assert(true == Storage.exist?(root_folder, identifier, flow_options, date))
+  end
+
   defp check_f({date1, content1}, {date2, content2}) do
     assert(Date.compare(date1, date2) == :eq)
     assert(content1 == content2)

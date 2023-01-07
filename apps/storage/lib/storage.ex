@@ -13,6 +13,18 @@ defmodule Storage do
   @type flow_extension :: binary()
   @type flow_options :: {flow_name(), flow_extension()}
 
+  @spec exist?(
+          root_folder :: String.t(),
+          identifier :: dest_identifier(),
+          flow_options :: flow_options(),
+          date :: Date.t() | :unique
+        ) :: boolean()
+  def exist?(root_folder, identifier, {flow_name, flow_extension}, date) do
+    server_path = gen_server_path(root_folder, identifier)
+    {_flow_path, filename} = gen_flow_filename(server_path, date, flow_name, flow_extension)
+    File.exists?(filename)
+  end
+
   @spec store(
           root_folder :: String.t(),
           identifier :: dest_identifier(),
