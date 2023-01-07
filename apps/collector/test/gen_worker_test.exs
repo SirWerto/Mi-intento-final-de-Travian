@@ -75,7 +75,10 @@ defmodule GenWorkerTest do
     Enum.each(snapshot, fn row -> assert(is_struct(row, Collector.SnapshotRow)) end)
 
     players_snapshot = Collector.players_snapshot_from_format(encoded_players_snapshot)
-    Enum.each(players_snapshot, fn player -> assert(is_struct(player, Collector.PlayersSnapshot)) end)
+
+    Enum.each(players_snapshot, fn player ->
+      assert(is_struct(player, Collector.PlayersSnapshot))
+    end)
   end
 
   @tag :tmp_dir

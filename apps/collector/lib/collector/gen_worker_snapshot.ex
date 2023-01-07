@@ -99,16 +99,12 @@ defmodule Collector.GenWorker.Snapshot do
         server_id: server_id
       }),
       {:step_5, :ok} <- {:step_5, store_errors(root_folder, server_id, snapshot_errors, today)},
-
-
       Logger.debug(%{
         msg: "Collector step 6, compute players_snapshot",
         type_collection: :snapshot,
         server_id: server_id
       }),
       players_snapshot = Collector.PlayersSnapshot.group(snapshot_rows),
-
-
       Logger.debug(%{
         msg: "Collector step 7, store players_snapshot",
         type_collection: :snapshot,
@@ -178,7 +174,7 @@ defmodule Collector.GenWorker.Snapshot do
         Logger.info(%{
           msg: "Collector unable to store players_snapshot",
           reason: reason,
-          type_collection: :players_snapshot,
+          type_collection: :snapshot,
           server_id: server_id
         })
 

@@ -1,5 +1,4 @@
 defmodule Collector.PlayersSnapshot do
-
   @enforce_keys [
     :player_id,
     :alliance_id,
@@ -17,17 +16,17 @@ defmodule Collector.PlayersSnapshot do
   ]
 
   @type t :: %__MODULE__{
-    player_id: TTypes.player_id(),
-    alliance_id: TTypes.alliance_id(),
-    n_villages: pos_integer(),
-    total_population: non_neg_integer(),
-    villages: [Collector.PlayersSnapshot.Village.t(), ...]
-    }
+          player_id: TTypes.player_id(),
+          alliance_id: TTypes.alliance_id(),
+          n_villages: pos_integer(),
+          total_population: non_neg_integer(),
+          villages: [Collector.PlayersSnapshot.Village.t(), ...]
+        }
 
-  @spec group(snapshot_rows :: [Collector.SnapshotRow.t()]) :: t()
+  @spec group(snapshot_rows :: [Collector.SnapshotRow.t()]) :: [t()]
   def group(snapshot_rows) do
     snapshot_rows
-    |> Enum.group_by(&(&1.player_id))
+    |> Enum.group_by(& &1.player_id)
     |> Enum.map(&apply_format/1)
   end
 

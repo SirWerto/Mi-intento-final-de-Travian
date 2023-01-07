@@ -1,5 +1,4 @@
 defmodule Collector.PlayersSnapshot.Village do
-
   @enforce_keys [
     :village_id,
     :x,
@@ -25,15 +24,14 @@ defmodule Collector.PlayersSnapshot.Village do
   ]
 
   @type t :: %__MODULE__{
-    village_id: TTypes.player_id(),
-    x: integer(),
-    y: integer(),
-    population: non_neg_integer(),
-    tribe: TTypes.tribe_integer(),
-    region: TTypes.region(),
-    is_capital: TTypes.is_capital(),
-    is_city: TTypes.is_city(),
-    victory_points: TTypes.victory_points()
-  }
-
+          village_id: TTypes.player_id(),
+          x: integer(),
+          y: integer(),
+          population: non_neg_integer(),
+          tribe: TTypes.tribe_integer(),
+          region: TTypes.region(),
+          is_capital: TTypes.is_capital(),
+          is_city: TTypes.is_city(),
+          victory_points: TTypes.victory_points()
+        }
 end
