@@ -120,7 +120,9 @@ defmodule Collector.GenWorker.Snapshot do
            encoded_players_snapshot,
            today
          )},
-      GenServer.cast(Collector.GenCollector, {:players_snapshot_computed, server_id, self()})
+      GenServer.cast(Collector.GenCollector, {:players_snapshot_computed, server_id, self()}),
+      {:step_8, :ok} <- {:step_8, store_server_metadata_if_needed(root_folder, server_id)},
+      GenServer.cast(Collector.GenCollector, {:server_metadata_computed, server_id, self()})
     ) do
       Logger.info(%{
         msg: "Collector snapshot success",
@@ -179,6 +181,16 @@ defmodule Collector.GenWorker.Snapshot do
         })
 
         {:error, reason}
+
+      {:step_8, {:error, reason}} ->
+        Logger.info(%{
+          msg: "Collector unable to store server_metadata",
+          reason: reason,
+          type_collection: :snapshot_server_metadata,
+          server_id: server_id
+        })
+
+        {:error, reason}
     end
   end
 
@@ -215,5 +227,35 @@ defmodule Collector.GenWorker.Snapshot do
   @spec compute_sleep(min :: pos_integer(), max :: pos_integer()) :: pos_integer()
   defp compute_sleep(min, max) when max >= min do
     :rand.uniform(max - min) + min
+  end
+
+  defp store_server_metadata_if_needed(root_folder, server_id) do
+    case Storage.exist?(root_folder, server_id, Collector.server_metadata_options(), :unique) do
+      true ->
+        :ok
+
+      false ->
+        Logger.debug(%{
+          msg: "Collector step 8, store server_metadata",
+          type_collection: :snapshot_server_metadata,
+          server_id: server_id
+        })
+
+        encoded_server_metadata =
+          %Collector.ServerMetadata{
+            estimated_starting_date: Date.utc_today(),
+            url: server_id,
+            server_id: server_id
+          }
+          |> Collector.server_metadata_to_format()
+
+        Storage.store(
+          root_folder,
+          server_id,
+          Collector.server_metadata_options(),
+          encoded_server_metadata,
+          :unique
+        )
+    end
   end
 end
