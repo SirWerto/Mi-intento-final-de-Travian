@@ -98,7 +98,29 @@ defmodule Collector.GenWorker.Snapshot do
         type_collection: :snapshot,
         server_id: server_id
       }),
-      {:step_5, :ok} <- {:step_5, store_errors(root_folder, server_id, snapshot_errors, today)}
+      {:step_5, :ok} <- {:step_5, store_errors(root_folder, server_id, snapshot_errors, today)},
+      Logger.debug(%{
+        msg: "Collector step 6, compute players_snapshot",
+        type_collection: :snapshot,
+        server_id: server_id
+      }),
+      players_snapshot = Collector.PlayersSnapshot.group(snapshot_rows),
+      Logger.debug(%{
+        msg: "Collector step 7, store players_snapshot",
+        type_collection: :snapshot,
+        server_id: server_id
+      }),
+      encoded_players_snapshot = Collector.players_snapshot_to_format(players_snapshot),
+      {:step_7, :ok} <-
+        {:step_7,
+         Storage.store(
+           root_folder,
+           server_id,
+           Collector.players_snapshot_options(),
+           encoded_players_snapshot,
+           today
+         )},
+      GenServer.cast(Collector.GenCollector, {:players_snapshot_computed, server_id, self()})
     ) do
       Logger.info(%{
         msg: "Collector snapshot success",
@@ -141,6 +163,16 @@ defmodule Collector.GenWorker.Snapshot do
       {:step_5, {:error, reason}} ->
         Logger.info(%{
           msg: "Collector unable to store snapshot_errors",
+          reason: reason,
+          type_collection: :snapshot,
+          server_id: server_id
+        })
+
+        {:error, reason}
+
+      {:step_7, {:error, reason}} ->
+        Logger.info(%{
+          msg: "Collector unable to store players_snapshot",
           reason: reason,
           type_collection: :snapshot,
           server_id: server_id

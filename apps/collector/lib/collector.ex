@@ -60,8 +60,20 @@ defmodule Collector do
   @spec metadata_from_format(encoded_metadata :: binary()) :: map()
   def metadata_from_format(encoded_metadata), do: :erlang.binary_to_term(encoded_metadata)
 
+  @spec players_snapshot_to_format(players_snapshot :: [Collector.PlayersSnapshot.t()]) ::
+          binary()
+  def players_snapshot_to_format(players_snapshot),
+    do: :erlang.term_to_binary(players_snapshot, [:compressed, :deterministic])
+
+  @spec players_snapshot_from_format(encoded_players_snapshot :: binary()) :: [
+          Collector.PlayersSnapshot.t()
+        ]
+  def players_snapshot_from_format(encoded_players_snapshot),
+    do: :erlang.binary_to_term(encoded_players_snapshot)
+
   def snapshot_options(), do: {"snapshot", ".c6bert"}
   def snapshot_errors_options(), do: {"snapshot_errors", ".c6bert"}
   def raw_snapshot_options(), do: {"raw_snapshot", ".c6bert"}
   def metadata_options(), do: {"metadata", ".bert"}
+  def players_snapshot_options(), do: {"players_snapshot", ".c6bert"}
 end
