@@ -17,7 +17,6 @@ table.medusa_index tbody td {
 table.medusa_index a {
   text-decoration: none;
   background-color: #B20D30;
-  padding: 1em 1.5em;
   color: #ffffff;
   text-transform: uppercase;
 }
@@ -28,6 +27,38 @@ table.medusa_index a:hover {
 table.medusa_index a:active {
   background-color: black;
 }
+
+
+.medusa-div {
+  width: 90%;
+  background-color: #fefefe;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,.26);
+  padding: 0px 20px 0px 20px;
+  margin-top: 5vh;
+}
+.medusa-options {
+    display: flex;
+    margin: 0px 0px 5vh 0px;
+    padding-top: 5vh;
+}
+.medusa-options > * {
+        flex: 1 1 0;
+      }
+.medusa-options li {
+    list-style-type: none;
+    display: flex;
+    justify-content: flex-end;
+}
+.medusa-options li p{
+  padding: 0px 4px 0px 4px;
+}
+
+
+
+
+
 
 table.medusa a {
   text-decoration: none;
@@ -45,31 +76,37 @@ table.medusa a:visited {
 
 
 table.medusa {
-  width: 90%;
-  table-layout: fixed;
+  width: 100%;
+  table-layout: auto;
   border-collapse: collapse;
   font-family: 'Open Sans',sans-serif;
-  margin-left: auto;
-  margin-right: auto;
 }
-
 
 table.medusa thead {
-  background-color: #B20D30;
   font-weight: bold;
-  color: #ffffff;
-  table-layout: fixed;
-  width: 30%;
-  border-collapse: collapse;
+  color: #B20D30;
 }
+
+/* table.medusa thead { */
+/*   background-color: #B20D30; */
+/*   font-weight: bold; */
+/*   color: #ffffff; */
+/* } */
 
 table.medusa thead tr th {
   padding: 5px 20px;
-  position: sticky;
+  font-size: 1.1rem;
+  vertical-align: bottom;
+  border-width: 0px 0px 2px 0px;
+  border-style: solid;
 }
 
 table.medusa tbody td {
-  padding: 20px;
+  padding: 5px 20px;
+  height: 2rem;
+  border-width: 1px 0px 0px 0px;
+  border-style: solid;
+  border-color: rgba(178, 13, 48, 0.3);
 }
 
 
@@ -81,77 +118,83 @@ table.medusa thead th:nth-child(1) {
   text-align: left;
   width: 15%;
 }
-table.medusa thead th:nth-child(2) {
-  text-align: left;
-  width: 15%;
-}
-table.medusa thead th:nth-child(3) {
-  text-align: right;
-  width: 5%;
-}
-table.medusa thead th:nth-child(4) {
-  text-align: right;
-  width: 5%;
-}
-table.medusa thead th:nth-child(5) {
-  text-align: right;
-  width: 13%;
-}
-table.medusa thead th:nth-child(6) {
-  text-align: right;
-  width: 5%;
-}
-table.medusa thead th:nth-child(7) {
-  text-align: left;
-  width: 10%;
-}
-table.medusa thead th:nth-child(8) {
-  text-align: left;
-  width: 10%;
-}
-table.medusa thead th:nth-child(9) {
-  text-align: right;
-  width: 15%;
-}
-table.medusa thead th:nth-child(10) {
-  text-align: left;
-  width: 5%;
-}
-
-
-
 table.medusa tbody td:nth-child(1) {
   text-align: left;
+}
+
+
+table.medusa thead th:nth-child(2) {
+  text-align: left;
+  width: 10%;
 }
 table.medusa tbody td:nth-child(2) {
   text-align: left;
 }
+
+
+table.medusa thead th:nth-child(3) {
+  text-align: right;
+  width: 5%;
+}
 table.medusa tbody td:nth-child(3) {
   text-align: right;
+}
+
+
+table.medusa thead th:nth-child(4) {
+  text-align: right;
+  width: 5%;
 }
 table.medusa tbody td:nth-child(4) {
   text-align: right;
 }
+
+
+table.medusa thead th:nth-child(5) {
+  text-align: right;
+  width: 13%;
+}
 table.medusa tbody td:nth-child(5) {
   text-align: right;
+}
+
+
+table.medusa thead th:nth-child(6) {
+  text-align: right;
+  width: 5%;
 }
 table.medusa tbody td:nth-child(6) {
   text-align: right;
 }
+
+
+table.medusa thead th:nth-child(7) {
+  text-align: left;
+  width: 15%;
+}
 table.medusa tbody td:nth-child(7) {
   text-align: left;
-  border-width: 0px 0px 0px 1px;
-  border-style: solid;
-  border-color: rgba(178, 13, 48, 0.3);
+  border-width: 0.1px 0px 0px 2px;
+  border-style: solid dashed;
+  border-color: rgba(178, 13, 48, 0.3) rgba(178, 13, 48);
+}
+
+
+table.medusa thead th:nth-child(8) {
+  text-align: left;
+  width: 12%;
 }
 table.medusa tbody td:nth-child(8) {
   text-align: left;
 }
+
+
+table.medusa thead th:nth-child(9) {
+  text-align: right;
+  width: 13%;
+}
 table.medusa tbody td:nth-child(9) {
   text-align: right;
   font-weight: bold;
-}
-table.medusa tbody td:nth-child(10) {
-  text-align: left;
 }
 
