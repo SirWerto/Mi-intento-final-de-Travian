@@ -4,7 +4,7 @@ defmodule GenWorkerTest do
   @moduletag :capture_log
 
   setup_all do
-    %{server_id: "https://ts7.x1.international.travian.com"}
+    %{server_id: "https://ts3.x1.international.travian.com"}
   end
 
   test "stop GenWorker.Snapshot after max_tries", %{server_id: server_id} do
