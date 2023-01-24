@@ -43,6 +43,7 @@ function nextPage(e) {
 	const rows = Array.from(document.getElementById('medusa_player_body').rows)
 	index_rows = index_rows + maxRows
 	document.getElementById("index_rows").textContent = index_rows
+	document.getElementById("index_rows_plus_max_rows").textContent = index_rows + maxRows
 	const details_filter = document.getElementById("details_filters");
 	details_filter.open = false
 	const rowsIndexed = createIndex(index_rows, total_rows, maxRows, rows)
@@ -56,6 +57,7 @@ function prevPage(e) {
 	const rows = Array.from(document.getElementById('medusa_player_body').rows)
 	index_rows = index_rows - maxRows
 	document.getElementById("index_rows").textContent = index_rows
+	document.getElementById("index_rows_plus_max_rows").textContent = index_rows + maxRows
 	const details_filter = document.getElementById("details_filters");
 	details_filter.open = false
 	const rowsIndexed = createIndex(index_rows, total_rows, maxRows, rows)

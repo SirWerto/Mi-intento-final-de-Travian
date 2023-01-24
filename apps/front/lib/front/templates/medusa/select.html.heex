@@ -1,10 +1,12 @@
 <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/medusa_players_table.js")}></script>
-<div>
-<button id="before1" type="button">Before</button>
-<p id="index_rows">0</p>
-<p id="total_rows"><%= length(@rows)%></p>
-<button id="next1" type="button">Next</button>
-</div>
+
+
+<div class="medusa-div">
+<div class="medusa-options">
+
+<button> Servers </button>
+
+
 <details id="details_filters">
 <summary>FILTERS</summary>
 <button type="button" id="apply_filters1">Apply filters</button>
@@ -51,6 +53,27 @@
 </div>
 <button type="button" id="apply_filters2">Apply filters</button>
 </details>
+
+
+
+
+<li>
+<button id="before1" type="button">Before</button>
+<p id="index_rows">0</p>
+<p> - </p>
+<p id="index_rows_plus_max_rows">50</p>
+<p> of </p>
+<p id="total_rows"><%= length(@rows)%></p>
+<p> players</p>
+<button id="next1" type="button">Next</button>
+</li>
+
+
+</div>
+
+
+
+
 <table class="medusa">
     <thead>
         <tr>
@@ -63,7 +86,6 @@
             <th>Was inactive yesterday?</th>
             <th>Will play today?</th>
             <th>Inactive probability</th>
-            <th>Model</th>
         </tr>
     </thead>
     <tbody id="medusa_player_body">
@@ -77,8 +99,7 @@
 	      <td><%= distance_to_COM(0.0, 0.0, row) %></td>
 	      <td><%= yesterday_to_string(row.inactive_in_current) %></td>
 	      <td><%= today_to_string(row.inactive_in_future) %></td>
-	      <td style={"color:rgba(178, 13, 48, #{transparent_probability(row.inactive_probability)})"}><%= row.inactive_probability %></td>
-	      <td><%= row.model %></td>
+	      <td style={"color:rgba(178, 13, 48, #{transparent_probability(row.inactive_probability)})"}><%= Float.round(row.inactive_probability, 3) %></td>
         </tr>
 	<% end %>
 
@@ -92,12 +113,13 @@
 	      <td><%= distance_to_COM(0.0, 0.0, row) %></td>
 	      <td><%= yesterday_to_string(row.inactive_in_current) %></td>
 	      <td><%= today_to_string(row.inactive_in_future) %></td>
-	      <td style={"color:rgba(178, 13, 48, #{transparent_probability(row.inactive_probability)})"}><%= row.inactive_probability %></td>
-	      <td><%= row.model %></td>
+	      <td style={"color:rgba(178, 13, 48, #{transparent_probability(row.inactive_probability)})"}><%= Float.round(row.inactive_probability, 3) %></td>
         </tr>
 	<% end %>
     </tbody>
 </table>
 <button id="before2" type="button">Before</button>
 <button id="next2" type="button">Next</button>
+
+</div>
 
