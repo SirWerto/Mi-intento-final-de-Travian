@@ -101,7 +101,6 @@ defmodule Medusa.GenPort.Test do
     {:ok, pid} = Medusa.GenPort.start_link(model_dir)
     # on_exit(fn -> Medusa.GenPort.stop(pid) end)
     forall batch <- gen_preds_batch() do
-      IO.inspect(batch)
       {:ok, predictions} = Medusa.GenPort.predict(pid, batch)
       true
       # for pred <- predictions, do: assert_pred(pred)
