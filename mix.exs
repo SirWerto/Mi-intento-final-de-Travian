@@ -7,6 +7,7 @@ defmodule MyTravian.MixProject do
       apps_path: "apps",
       version: "0.2.0",
       start_permanent: Mix.env() == :prod,
+      aliases: aliases(),
       deps: deps(),
       releases: releases()
     ]
@@ -17,6 +18,17 @@ defmodule MyTravian.MixProject do
   # the apps folder.
   #
   # Run "mix help deps" for examples and options.
+
+  defp aliases do
+    [
+      ensure: [
+        "format --check-formatted",
+        "dialyzer",
+        "credo"
+      ]
+    ]
+  end
+
   defp deps do
     [
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
