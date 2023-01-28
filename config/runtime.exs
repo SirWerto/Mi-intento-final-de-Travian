@@ -38,7 +38,8 @@ if config_env() == :prod do
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
-      ip: {0, 0, 0, 0, 0, 0, 0, 0},
+      # ip: {0, 0, 0, 0, 0, 0, 0, 0},
+      ip: System.get_env("MITRAVIAN__FRONT_IPv6", "0:0:0:0:0:0:0:0") |> String.split(":") |> Enum.map(&String.to_integer/1) |> List.to_tuple(),
       port: String.to_integer(System.get_env("MITRAVIAN__FRONT_PORT") || "4000")
     ],
     secret_key_base: secret_key_base,
